@@ -99,7 +99,7 @@
                 </span>
                 Presença
               </a>
-              <a href="#" data-bs-target="#ceremonyModal">
+              <a href="{% url 'home:gift_list' %}">
                 <span class="info-icon">
                   <i class="bi bi-gift"></i>
                 </span>
@@ -307,29 +307,20 @@
                 data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
                 <div class="u-container-layout u-valign-middle u-container-layout-1">
                   <h2 class="u-align-left u-text u-text-1">Deixe sua mensagem para os noivos</h2>
-                  <p class="u-align-left u-text u-text-2">Expresse seus desejos de felicidades deixando uma carinhosa
-                    mesagem abaixo:</p>
+                  <p class="u-align-left u-text u-text-2">Expresse seus desejos de felicidades deixando uma carinhosa mesagem abaixo:</p>
                   <div class="u-form u-form-1">
                     <form action="#" class="u-clearfix u-form-spacing-30 u-form-vertical u-inner-form"
                       style="padding: 0;" name="form">
-                      <div class="u-form-email u-form-group u-form-partition-factor-2 u-form-group-1">
-                        <label for="email-da30" class="u-form-control-hidden u-label" wfd-invisible="true">Primeiro Nome</label>
-                        <input type="text" placeholder="Primeiro Nome" id="email-da30" name="first_name"
-                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle"
-                          required="">
-                      </div>
-                      <div class="u-form-group u-form-name u-form-partition-factor-2 u-form-group-2">
-                        <label for="name-da30" class="u-form-control-hidden u-label" wfd-invisible="true">Último nome</label>
-                        <input type="text" placeholder="Último nome" id="name-da30" name="last_name"
-                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle"
-                          required="">
+                      <div class="u-form-group u-form-partition-factor-1 u-form-group-1">
+                        <label for="name-da30" class="u-form-control-hidden u-label" wfd-invisible="true">Nome</label>
+                        <input type="text" placeholder="Nome" id="name-da30" name="name"
+                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle" required>
                       </div>
                       <div class="u-form-group u-form-message u-form-group-4">
                         <label for="message-da30" class="u-form-control-hidden u-label"
                           wfd-invisible="true">Mensagem</label>
                         <textarea placeholder="Escreva sua mensagem" rows="4" cols="50" id="message-da30" name="message"
-                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle"
-                          required=""></textarea>
+                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle" required></textarea>
                       </div>
                       <div class="u-align-left u-form-group u-form-submit u-form-group-5">
                         <a href="#"
