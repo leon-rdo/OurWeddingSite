@@ -15,6 +15,12 @@ class Settings(models.Model):
     ceremony_time = models.TimeField("Horário da Cerimônia")
     reception_time = models.TimeField("Horário da Recepção")
 
+    # Bank Information
+    bank_name = models.CharField("Nome do Banco", max_length=50, blank=True, null=True)
+    pix_key = models.CharField("Chave PIX", max_length=255, blank=True, null=True)
+    pix_type = models.CharField("Tipo de Chave PIX", max_length=50, choices=[('CPF', 'CPF'), ('CNPJ', 'CNPJ'), ('E-mail', 'E-mail'), ('Telefone', 'Telefone')], blank=True, null=True)
+    account_holder = models.CharField("Titular da Conta", max_length=50, blank=True, null=True)
+
     # Website Information
     logo = models.ImageField("Logo", upload_to='home/logo/', blank=True, null=True)
     primary_color = models.CharField("Cor Primária", max_length=7, blank=True, null=True)
@@ -61,6 +67,10 @@ class TextContent(models.Model):
     
     def __str__(self):
         return f"{self.get_position_display()}: {self.title or 'Sem título'}"
+    
+    class Meta():
+        verbose_name = 'Conteúdo de Texto'
+        verbose_name_plural = 'Conteúdos de Texto'
 
 
 class Gallery(models.Model):
@@ -82,3 +92,44 @@ class Gallery(models.Model):
     class Meta:
         verbose_name = 'Galeria'
         verbose_name_plural = 'Imagens'
+
+
+class Guest(models.Model):
+    name = models.CharField("Nome", max_length=50)
+    phone = models.CharField("Telefone", max_length=20)
+    will_go = models.BooleanField("Confirmado", blank=True, null=True)
+    self_created = models.BooleanField("Criado pelo Usuário", default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Convidado'
+        verbose_name_plural = 'Convidados'
+
+
+class Message(models.Model):
+    name = models.CharField("Nome", max_length=50)
+    message = models.TextField("Mensagem")
+    created_at = models.DateTimeField("Data de Criação", auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Mensagem'
+        verbose_name_plural = 'Mensagens'
+
+
+class Gift(models.Model):
+    name = models.CharField("Nome", max_length=50)
+    description = models.TextField("Descrição")
+    image = models.ImageField("Imagem", upload_to='home/gifts/')
+    price = models.DecimalField("Preço", max_digits=6, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Presente'
+        verbose_name_plural = 'Presentes'
