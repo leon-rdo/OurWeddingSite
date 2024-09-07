@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<title>Sobre Nós</title>
+<link rel="stylesheet" href="{% static 'wedding-theme/Sobre.css' %}">
+{% endblock extra_head %}
+
+{% block content %}
+{% if about_us_text_1 is not None %}
+<section class="u-clearfix u-valign-middle-xs u-section-1" id="sec-fa06">
+  <div class="custom-expanded u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
+    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
+  <img class="custom-expanded u-image u-image-1"
+    src="{{ about_us_text_1.images.first.image.url|default:'https://picsum.photos/1000' }}" data-image-width="1086"
+    data-image-height="1047" data-animation-name="customAnimationIn" data-animation-duration="1500">
+  <div class="u-container-style u-group u-image u-image-tiles u-image-2" data-animation-name="customAnimationIn"
+    data-animation-duration="1500" data-animation-delay="500">
+    <div class="u-container-layout u-container-layout-1"></div>
+  </div>
+  <div class="u-align-left u-container-align-left u-container-style u-group u-white u-group-2"
+    data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
+    <div class="u-container-layout u-valign-middle u-container-layout-2">
+      <h1 class="u-align-left u-text u-text-1">{{ about_us_text_1.title }}</h1>
+      <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ about_us_text_1.content }}</p>
+    </div>
+</section>
+{% endif %}
+{% if about_us_text_2 is not None %}
+<section class="u-align-center u-clearfix u-valign-bottom-sm u-section-2" id="carousel_0695">
+  <div class="custom-expanded u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
+    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
+  <div class="u-container-style u-group u-image u-image-tiles u-image-1" data-animation-name="customAnimationIn"
+    data-animation-duration="1500" data-animation-delay="500">
+    <div class="u-container-layout u-container-layout-1"></div>
+  </div>
+  <img class="u-image u-image-2"
+    src="{{ about_us_text_2.images.first.image.url|default:'https://picsum.photos/1080/720/' }}" data-image-width="1380"
+    data-image-height="920" data-animation-name="flipIn" data-animation-duration="1500" data-animation-direction="X"
+    data-animation-delay="250">
+  <div
+    class="custom-expanded u-align-left u-container-align-left u-container-style u-group u-shape-rectangle u-white u-group-2"
+    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
+    <div class="u-container-layout u-valign-middle u-container-layout-2">
+      <h2 class="u-align-left u-text u-text-1">{{ about_us_text_2.title }}</h2>
+      <p class="u-align-left u-text u-text-2">{{ about_us_text_2.content }}</p>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% if about_us_text_3 is not None %}
+<section
+  class="u-align-center u-clearfix u-container-align-center u-palette-1-light-2 u-valign-middle-lg u-valign-middle-md u-valign-middle-xl u-section-3"
+  id="carousel_b8a3">
+  <h2 class="u-align-center u-text u-text-1" data-animation-name="customAnimationIn" data-animation-duration="1500"
+    data-animation-delay="0">{{ about_us_text_3.title }}</h2>
+  <p class="u-align-center u-text u-text-2" data-animation-name="customAnimationIn" data-animation-duration="1500"
+    data-animation-delay="250">{{ about_us_text_3.content }}</p>
+  <div class="u-expanded-width u-list u-list-1">
+    <div class="u-repeater u-repeater-1">
+      {% with about_us_text_3.images.all as images %}{% for image in images %}
+      <div
+        class="u-container-align-left u-container-style u-image u-image-default u-list-item u-repeater-item u-shading u-image-1"
+        data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750"
+        style="background-image: url('{{ image.image.url|default:'https://picsum.photos/600/' }}');">
+        <div class="u-container-layout u-similar-container u-valign-bottom u-container-layout-1">
+          <h4 class="u-align-left u-text u-text-default u-text-3">{{ image.title }}</h4>
+        </div>
+      </div>
+      {% endfor %}{% endwith %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% if about_us_text_4 is not None %}
+<section class="u-align-center u-clearfix u-palette-1-light-2 u-section-4" id="carousel_b65a">
+  <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+    <h2 class="u-text u-text-1">{{ about_us_text_4.title }}</h2>
+    <p class="u-text u-text-2">{{ about_us_text_4.content }}</p>
+  </div>
+</section>
+{% endif %}
+{% if about_us_text_5 is not None %}
+<section class="u-clearfix u-section-5" id="sec-2131">
+  <div class="u-align-right u-expanded-width u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
+    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
+  <div class="custom-expanded data-layout-selected u-clearfix u-layout-wrap u-layout-wrap-1">
+    <div class="u-layout">
+      <div class="u-layout-row">
+        <div
+          class="u-container-align-left u-container-style u-layout-cell u-size-26-lg u-size-26-xl u-size-60-md u-size-60-sm u-size-60-xs u-layout-cell-1"
+          data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
+          <div class="u-container-layout u-valign-middle u-container-layout-1">
+            <h2 class="u-align-left u-text u-text-1">{{ about_us_text_5.title }}<br>
+            </h2>
+            <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ about_us_text_5.content }}
+            </p>
+          </div>
+        </div>
+        <div
+          class="u-container-style u-layout-cell u-size-34-lg u-size-34-xl u-size-60-md u-size-60-sm u-size-60-xs u-layout-cell-2">
+          <div class="u-container-layout u-valign-middle-sm u-valign-middle-xs u-container-layout-2">
+            <div class="custom-expanded u-container-style u-group u-image u-image-tiles u-image-1"
+              data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
+              <div class="u-container-layout u-container-layout-3"></div>
+            </div>
+            <img src="{{ about_us_text_5.images.first.image.url|default:'https://picsum.photos/800' }}" alt=""
+              class="u-image u-image-default u-image-2" data-animation-name="customAnimationIn"
+              data-animation-duration="1500" data-animation-delay="500" data-image-width="1380" data-image-height="920">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock content %}

@@ -30,6 +30,7 @@ DEBUG = (os.environ.get('DEBUG') == "True")
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',') if os.environ.get('ALLOWED_HOSTS') else []
 
+CRSF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split(',') if os.environ.get('CSRF_TRUSTED_ORIGINS') else []
 
 # Application definition
 
@@ -66,6 +67,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'OurWeddingSite.context_processors.settings',
             ],
         },
     },
@@ -122,9 +124,9 @@ LANGUAGE_CODE = 'pt-br'
 
 TIME_ZONE = 'America/Belem'
 
-USE_I18N = True
+USE_I18N = False
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

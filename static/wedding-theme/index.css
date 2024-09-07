@@ -25,6 +25,14 @@
   margin: 50px 0px;
 }
 
+/* `sm` applies to x-small devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) {
+  #info-icons {
+    flex-direction: column;
+  }
+  
+}
+
 #info-icons a {
   display: flex;
   flex-direction: column;
@@ -38,12 +46,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   background-color: #C59DA8;
   color: white;
-  font-size: 1.5em;
+  font-size: 2em;
 }
 
 #info-icons a:hover {
@@ -52,7 +60,6 @@
 }
 
 .u-section-1 {
-  background-image: url("images/dfg-min.jpg");
   background-position: 50% 50%;
 }
 
@@ -185,7 +192,7 @@
   }
 
   .u-section-1 .u-group-1 {
-    width: 222px;
+    width: 90%;
     min-height: 452px;
     margin-bottom: 34px;
   }
@@ -236,7 +243,7 @@
 .u-section-2 .u-image-1 {
   width: 431px;
   min-height: 353px;
-  background-image: url("images/fg_150.png");
+  /* background-image: url("images/fg_150.png"); */
   height: auto;
   --animation-custom_in-translate_x: -400px;
   --animation-custom_in-translate_y: 0px;
@@ -666,7 +673,6 @@
 }
 
 .u-section-4 .u-image-1 {
-  background-image: url("images/29a8eb39-e12c-dede-638d-72e68685e642.jpg");
   min-height: 562px;
   background-position: 50% 50%;
   --animation-custom_in-translate_x: -300px;
@@ -1115,7 +1121,6 @@
 .u-section-6 .u-image-2 {
   width: 276px;
   height: 276px;
-  background-image: url("images/bride-holds-beautiful-bridal-bouquet-close-up_8353-10474.jpg");
   background-position: 50% 50%;
   --animation-custom_in-translate_x: -400px;
   --animation-custom_in-translate_y: 0px;
@@ -1389,17 +1394,7 @@
   grid-template-columns: repeat(3, auto);
 }
 
-.u-section-7 .u-over-slide-1 {
-  background-image: linear-gradient(0deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2));
-  padding: 20px;
-}
-
-.u-section-7 .u-over-slide-2 {
-  background-image: linear-gradient(0deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2));
-  padding: 20px;
-}
-
-.u-section-7 .u-over-slide-3 {
+.u-section-7 .u-over-slide {
   background-image: linear-gradient(0deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2));
   padding: 20px;
 }
