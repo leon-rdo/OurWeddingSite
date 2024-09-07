@@ -1,4 +1,57 @@
- .u-section-1 {
+#countdown {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  margin-top: 20px;
+  font-family: "Playfair Display", serif;
+}
+
+#countdown span {
+  display: block;
+  font-size: 2em;
+}
+
+#countdown div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#info-icons {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: space-between;
+  margin: 50px 0px;
+}
+
+#info-icons a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  padding: 5px;
+}
+
+#info-icons .info-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #C59DA8;
+  color: white;
+  font-size: 1.5em;
+}
+
+#info-icons a:hover {
+  background-color: #A57D8830;
+  border-radius: 10%;
+}
+
+.u-section-1 {
   background-image: url("images/dfg-min.jpg");
   background-position: 50% 50%;
 }
