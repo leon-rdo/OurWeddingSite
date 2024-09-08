@@ -99,7 +99,7 @@ DATABASES = {
 }
 
 # choose the database to use
-DATABASES['default'] = DATABASES.get(os.environ.get('DB_USED', 'default'))
+DATABASES['default'] = DATABASES.get(os.environ.get('DB_USED', 'sqlite'))
 
 
 # Password validation
