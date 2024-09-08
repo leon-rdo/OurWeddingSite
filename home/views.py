@@ -1,5 +1,7 @@
+from django.http import HttpResponse, JsonResponse
+from django.views import View
 from django.views.generic import TemplateView, ListView
-from home.models import Gift, Settings, TextContent, Gallery
+from home.models import Gift, Message, Settings, TextContent, Gallery
 import base64
 from io import BytesIO
 import crcmod
@@ -21,7 +23,6 @@ class IndexView(TemplateView):
         context["leave_a_message_text2"] = TextContent.objects.filter(position="leave_a_message_text2").first()
         context["last_text"] = TextContent.objects.filter(position="last_text").first()
         context["featured_circles"] = Gallery.objects.filter(featured=True, position="circles").all()
-        print(context["featured_circles"])
         context["featured_gallery"] = Gallery.objects.filter(featured=True, position="gallery").all()
         return context
 
@@ -129,3 +130,14 @@ class GiftListView(ListView):
                 gift.qr_code = None
 
         return context
+
+
+class MessageFormView(View):
+    def post(self, request):
+        form = request.POST
+        message = Message.objects.create(
+            name=form['name'],
+            message=form['message']
+        )
+        message.save()
+        return JsonResponse({'message': 'Obrigado! Sua mensagem foi enviada.'})

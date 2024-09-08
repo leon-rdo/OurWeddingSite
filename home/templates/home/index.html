@@ -302,29 +302,27 @@
         <div class="u-layout-row">
           <div class="u-size-30 u-size-60-md">
             <div class="u-layout-col">
-              <div
-                class="u-align-left u-container-align-left u-container-style u-layout-cell u-palette-1-light-2 u-right-cell u-size-60 u-layout-cell-1"
+              <div class="u-align-left u-container-align-left u-container-style u-layout-cell u-palette-1-light-2 u-right-cell u-size-60 u-layout-cell-1"
                 data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
                 <div class="u-container-layout u-valign-middle u-container-layout-1">
                   <h2 class="u-align-left u-text u-text-1">Deixe sua mensagem para os noivos</h2>
                   <p class="u-align-left u-text u-text-2">Expresse seus desejos de felicidades deixando uma carinhosa mesagem abaixo:</p>
                   <div class="u-form u-form-1">
-                    <form action="#" class="u-clearfix u-form-spacing-30 u-form-vertical u-inner-form"
-                      style="padding: 0;" name="form">
-                      <div class="u-form-group u-form-partition-factor-1 u-form-group-1">
+                    <form action="{% url 'home:message_form' %}" class="u-clearfix u-inner-form" style="padding: 0;" id="messageForm">
+                      {% csrf_token %}
+                      <div class="u-form-group u-form-partition-factor-1 u-form-group-1" style="margin-bottom: 20px;">
                         <label for="name-da30" class="u-form-control-hidden u-label" wfd-invisible="true">Nome</label>
                         <input type="text" placeholder="Nome" id="name-da30" name="name"
                           class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle" required>
                       </div>
-                      <div class="u-form-group u-form-message u-form-group-4">
+                      <div class="u-form-group u-form-message u-form-group-4" style="margin-bottom: 20px;">
                         <label for="message-da30" class="u-form-control-hidden u-label"
                           wfd-invisible="true">Mensagem</label>
                         <textarea placeholder="Escreva sua mensagem" rows="4" cols="50" id="message-da30" name="message"
                           class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle" required></textarea>
                       </div>
                       <div class="u-align-left u-form-group u-form-submit u-form-group-5">
-                        <a href="#"
-                          class="u-border-2 u-border-black u-btn u-btn-submit u-button-style u-hover-black u-none u-text-black u-text-hover-white u-btn-1">Enviar</a>
+                        <a href="#" class="u-border-2 u-border-black u-btn u-btn-submit u-button-style u-hover-black u-none u-text-black u-text-hover-white u-btn-1">Enviar</a>
                         <input type="submit" value="submit" class="u-form-control-hidden" wfd-invisible="true">
                       </div>
                       <div class="u-form-send-message u-form-send-success" wfd-invisible="true"> Obrigado! Sua mensagem foi enviada. </div>
@@ -341,8 +339,7 @@
             <div class="u-layout-col">
               <div class="u-size-40">
                 <div class="u-layout-row">
-                  <div
-                    class="u-container-align-left u-container-style u-layout-cell u-left-cell u-size-60 u-layout-cell-2"
+                  <div class="u-container-align-left u-container-style u-layout-cell u-left-cell u-size-60 u-layout-cell-2"
                     data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
                     <div class="u-container-layout u-valign-top u-container-layout-2">
                       <p class="u-align-left u-text u-text-3"><b> {{ leave_a_message_text.content }} </b>
@@ -381,6 +378,42 @@
 {% endblock content %}
 
 {% block extra_scripts %}
+<script>
+  $(document).ready(function() {
+    $('form[id="messageForm"]').submit(function(event) {
+      event.preventDefault(); // Prevent form submission
+
+      var form = $(this);
+      var url = form.attr('action');
+      var formData = form.serialize(); // Serialize form data
+
+      // Disable the submit button to prevent multiple submissions
+      form.find('button[type="submit"]').prop('disabled', true);
+
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        headers: {
+          'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val()
+        },
+        success: function(response) {
+          // Handle success response
+          $('.u-form-send-success').show().text(response.message);
+          $('.u-form-send-error').hide();
+          form[0].reset(); // Clear the form
+          form.find('button[type="submit"]').prop('disabled', false); // Re-enable the submit button
+        },
+        error: function(xhr, status, error) {
+          // Handle error response
+          $('.u-form-send-error').show().text('Erro ao enviar sua mensagem, tente novamente.');
+          $('.u-form-send-success').hide();
+          form.find('button[type="submit"]').prop('disabled', false); // Re-enable the submit button
+        }
+      });
+    });
+  });
+</script>
 <script>
   // Get the wedding date and time from the "data-wedding-datetime" attribute
   var weddingDateTime = document.getElementById("countdown").getAttribute("data-wedding-datetime");
