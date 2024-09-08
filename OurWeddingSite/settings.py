@@ -99,7 +99,7 @@ DATABASES = {
 }
 
 # choose the database to use
-DATABASES['default'] = DATABASES[os.environ.get('DB_USED')]
+DATABASES['default'] = DATABASES.get(os.environ.get('DB_USED', 'default'))
 
 
 # Password validation
