@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from .jazzmin import JAZZMIN_SETTINGS, JAZZMIN_UI_TWEAKS
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -35,6 +37,7 @@ CRSF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split(',') if os.e
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -69,6 +72,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'OurWeddingSite.context_processors.settings',
             ],
+            "builtins": ["home.templatetags.length_is"],
         },
     },
 ]
@@ -145,3 +149,9 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Jazzmin settings
+
+JAZZMIN_SETTINGS = JAZZMIN_SETTINGS
+
+JAZZMIN_UI_TWEAKS = JAZZMIN_UI_TWEAKS
