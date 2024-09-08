@@ -24,6 +24,8 @@ class Settings(models.Model):
     # Website Information
     site_url = models.URLField("URL do Site")
     logo = models.ImageField("Logo", upload_to='home/logo/', blank=True, null=True)
+    site_description = models.TextField("Descrição do Site", blank=True, null=True)
+    site_image = models.ImageField("Imagem do Site", upload_to='home/site_image/', blank=True, null=True)
     primary_color = models.CharField("Cor Primária", max_length=7, blank=True, null=True)
     secondary_color = models.CharField("Cor Secundária", max_length=7, blank=True, null=True)
     terciary_color = models.CharField("Cor Terciária", max_length=7, blank=True, null=True)
