@@ -1,7 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.views.generic import TemplateView, ListView
-from home.models import Gift, Message, Settings, TextContent, Gallery
+from home.models import Gift, Guest, Message, Settings, TextContent, Gallery
 import base64
 from io import BytesIO
 import crcmod
@@ -141,3 +141,53 @@ class MessageFormView(View):
         )
         message.save()
         return JsonResponse({'message': 'Obrigado! Sua mensagem foi enviada.'})
+
+
+class RSVPFormView(TemplateView):
+    template_name = "home/rsvp.html"
+
+    def post(self, request, *args, **kwargs):
+        phone_number = request.POST.get('phone_number')
+        action = request.POST.get('action')
+
+        if action == 'check_phone':
+            guests = Guest.objects.filter(phone=phone_number)
+            if guests.exists():
+                if guests.count() > 1:
+                    guest_names = list(guests.values_list('name', flat=True))
+                    return JsonResponse({'multiple': True, 'names': guest_names})
+                else:
+                    guest = guests.first()
+                    return JsonResponse({'exists': True, 'name': guest.name})
+            else:
+                return JsonResponse({'exists': False})
+        
+        elif action == 'confirm_name':
+            name = request.POST.get('name')
+            guest = Guest.objects.get(phone=phone_number, name=name)
+            return JsonResponse({'confirmed': True})
+        
+        elif action == 'create_guest':
+            name = request.POST.get('name')
+            guest = Guest.objects.create(name=name, phone=phone_number, self_created=True)
+            return JsonResponse({'guest_created': True})
+        
+        elif action == 'submit_rsvp':
+            name = request.POST.get('name')
+
+            if not name:
+                return JsonResponse({'error': 'Name is required for RSVP'}, status=400)
+
+            try:
+                # Buscar o convidado pelo telefone e nome
+                guest = Guest.objects.get(phone=phone_number, name=name)
+                will_go = request.POST.get('will_go') == 'yes'
+                guest.will_go = will_go
+                guest.save()
+                return JsonResponse({'rsvp_submitted': True})
+            except Guest.DoesNotExist:
+                return JsonResponse({'error': 'Guest not found'}, status=404)
+            except Guest.MultipleObjectsReturned:
+                return JsonResponse({'error': 'Multiple guests found with the same name and phone'}, status=400)
+
+        return JsonResponse({'error': 'Invalid action'}, status=400)

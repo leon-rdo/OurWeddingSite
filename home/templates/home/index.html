@@ -93,7 +93,7 @@
           <div>
             <h4 class="u-align-left u-text u-text-4">Clique nos ícones abaixo para saber mais.</h4>
             <div id="info-icons">
-              <a href="#" data-bs-target="#ceremonyModal">
+              <a href="{% url 'home:rsvp' %}">
                 <span class="info-icon">
                   <i class="bi bi-card-checklist"></i>
                 </span>
@@ -105,13 +105,13 @@
                 </span>
                 Presentes
               </a>
-              <a href="#" data-bs-target="#ceremonyModal">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#ceremonyModal">
                 <span class="info-icon">
                   <i class="bi bi-balloon-heart-fill"></i>
                 </span>
                 Cerimônia
               </a>
-              <a href="#" data-bs-target="#ceremonyModal">
+              <a href="#" data-bs-toggle="modal" data-bs-target="#receptionModal">
                 <span class="info-icon">
                   <i class="bi bi-cake-fill"></i>
                 </span>
@@ -119,6 +119,45 @@
               </a>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade modal-lg" id="ceremonyModal" tabindex="-1" aria-labelledby="ceremonyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="ceremonyModalLabel">Local da Cerimônia</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <address>
+            <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="gmap_canvas_ceremony" src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.ceremony_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe> 
+            {{ settings.ceremony_address }}
+          </address>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade modal-lg" id="receptionModal" tabindex="-1" aria-labelledby="receptionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="receptionModalLabel">Local da Recepção</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <address>
+            <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="gmap_canvas_reception" src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.reception_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe> 
+            {{ settings.reception_address }}
+          </address>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
         </div>
       </div>
     </div>
@@ -133,7 +172,8 @@
         <div class="u-layout-row">
           <div class="u-size-30">
             <div class="u-layout-col">
-              <div class="u-align-left u-container-align-left u-container-style u-image u-layout-cell u-left-cell u-size-30 u-image-1"
+              <div
+                class="u-align-left u-container-align-left u-container-style u-image u-layout-cell u-left-cell u-size-30 u-image-1"
                 data-image-width="800" data-image-height="800" data-animation-name="customAnimationIn"
                 data-animation-duration="1500" data-animation-delay="500"
                 style="background-image: url('{{ images.1.image.url|default:'https://picsum.photos/700' }}');">
@@ -183,32 +223,32 @@
           <div class="u-size-30 u-size-60-md">
             <div class="u-layout-col">
               {% if text_3 is not None %}
-                <div class="u-size-30">
-                  <div class="u-layout-row">
-                    <div
-                      class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-1"
-                      data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
-                      <div class="u-container-layout u-container-layout-1">
-                        <h3 class="u-text u-text-1">{{ text_3.title }}</h3>
-                        <blockquote class="u-text u-text-2">{{ text_3.content }} </blockquote>
-                      </div>
+              <div class="u-size-30">
+                <div class="u-layout-row">
+                  <div
+                    class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-1"
+                    data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
+                    <div class="u-container-layout u-container-layout-1">
+                      <h3 class="u-text u-text-1">{{ text_3.title }}</h3>
+                      <blockquote class="u-text u-text-2">{{ text_3.content }} </blockquote>
                     </div>
                   </div>
                 </div>
+              </div>
               {% endif %}
               {% if text_4 is not None %}
-                <div class="u-size-30">
-                  <div class="u-layout-row">
-                    <div
-                      class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
-                      data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
-                      <div class="u-container-layout u-valign-top u-container-layout-2">
-                        <h3 class="u-text u-text-3">{{ text_4.title }}</h3>
-                        <blockquote class="u-text u-text-4">{{ text_4.content }} </blockquote>
-                      </div>
+              <div class="u-size-30">
+                <div class="u-layout-row">
+                  <div
+                    class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
+                    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
+                    <div class="u-container-layout u-valign-top u-container-layout-2">
+                      <h3 class="u-text u-text-3">{{ text_4.title }}</h3>
+                      <blockquote class="u-text u-text-4">{{ text_4.content }} </blockquote>
                     </div>
                   </div>
                 </div>
+              </div>
               {% endif %}
             </div>
           </div>
@@ -230,51 +270,54 @@
 {% if featured_circles or text_5 is not None %}
 <section class="u-clearfix u-container-align-center u-palette-1-light-2 u-section-6" id="featured_circles">
   <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-      {% if featured_circles %}
-      <div class="u-border-10 u-border-white u-image u-image-circle u-image-1" data-animation-name="customAnimationIn"
-        data-animation-duration="1500" data-animation-delay="500"
-        style="background-image: url('{{ featured_circles.0.image.url|default:'https://picsum.photos/400' }}');"></div>
-      <div class="u-image u-image-circle u-image-2" data-animation-name="customAnimationIn" data-animation-duration="1500"
-        data-animation-delay="250"
-        style="background-image: url('{{ featured_circles.1.image.url|default:'https://picsum.photos/500' }}');"></div>
-      <div class="u-border-20 u-border-white u-image u-image-circle u-image-3" data-image-width="700"
-        data-image-height="1049" data-animation-name="customAnimationIn" data-animation-duration="1500"
-        data-animation-delay="500"
-        style="background-image: url('{{ featured_circles.2.image.url|default:'https://picsum.photos/600' }}');"></div>
-      <div class="u-shape u-shape-svg u-text-palette-1-base u-shape-1" data-animation-name="customAnimationIn"
-        data-animation-duration="1500" data-animation-delay="750">
-        <svg class="u-svg-link" preserveAspectRatio="none" viewBox="0 0 160 160" style="">
-          <use xlink:href="#svg-1186"></use>
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
-          xml:space="preserve" class="u-svg-content" viewBox="0 0 160 160" x="0px" y="0px" id="svg-1186"
-          style="enable-background:new 0 0 160 160;">
-          <path
-            d="M80,30c27.6,0,50,22.4,50,50s-22.4,50-50,50s-50-22.4-50-50S52.4,30,80,30 M80,0C35.8,0,0,35.8,0,80s35.8,80,80,80 s80-35.8,80-80S124.2,0,80,0L80,0z">
-          </path>
-        </svg>
-      </div>
-      <div class="u-shape u-shape-svg u-text-palette-1-base u-shape-2" data-animation-name="customAnimationIn"
-        data-animation-duration="1500" data-animation-delay="750">
-        <svg class="u-svg-link" preserveAspectRatio="none" viewBox="0 0 160 160" style="">
-          <use xlink:href="#svg-525f"></use>
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
-          xml:space="preserve" class="u-svg-content" viewBox="0 0 160 160" x="0px" y="0px" id="svg-525f"
-          style="enable-background:new 0 0 160 160;">
-          <path d="M80,30c27.6,0,50,22.4,50,50s-22.4,50-50,50s-50-22.4-50-50S52.4,30,80,30 M80,0C35.8,0,0,35.8,0,80s35.8,80,80,80
+    {% if featured_circles %}
+    <div class="u-border-10 u-border-white u-image u-image-circle u-image-1" data-animation-name="customAnimationIn"
+      data-animation-duration="1500" data-animation-delay="500"
+      style="background-image: url('{{ featured_circles.0.image.url|default:'https://picsum.photos/400' }}');"></div>
+    <div class="u-image u-image-circle u-image-2" data-animation-name="customAnimationIn" data-animation-duration="1500"
+      data-animation-delay="250"
+      style="background-image: url('{{ featured_circles.1.image.url|default:'https://picsum.photos/500' }}');"></div>
+    <div class="u-border-20 u-border-white u-image u-image-circle u-image-3" data-image-width="700"
+      data-image-height="1049" data-animation-name="customAnimationIn" data-animation-duration="1500"
+      data-animation-delay="500"
+      style="background-image: url('{{ featured_circles.2.image.url|default:'https://picsum.photos/600' }}');"></div>
+    <div class="u-shape u-shape-svg u-text-palette-1-base u-shape-1" data-animation-name="customAnimationIn"
+      data-animation-duration="1500" data-animation-delay="750">
+      <svg class="u-svg-link" preserveAspectRatio="none" viewBox="0 0 160 160" style="">
+        <use xlink:href="#svg-1186"></use>
+      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+        xml:space="preserve" class="u-svg-content" viewBox="0 0 160 160" x="0px" y="0px" id="svg-1186"
+        style="enable-background:new 0 0 160 160;">
+        <path
+          d="M80,30c27.6,0,50,22.4,50,50s-22.4,50-50,50s-50-22.4-50-50S52.4,30,80,30 M80,0C35.8,0,0,35.8,0,80s35.8,80,80,80 s80-35.8,80-80S124.2,0,80,0L80,0z">
+        </path>
+      </svg>
+    </div>
+    <div class="u-shape u-shape-svg u-text-palette-1-base u-shape-2" data-animation-name="customAnimationIn"
+      data-animation-duration="1500" data-animation-delay="750">
+      <svg class="u-svg-link" preserveAspectRatio="none" viewBox="0 0 160 160" style="">
+        <use xlink:href="#svg-525f"></use>
+      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+        xml:space="preserve" class="u-svg-content" viewBox="0 0 160 160" x="0px" y="0px" id="svg-525f"
+        style="enable-background:new 0 0 160 160;">
+        <path d="M80,30c27.6,0,50,22.4,50,50s-22.4,50-50,50s-50-22.4-50-50S52.4,30,80,30 M80,0C35.8,0,0,35.8,0,80s35.8,80,80,80
     s80-35.8,80-80S124.2,0,80,0L80,0z"></path>
-        </svg>
+      </svg>
+    </div>
+    {% endif %}
+    {% if text_5 is not None %}
+    <div
+      class="u-align-center u-container-align-center u-container-style u-expanded-width u-group u-shape-rectangle u-group-1"
+      data-animation-name="flipIn" data-animation-duration="1500" data-animation-direction="X"
+      data-animation-delay="750">
+      <div class="u-container-layout u-valign-top u-container-layout-1">
+        <h2 class="u-align-center u-text u-text-default u-text-1">{{ text_5.title }}</h2>
+        <p class="u-align-center u-text u-text-2">{{ text_5.content }}</p>
       </div>
-      {% endif %}
-      {% if text_5 is not None %}
-      <div class="u-align-center u-container-align-center u-container-style u-expanded-width u-group u-shape-rectangle u-group-1" data-animation-name="flipIn" data-animation-duration="1500" data-animation-direction="X" data-animation-delay="750">
-        <div class="u-container-layout u-valign-top u-container-layout-1">
-          <h2 class="u-align-center u-text u-text-default u-text-1">{{ text_5.title }}</h2>
-          <p class="u-align-center u-text u-text-2">{{ text_5.content }}</p>
-        </div>
-      </div>
-      {% endif %}
+    </div>
+    {% endif %}
   </div>
 </section>
 {% endif %}
@@ -302,31 +345,39 @@
         <div class="u-layout-row">
           <div class="u-size-30 u-size-60-md">
             <div class="u-layout-col">
-              <div class="u-align-left u-container-align-left u-container-style u-layout-cell u-palette-1-light-2 u-right-cell u-size-60 u-layout-cell-1"
+              <div
+                class="u-align-left u-container-align-left u-container-style u-layout-cell u-palette-1-light-2 u-right-cell u-size-60 u-layout-cell-1"
                 data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
                 <div class="u-container-layout u-valign-middle u-container-layout-1">
                   <h2 class="u-align-left u-text u-text-1">Deixe sua mensagem para os noivos</h2>
-                  <p class="u-align-left u-text u-text-2">Expresse seus desejos de felicidades deixando uma carinhosa mesagem abaixo:</p>
+                  <p class="u-align-left u-text u-text-2">Expresse seus desejos de felicidades deixando uma carinhosa
+                    mesagem abaixo:</p>
                   <div class="u-form u-form-1">
-                    <form action="{% url 'home:message_form' %}" class="u-clearfix u-inner-form" style="padding: 0;" id="messageForm">
+                    <form action="{% url 'home:message_form' %}" class="u-clearfix u-inner-form" style="padding: 0;"
+                      id="messageForm">
                       {% csrf_token %}
                       <div class="u-form-group u-form-partition-factor-1 u-form-group-1" style="margin-bottom: 20px;">
                         <label for="name-da30" class="u-form-control-hidden u-label" wfd-invisible="true">Nome</label>
                         <input type="text" placeholder="Nome" id="name-da30" name="name"
-                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle" required>
+                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle"
+                          required>
                       </div>
                       <div class="u-form-group u-form-message u-form-group-4" style="margin-bottom: 20px;">
                         <label for="message-da30" class="u-form-control-hidden u-label"
                           wfd-invisible="true">Mensagem</label>
                         <textarea placeholder="Escreva sua mensagem" rows="4" cols="50" id="message-da30" name="message"
-                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle" required></textarea>
+                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle"
+                          required></textarea>
                       </div>
                       <div class="u-align-left u-form-group u-form-submit u-form-group-5">
-                        <a href="#" class="u-border-2 u-border-black u-btn u-btn-submit u-button-style u-hover-black u-none u-text-black u-text-hover-white u-btn-1">Enviar</a>
+                        <a href="#"
+                          class="u-border-2 u-border-black u-btn u-btn-submit u-button-style u-hover-black u-none u-text-black u-text-hover-white u-btn-1">Enviar</a>
                         <input type="submit" value="submit" class="u-form-control-hidden" wfd-invisible="true">
                       </div>
-                      <div class="u-form-send-message u-form-send-success" wfd-invisible="true"> Obrigado! Sua mensagem foi enviada. </div>
-                      <div class="u-form-send-error u-form-send-message" wfd-invisible="true"> Erro ao enviar sua mensagem, tente novamente. </div>
+                      <div class="u-form-send-message u-form-send-success" wfd-invisible="true"> Obrigado! Sua mensagem
+                        foi enviada. </div>
+                      <div class="u-form-send-error u-form-send-message" wfd-invisible="true"> Erro ao enviar sua
+                        mensagem, tente novamente. </div>
                       <input type="hidden" value="" name="recaptchaResponse" wfd-invisible="true">
                       <input type="hidden" name="formServices" value="6c7510bc-da5b-0510-aadd-75377099b397">
                     </form>
@@ -339,7 +390,8 @@
             <div class="u-layout-col">
               <div class="u-size-40">
                 <div class="u-layout-row">
-                  <div class="u-container-align-left u-container-style u-layout-cell u-left-cell u-size-60 u-layout-cell-2"
+                  <div
+                    class="u-container-align-left u-container-style u-layout-cell u-left-cell u-size-60 u-layout-cell-2"
                     data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
                     <div class="u-container-layout u-valign-top u-container-layout-2">
                       <p class="u-align-left u-text u-text-3"><b> {{ leave_a_message_text.content }} </b>
@@ -379,8 +431,8 @@
 
 {% block extra_scripts %}
 <script>
-  $(document).ready(function() {
-    $('form[id="messageForm"]').submit(function(event) {
+  $(document).ready(function () {
+    $('form[id="messageForm"]').submit(function (event) {
       event.preventDefault(); // Prevent form submission
 
       var form = $(this);
@@ -397,14 +449,14 @@
         headers: {
           'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val()
         },
-        success: function(response) {
+        success: function (response) {
           // Handle success response
           $('.u-form-send-success').show().text(response.message);
           $('.u-form-send-error').hide();
           form[0].reset(); // Clear the form
           form.find('button[type="submit"]').prop('disabled', false); // Re-enable the submit button
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
           // Handle error response
           $('.u-form-send-error').show().text('Erro ao enviar sua mensagem, tente novamente.');
           $('.u-form-send-success').hide();

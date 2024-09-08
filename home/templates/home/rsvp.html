@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<title>Confirmar Presença</title>
+{% endblock extra_head %}
+
+{% block content %}
+<section class="u-clearfix u-valign-bottom-xl u-white u-section-3" id="info">
+    <div class="u-align-right u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
+        data-animation-name="customAnimationIn" data-animation-duration="1000" data-animation-delay="0"></div>
+    <div class="data-layout-selected u-clearfix u-layout-wrap u-layout-wrap-1">
+        <div class="u-layout">
+            <div class="u-layout-row">
+                <div class="u-container-style u-layout-cell u-left-cell u-size-30 u-layout-cell-1"
+                    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
+                    <div class="u-container-layout u-valign-top u-container-layout-1">
+                        <h2 class="u-text u-text-1">Confirmar Presença</h2>
+                        <div class="u-border-6 u-border-palette-1-base u-line u-line-horizontal u-line-1"></div>
+                    </div>
+                </div>
+                <div class="u-container-align-left u-container-style u-layout-cell u-right-cell u-size-30 u-layout-cell-2"
+                    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
+                    <div id="send-phone">
+                        <label for="#phone_number" class="h1 u-align-left u-text u-text-4">Insira seu telefone:</label>
+                        <input id="phone_number" type="number" class="form-control" placeholder="ex: 91912345678">
+                        <button class="btn btn-success mt-3" id="send">Enviar</button>
+                    </div>
+                    <div id="confirm-name" class="d-none">
+                        <h1 class="h1 u-align-left u-text u-text-4">Confirme seu nome:</h1>
+                        <h2 id="guest-name" class="h2"></h2>
+                        <button class="btn btn-success mt-3" id="right-name">Correto</button>
+                        <button class="btn btn-danger mt-3" id="wrong-name" data-bs-toggle="modal"
+                            data-bs-target="#wrongNameModal">Errado</button>
+                    </div>
+                    <div id="input-name" class="d-none">
+                        <label for="#name" class="h1 u-align-left u-text u-text-4">Insira seu nome:</label>
+                        <input id="name" type="text" class="form-control" placeholder="ex: João da Silva">
+                        <button class="btn btn-success mt-3" id="confirm">Confirmar</button>
+                    </div>
+                    <form method="post" id="will-go" class="d-none" action="{% url 'home:rsvp' %}">
+                        {% csrf_token %}
+                        <h4>Você estará presente?</h4>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="will-go" id="will-go-yes" value="yes">
+                            <label class="form-check-label" for="will-go-yes">Sim</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="will-go" id="will-not-go" value="no">
+                            <label class="form-check-label" for="will-not-go">Não</label>
+                        </div>
+                        <button type="submit" class="btn btn-success">Enviar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_scripts %}
+<script>
+    document.getElementById("send").addEventListener("click", function () {
+        const phone = document.getElementById("phone_number").value;
+
+        fetch("", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+            },
+            body: new URLSearchParams({
+                phone_number: phone,
+                action: "check_phone",
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    document.getElementById("send-phone").classList.add("d-none");
+                    document.getElementById("confirm-name").classList.remove("d-none");
+                    document.getElementById("guest-name").innerText = data.name;
+                } else if (data.multiple) {
+                    // Se mais de um convidado foi encontrado, exibir uma lista de nomes
+                    data.names.forEach(function (name) {
+                        let radio = document.createElement("input");
+                        radio.type = "radio";
+                        radio.name = "selected-name";
+                        radio.value = name;
+                        radio.id = name;
+
+                        let label = document.createElement("label");
+                        label.htmlFor = name;
+                        label.innerText = name;
+
+                        let br = document.createElement("br");
+
+                        document.getElementById("send-phone").classList.add("d-none");
+                        document.getElementById("confirm-name").classList.remove("d-none");
+                        document.getElementById("confirm-name").insertBefore(radio, document.getElementById("right-name"));
+                        document.getElementById("confirm-name").insertBefore(label, document.getElementById("right-name"));
+                        document.getElementById("confirm-name").insertBefore(br, document.getElementById("right-name"));
+                    });
+                } else {
+                    document.getElementById("send-phone").classList.add("d-none");
+                    document.getElementById("input-name").classList.remove("d-none");
+                }
+            });
+    });
+
+    document.getElementById("right-name").addEventListener("click", function () {
+        const phone = document.getElementById("phone_number").value;
+        // Obter o nome selecionado no grupo de botões de rádio
+        const selectedName = document.querySelector('input[name="selected-name"]:checked')
+            ? document.querySelector('input[name="selected-name"]:checked').value
+            : document.getElementById("guest-name").innerText;
+
+        fetch("", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+            },
+            body: new URLSearchParams({
+                phone_number: phone,
+                name: selectedName,
+                action: "confirm_name",
+            }),
+        })
+            .then(() => {
+                document.getElementById("confirm-name").classList.add("d-none");
+                document.getElementById("will-go").classList.remove("d-none");
+            });
+    });
+    document.getElementById("confirm").addEventListener("click", function () {
+        const phone = document.getElementById("phone_number").value;
+        const name = document.getElementById("name").value;
+
+        fetch("", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+            },
+            body: new URLSearchParams({
+                phone_number: phone,
+                name: name,
+                action: "create_guest",
+            }),
+        })
+            .then(() => {
+                document.getElementById("guest-name").innerText = name;
+                document.getElementById("input-name").classList.add("d-none");
+                document.getElementById("will-go").classList.remove("d-none");
+            });
+    });
+    document.getElementById("will-go").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const phone = document.getElementById("phone_number").value;
+        const willGo = document.querySelector('input[name="will-go"]:checked').value;
+        const selectedName = document.querySelector('input[name="selected-name"]:checked')
+            ? document.querySelector('input[name="selected-name"]:checked').value
+            : document.getElementById("guest-name").innerText;
+
+        fetch("", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+            },
+            body: new URLSearchParams({
+                phone_number: phone,
+                will_go: willGo,
+                name: selectedName,
+                action: "submit_rsvp",
+            }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("Obrigado pela sua confirmação!");
+                } else {
+                    alert("Ocorreu um erro. Por favor, tente novamente.");
+                }
+            });
+    });
+</script>
+{% endblock extra_scripts %}
