@@ -86,6 +86,7 @@ class Gallery(models.Model):
     def save(self, *args, **kwargs):
         if not self.featured:
             self.position = None
+        return super(Gallery, self).save(*args, **kwargs)
     
     def __str__(self):
         return self.title
