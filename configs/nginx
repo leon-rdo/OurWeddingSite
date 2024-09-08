@@ -1,0 +1,30 @@
+server {
+    server_name weddingbliss.site;
+
+    # Diretório onde está o conteúdo estático
+    root /var/www/OurWeddingSite;
+
+    # Configuração para arquivos estáticos
+    location /static/ {
+        alias /var/www/OurWeddingSite/staticfiles/;
+    }
+
+    # Configuração para arquivos de mídia
+    location /media/ {
+        alias /var/www/OurWeddingSite/media/;
+    }
+
+    # Configuração do proxy reverso para o Gunicorn via socket Unix
+    location / {
+        proxy_pass http://0.0.0.0:8001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Logs
+    error_log /var/log/nginx/OurWeddingSite_error.log;
+    access_log /var/log/nginx/OurWeddingSite_access.log;
+
+}

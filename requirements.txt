@@ -1,6 +1,15 @@
 asgiref==3.8.1
+certifi==2024.8.30
+charset-normalizer==3.3.2
+crcmod==1.7
 Django==5.1.1
+gunicorn==23.0.0
+idna==3.8
+packaging==24.1
 pillow==10.4.0
+pypng==0.20220715.0
 python-dotenv==1.0.1
+qrcode==7.4.2
 sqlparse==0.5.1
 typing_extensions==4.12.2
+urllib3==2.2.2
