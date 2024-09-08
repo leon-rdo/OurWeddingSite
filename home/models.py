@@ -22,6 +22,7 @@ class Settings(models.Model):
     account_holder = models.CharField("Titular da Conta", max_length=50, blank=True, null=True)
 
     # Website Information
+    site_url = models.URLField("URL do Site")
     logo = models.ImageField("Logo", upload_to='home/logo/', blank=True, null=True)
     primary_color = models.CharField("Cor Primária", max_length=7, blank=True, null=True)
     secondary_color = models.CharField("Cor Secundária", max_length=7, blank=True, null=True)
