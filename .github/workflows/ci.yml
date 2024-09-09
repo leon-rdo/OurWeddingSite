@@ -73,6 +73,8 @@ jobs:
           pip install -r requirements.txt
           python manage.py migrate
           python manage.py collectstatic --noinput
-          pkill -f "gunicorn" || true
-          nohup gunicorn -c ./configs/gunicorn.py OurWeddingSite.wsgi &>/dev/null &
+          if [ -f /tmp/ourweddingsite_gunicorn.pid ]; then
+            kill -HUP $(cat /tmp/ourweddingsite_gunicorn.pid) || true
+          fi
+          nohup gunicorn -c ./configs/gunicorn.py OurWeddingSite.wsgi --pid /tmp/ourweddingsite_gunicorn.pid &>/dev/null &
         EOF
