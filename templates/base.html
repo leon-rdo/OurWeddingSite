@@ -1,7 +1,7 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html style="font-size: 16px;" lang="pt">
+<html style="font-size: 16px;" lang="pt-BR">
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,64 +43,36 @@
     {% block extra_head %}{% endblock extra_head %}
 </head>
 
-<body class="u-body u-xl-mode" data-lang="pt">
-    <header class="u-clearfix u-header u-header" id="sec-4a91">
-        <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-            <a href="{% url 'home:index' %}" class="u-image u-logo u-image-1">
-                {% if settings.logo %}
-                    <img src="{{ settings.logo.url }}" class="u-logo-image u-logo-image-1">
-                {% else %}
-                    <h4 class="u-logo-image u-logo-image-2" style="margin: 0;">Logo</h4>
-                {% endif %}
-            </a>
-            <nav class="u-menu u-menu-dropdown u-offcanvas u-menu-1">
-                <div class="menu-collapse" style="font-size: 1rem; letter-spacing: 0px;">
-                    <a class="u-button-style u-custom-left-right-menu-spacing u-custom-padding-bottom u-custom-top-bottom-menu-spacing u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base"
-                        href="#">
-                        <svg class="u-svg-link" viewBox="0 0 24 24">
-                            <use xlink:href="#menu-hamburger"></use>
-                        </svg>
-                        <svg class="u-svg-content" version="1.1" id="menu-hamburger" viewBox="0 0 16 16" x="0px" y="0px"
-                            xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
-                            <g>
-                                <rect y="1" width="16" height="2"></rect>
-                                <rect y="7" width="16" height="2"></rect>
-                                <rect y="13" width="16" height="2"></rect>
-                            </g>
-                        </svg>
-                    </a>
-                </div>
-                <div class="u-nav-container">
-                    <ul class="u-nav u-unstyled u-nav-1">
-                        <li class="u-nav-item">
-                            <a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="{% url 'home:gallery' %}" style="padding: 10px 20px;">Galeria</a>
+<body class="u-body u-xl-mode">
+    <header class="u-clearfix u-header u-header " id="sec-4a91">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light px-md-5">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'home:index' %}">
+                    {% if settings.logo %}
+                        <img src="{{ settings.logo.url }}" alt="Logo" style="width: 70px;">
+                    {% else %}
+                        <h4 class="m-0">Logo</h4>
+                    {% endif %}
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'home:index' %}">Página Inicial</a>
                         </li>
-                        <li class="u-nav-item">
-                            <a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="{% url 'home:index' %}" style="padding: 10px 20px;">Página Inicial</a>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'home:gallery' %}">Galeria</a>
                         </li>
-                        <li class="u-nav-item">
-                            <a class="u-button-style u-nav-link u-text-active-palette-1-base u-text-hover-palette-2-base" href="{% url 'home:about_us' %}" style="padding: 10px 20px;">Sobre</a>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'home:about_us' %}">Sobre</a>
                         </li>
                     </ul>
                 </div>
-                <div class="u-nav-container-collapse">
-                    <div class="u-black u-container-style u-inner-container-layout u-opacity u-opacity-95 u-sidenav">
-                        <div class="u-inner-container-layout u-sidenav-overflow">
-                            <div class="u-menu-close"></div>
-                            <ul class="u-align-center u-nav u-popupmenu-items u-unstyled u-nav-2">
-                                <li class="u-nav-item"><a class="u-button-style u-nav-link" href="{% url 'home:gallery' %}">Galeria</a>
-                                </li>
-                                <li class="u-nav-item"><a class="u-button-style u-nav-link" href="{% url 'home:index' %}">Página Inicial</a>
-                                </li>
-                                <li class="u-nav-item"><a class="u-button-style u-nav-link" href="{% url 'home:about_us' %}">Sobre</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="u-black u-menu-overlay u-opacity u-opacity-70"></div>
-                </div>
-            </nav>
-        </div>
+            </div>
+        </nav>
+        
     </header>
 
     {% block content %}{% endblock content %}

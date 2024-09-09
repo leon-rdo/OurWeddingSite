@@ -192,8 +192,8 @@
   }
 
   .u-section-1 .u-group-1 {
-    width: 90%;
-    min-height: 452px;
+    width: 100%;
+    min-height: min-content;
     margin-bottom: 34px;
   }
 
