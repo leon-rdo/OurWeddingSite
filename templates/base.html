@@ -59,14 +59,25 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{% url 'home:index' %}">Página Inicial</a>
+                        {% url 'home:index' as home_url %}
+                        {% url 'home:rsvp' as rsvp_url %}
+                        {% url 'home:gift_list' as gift_list_url %}
+                        {% url 'home:gallery' as gallery_url %}
+                        {% url 'home:about_us' as about_us_url %}
+                        <li class="nav-item me-3">
+                            <a class="nav-link {% if request.path == home_url %}active{% endif %}" aria-current="page" href="{{ home_url }}">Página Inicial</a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="nav-link {% if request.path == rsvp_url %}active{% endif %}" href="{{ rsvp_url }}">Confirmar Presença</a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="nav-link {% if request.path == gift_list_url %}active{% endif %}" href="{{ gift_list_url }}">Lista de Presentes</a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="nav-link {% if request.path == gallery_url %}active{% endif %}" href="{{ gallery_url }}">Galeria</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'home:gallery' %}">Galeria</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'home:about_us' %}">Sobre</a>
+                            <a class="nav-link {% if request.path == about_us_url %}active{% endif %}" href="{{ about_us_url }}">Sobre Nós</a>
                         </li>
                     </ul>
                 </div>
