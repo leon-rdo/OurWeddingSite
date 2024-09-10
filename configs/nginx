@@ -23,8 +23,9 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    client_max_body_size 20M;
+
     # Logs
     error_log /var/log/nginx/OurWeddingSite_error.log;
     access_log /var/log/nginx/OurWeddingSite_access.log;
-
 }
