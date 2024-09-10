@@ -29,6 +29,7 @@ class Settings(models.Model):
     primary_color = models.CharField("Cor Primária", max_length=7, blank=True, null=True)
     secondary_color = models.CharField("Cor Secundária", max_length=7, blank=True, null=True)
     terciary_color = models.CharField("Cor Terciária", max_length=7, blank=True, null=True)
+    song = models.FileField("Música", upload_to='home/song/', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if Settings.objects.exists() and not self.pk:

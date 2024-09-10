@@ -104,6 +104,54 @@
         </p>
     </section>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    {% if settings.song %}
+        <audio id="background-audio" loop>
+            <source src="{{ settings.song.url }}" type="audio/mp3">
+            Seu navegador não suporta o elemento <code>audio</code>.
+        </audio>
+        <button class="floating-button" id="audio-control-button">
+            ▶️
+        </button>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var audio = document.getElementById('background-audio');
+                audio.volume = 0.5;
+                var button = document.getElementById('audio-control-button');
+    
+                function updateButton() {
+                    if (audio.paused) {
+                        button.textContent = '▶️';
+                    } else {
+                        button.textContent = '⏸️';
+                    }
+                }
+    
+                button.addEventListener('click', function() {
+                    if (audio.paused) {
+                        audio.play().catch(function(error) {
+                            console.log('Autoplay foi bloqueado. Tentando reproduzir após interação do usuário.');
+                        });
+                    } else {
+                        audio.pause();
+                    }
+                    updateButton();
+                });
+    
+                // Tentar reproduzir o áudio automaticamente
+                audio.play().catch(function(error) {
+                    console.log('Autoplay foi bloqueado. Tentando reproduzir após interação do usuário.');
+                });
+    
+                // Atualizar o botão inicialmente
+                updateButton();
+
+                document.addEventListener('click', function() {
+                    audio.play();
+                    button.textContent = '⏸️';
+                }, { once: true });
+            });
+        </script>
+    {% endif %}
     {% block extra_scripts %}{% endblock extra_scripts %}
 </body>
 
