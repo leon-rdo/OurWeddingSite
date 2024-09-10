@@ -1452,6 +1452,10 @@ ol {
   text-decoration: none;
 }
 
+.text-pink {
+  color: #eedfe3;
+}
+
 .u-link,
 a {
   border-top-width: 0;
