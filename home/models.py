@@ -170,7 +170,6 @@ class BridalShowerGift(models.Model):
     description = models.TextField("Descrição")
     image = models.ImageField("Imagem", upload_to='home/bridal_shower_gifts/')
     category = models.CharField("Categoria", max_length=50, choices=CATEGORIES)
-    suggestions = models.ManyToManyField('BridalShowerGiftSuggestion', verbose_name="Sugestões de Presente", blank=True)
 
     # Guest
 
@@ -188,6 +187,7 @@ class BridalShowerGift(models.Model):
 
 class BridalShowerGiftSuggestion(models.Model):
 
+    gift = models.ForeignKey(BridalShowerGift, on_delete=models.CASCADE, related_name='suggestions')
     name = models.CharField("Nome", max_length=50)
     link = models.URLField("Link")
 
