@@ -12,11 +12,18 @@ class SettingsAdmin(admin.ModelAdmin):
     search_fields = ('couple_names',)
 
 
+class GalleryInline(admin.TabularInline):
+    model = Gallery
+    extra = 1
+    fields = ('title', 'description', 'image')
+
+
 @admin.register(TextContent)
 class TextContentAdmin(admin.ModelAdmin):
     list_display = ('position', 'title')
     search_fields = ('title', 'content')
     list_filter = ('position',)
+    inlines = [GalleryInline]
 
 
 @admin.register(Gallery)
