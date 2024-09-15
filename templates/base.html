@@ -75,6 +75,12 @@
                                 <a class="nav-link {% if request.path == gift_list_url %}active{% endif %}" href="{{ gift_list_url }}">Lista de Presentes</a>
                             </li>
                         {% endif %}
+                        {% if not settings.hide_bridal_shower_gift %}
+                            {% url 'home:bridal_shower_gift_list' as bridal_shower_gift_list_url %}
+                            <li class="nav-item me-3">
+                                <a class="nav-link {% if request.path == bridal_shower_gift_list_url %}active{% endif %}" href="{{ bridal_shower_gift_list_url }}">Chá de Panela</a>
+                            </li>
+                        {% endif %}
                         {% if not settings.hide_gallery %}
                             {% url 'home:gallery' as gallery_url %}
                             <li class="nav-item me-3">

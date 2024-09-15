@@ -7,8 +7,8 @@
 
 {% block content %}
 <div class="container">
-    {% if text_1 is not None %}
-    <section class="u-clearfix u-section-2" id="text_1">
+    {% if bridal_shower_text is not None %}
+    <section class="u-clearfix u-section-2" id="bridal_shower_text">
         <div class="u-align-right u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
             data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750"></div>
         <div class="custom-expanded data-layout-selected u-clearfix u-layout-wrap u-layout-wrap-1">
@@ -24,7 +24,7 @@
                                 data-animation-delay="500">
                                 <div class="u-container-layout u-container-layout-2"></div>
                             </div>
-                            <img src="{{ text_1.images.first.image.url }}" alt=""
+                            <img src="{{ bridal_shower_text.images.first.image.url }}" alt=""
                                 class="u-image u-image-default u-image-2" data-animation-name="customAnimationIn"
                                 data-animation-duration="1500" data-animation-delay="500" data-image-width="1200"
                                 data-image-height="879">
@@ -34,9 +34,9 @@
                         data-animation-name="customAnimationIn" data-animation-duration="1500"
                         data-animation-delay="500">
                         <div class="u-container-layout u-valign-middle u-container-layout-3">
-                            <h2 class="u-align-left u-text u-text-1"><b> {{ text_1.title }}</b> <br>
+                            <h2 class="u-align-left u-text u-text-1"><b> {{ bridal_shower_text.title }}</b> <br>
                             </h2>
-                            <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ text_1.content }}</p>
+                            <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ bridal_shower_text.content }}</p>
                         </div>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
             </div>
         </div>
         <!-- Modal -->
-        {% if gift.qr_code %}
+        {% if gift.suggestions.count > 0 %}
         <div class="modal fade" id="gift{{ forloop.counter }}" tabindex="-1"
             aria-labelledby="gift{{ forloop.counter }}Label" aria-hidden="true">
             <div class="modal-dialog">
@@ -66,14 +66,15 @@
                         <h1 class="modal-title fs-5" id="gift{{ forloop.count }}Label">{{ gift.name }}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        <img src="data:image/png;base64,{{ gift.qr_code }}" alt="QR Code para {{ gift.name }}" class="img-fluid">
-                    </div>
+                    <ul class="modal-body list-group list-group-flush">
+                        {% for suggestion in gift.suggestions.all %}
+                            <li class="list-group-item">
+                                <a href="{{ suggestion.link }}">{{ suggestion.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                        <button type="button" class="btn btn-primary">Copiar código</button>
-                        <button type="button" class="btn btn-primary" onclick="copyToClipboard()">Copiar chave
-                            pix</button>
                     </div>
                 </div>
             </div>

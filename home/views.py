@@ -221,3 +221,8 @@ class BridalShowerGiftListView(UserPassesTestMixin, ListView):
             return True
         else:
             return self.request.user.has_perm('home.view_bridalshowergift')
+
+    def get_context_data(self, **kwargs):
+        context = super(BridalShowerGiftListView, self).get_context_data(**kwargs)
+        context["bridal_shower_text"] = TextContent.objects.filter(position="bridal_shower_text").first()
+        return context
