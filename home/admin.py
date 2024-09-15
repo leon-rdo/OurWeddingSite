@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import reverse_lazy
-from .models import Settings, TextContent, Gallery, Gift, Message, Guest
+from .models import *
 from django.utils.html import format_html
 from .models import Guest
 import urllib.parse
@@ -68,3 +68,26 @@ class GuestAdmin(admin.ModelAdmin):
                 ))
 
     send_thank_you_message.short_description = "Enviar mensagem de agradecimento via WhatsApp"
+
+
+class BridalShowerGiftSuggestionInline(admin.TabularInline):
+    model = BridalShowerGiftSuggestion
+    extra = 1
+    fields = ('name', 'link')
+
+
+@admin.register(BridalShowerGift)
+class BridalShowerGiftAdmin(admin.ModelAdmin):
+    list_display = ('name', 'description', 'category')
+    search_fields = ('name', 'description')
+    inlines = [BridalShowerGiftSuggestionInline]
+    list_filter = ('category',)
+    fieldsets = (
+        ('Gift', {
+            'fields': ('name', 'description', 'image', 'category')
+        }),
+        ('Guest', {
+            'fields': ('guest_name', 'guest_phone', 'guest_email'),
+            'classes': ('collapse',)
+        })
+    )
