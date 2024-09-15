@@ -85,6 +85,11 @@
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == about_us_url %}active{% endif %}" href="{{ about_us_url }}">Sobre Nós</a>
                         </li>
+                        {% if request.user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'admin:index' %}">Administração</a>
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
