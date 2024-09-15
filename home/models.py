@@ -10,11 +10,15 @@ class Settings(models.Model):
     """
     # Wedding Information
     couple_names = models.CharField("Nome do Casal", max_length=50)
-    wedding_datetime = models.DateTimeField("Data do Casamento")
+
     ceremony_address = models.CharField("Endereço da Cerimônia", max_length=255)
+    bridal_shower_address = models.CharField("Endereço do Chá de Panela", max_length=255, blank=True, null=True)
     reception_address = models.CharField("Endereço da Recepção", max_length=255)
+
+    wedding_datetime = models.DateTimeField("Data do Casamento")
     ceremony_time = models.TimeField("Horário da Cerimônia")
     reception_time = models.TimeField("Horário da Recepção")
+    bridal_shower_datetime = models.DateTimeField("Data do Chá de Panela", blank=True, null=True)
 
     # Bank Information
     bank_name = models.CharField("Nome do Banco", max_length=50, blank=True, null=True)
@@ -70,6 +74,7 @@ class TextContent(models.Model):
         ('about_us_text_5', 'Texto 5 Sobre Nós'),
         ('gallery_text_1', 'Texto1 da Galeria'),
         ('gallery_text_2', 'Texto2 da Galeria'),
+        ('bridal_shower_text', 'Texto do Chá de Panela'),
     ]
     
     position = models.CharField("Posição no Site", max_length=50, choices=POSITION_CHOICES)
