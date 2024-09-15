@@ -75,94 +75,100 @@
   </div>
 </section>
 {% endif %}
-<section class="u-clearfix u-valign-bottom-xl u-white u-section-3" id="info">
-  <div class="u-align-right u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
-    data-animation-name="customAnimationIn" data-animation-duration="1000" data-animation-delay="0"></div>
-  <div class="data-layout-selected u-clearfix u-layout-wrap u-layout-wrap-1">
-    <div class="u-layout">
-      <div class="u-layout-row">
-        <div class="u-container-style u-layout-cell u-left-cell u-size-30 u-layout-cell-1"
-          data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
-          <div class="u-container-layout u-valign-top u-container-layout-1">
-            <h2 class="u-text u-text-1">Informações</h2>
-            <div class="u-border-6 u-border-palette-1-base u-line u-line-horizontal u-line-1"></div>
+{% if not settings.hide_info %}
+  <section class="u-clearfix u-valign-bottom-xl u-white u-section-3" id="info">
+    <div class="u-align-right u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
+      data-animation-name="customAnimationIn" data-animation-duration="1000" data-animation-delay="0"></div>
+    <div class="data-layout-selected u-clearfix u-layout-wrap u-layout-wrap-1">
+      <div class="u-layout">
+        <div class="u-layout-row">
+          <div class="u-container-style u-layout-cell u-left-cell u-size-30 u-layout-cell-1"
+            data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
+            <div class="u-container-layout u-valign-top u-container-layout-1">
+              <h2 class="u-text u-text-1">Informações</h2>
+              <div class="u-border-6 u-border-palette-1-base u-line u-line-horizontal u-line-1"></div>
+            </div>
           </div>
-        </div>
-        <div class="u-container-align-left u-container-style u-layout-cell u-right-cell u-size-30 u-layout-cell-2"
-          data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
-          <div>
-            <h4 class="u-align-left u-text u-text-4">Clique nos ícones abaixo para saber mais.</h4>
-            <div id="info-icons">
-              <a href="{% url 'home:rsvp' %}">
-                <span class="info-icon">
-                  <i class="bi bi-card-checklist"></i>
-                </span>
-                Presença
-              </a>
-              <a href="{% url 'home:gift_list' %}">
-                <span class="info-icon">
-                  <i class="bi bi-gift"></i>
-                </span>
-                Presentes
-              </a>
-              <a href="#" data-bs-toggle="modal" data-bs-target="#ceremonyModal">
-                <span class="info-icon">
-                  <i class="bi bi-balloon-heart-fill"></i>
-                </span>
-                Cerimônia
-              </a>
-              <a href="#" data-bs-toggle="modal" data-bs-target="#receptionModal">
-                <span class="info-icon">
-                  <i class="bi bi-cake-fill"></i>
-                </span>
-                Recepção
-              </a>
+          <div class="u-container-align-left u-container-style u-layout-cell u-right-cell u-size-30 u-layout-cell-2"
+            data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
+            <div>
+              <h4 class="u-align-left u-text u-text-4">Clique nos ícones abaixo para saber mais.</h4>
+              <div id="info-icons">
+                {% if not settings.hide_rsvp %}
+                  <a href="{% url 'home:rsvp' %}">
+                    <span class="info-icon">
+                      <i class="bi bi-card-checklist"></i>
+                    </span>
+                    Presença
+                  </a>
+                {% endif %}
+                {% if not settings.hide_gifts %}
+                  <a href="{% url 'home:gift_list' %}">
+                    <span class="info-icon">
+                      <i class="bi bi-gift"></i>
+                    </span>
+                    Presentes
+                  </a>
+                {% endif %}
+                <a href="#" data-bs-toggle="modal" data-bs-target="#ceremonyModal">
+                  <span class="info-icon">
+                    <i class="bi bi-balloon-heart-fill"></i>
+                  </span>
+                  Cerimônia
+                </a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#receptionModal">
+                  <span class="info-icon">
+                    <i class="bi bi-cake-fill"></i>
+                  </span>
+                  Recepção
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="modal fade modal-lg" id="ceremonyModal" tabindex="-1" aria-labelledby="ceremonyModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="ceremonyModalLabel">Local da Cerimônia</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <address>
-            <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="gmap_canvas_ceremony" src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.ceremony_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe> 
-            {{ settings.ceremony_address }}
-          </address>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="modal fade modal-lg" id="receptionModal" tabindex="-1" aria-labelledby="receptionModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="receptionModalLabel">Local da Recepção</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-        </div>
-        <div class="modal-body">
-          <address>
-            <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="gmap_canvas_reception" src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.reception_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe> 
-            {{ settings.reception_address }}
-          </address>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
+    <div class="modal fade modal-lg" id="ceremonyModal" tabindex="-1" aria-labelledby="ceremonyModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="ceremonyModalLabel">Local da Cerimônia</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <address>
+              <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="gmap_canvas_ceremony" src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.ceremony_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe> 
+              {{ settings.ceremony_address }}
+            </address>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+    
+    <div class="modal fade modal-lg" id="receptionModal" tabindex="-1" aria-labelledby="receptionModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="receptionModalLabel">Local da Recepção</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <address>
+              <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="gmap_canvas_reception" src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.reception_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe> 
+              {{ settings.reception_address }}
+            </address>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endif %}
 {% if text_2 is not None %}
 <section class="u-clearfix u-section-4" id="text_2">
   <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">

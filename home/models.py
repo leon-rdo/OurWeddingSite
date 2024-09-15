@@ -27,10 +27,17 @@ class Settings(models.Model):
     logo = models.ImageField("Logo", upload_to='home/logo/', blank=True, null=True)
     site_description = models.TextField("Descrição do Site", blank=True, null=True)
     site_image = models.ImageField("Imagem do Site", upload_to='home/site_image/', blank=True, null=True)
+
     primary_color = models.CharField("Cor Primária", max_length=7, blank=True, null=True)
     secondary_color = models.CharField("Cor Secundária", max_length=7, blank=True, null=True)
     terciary_color = models.CharField("Cor Terciária", max_length=7, blank=True, null=True)
     song = models.FileField("Música", upload_to='home/song/', blank=True, null=True, validators=[FileExtensionValidator(allowed_extensions=['mp3', 'wav', 'ogg'])])
+
+    hide_info = models.BooleanField("Esconder Informações", default=False)
+    hide_gifts = models.BooleanField("Esconder Presentes", default=False)
+    hide_bridal_shower_gift = models.BooleanField("Esconder Presentes do Chá de Panelas", default=False)
+    hide_gallery = models.BooleanField("Esconder Galeria", default=False)
+    hide_rsvp = models.BooleanField("Esconder RSVP", default=False)
 
     def save(self, *args, **kwargs):
         if Settings.objects.exists() and not self.pk:
@@ -128,6 +135,7 @@ class Message(models.Model):
 
 
 class Gift(models.Model):
+
     name = models.CharField("Nome", max_length=50)
     description = models.TextField("Descrição")
     image = models.ImageField("Imagem", upload_to='home/gifts/')
@@ -139,3 +147,48 @@ class Gift(models.Model):
     class Meta:
         verbose_name = 'Presente'
         verbose_name_plural = 'Presentes'
+
+
+class BridalShowerGift(models.Model):
+
+    CATEGORIES = [
+        ('cozinha', 'Cozinha'),
+        ('cama_mesa_banho','Cama, Mesa e Banho'),
+        ('decoracao','Decoração'),
+        ('eletrodomesticos', 'Eletrodomésticos'),
+        ('outros', 'Outros')
+    ]
+
+    # Gift
+
+    name = models.CharField("Nome", max_length=50)
+    description = models.TextField("Descrição")
+    image = models.ImageField("Imagem", upload_to='home/bridal_shower_gifts/')
+    category = models.CharField("Categoria", max_length=50, choices=CATEGORIES)
+    suggestions = models.ManyToManyField('BridalShowerGiftSuggestion', verbose_name="Sugestões de Presente", blank=True)
+
+    # Guest
+
+    guest_name = models.CharField("Nome do Convidado", max_length=50, blank=True, null=True)
+    guest_phone = models.CharField("Telefone do Convidado", max_length=20, blank=True, null=True)
+    guest_email = models.EmailField("E-mail do Convidado", blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Presente do Chá de Panela'
+        verbose_name_plural = 'Presentes do Chá de Panela'
+
+
+class BridalShowerGiftSuggestion(models.Model):
+
+    name = models.CharField("Nome", max_length=50)
+    link = models.URLField("Link")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Sugestão de Presente do Chá de Panela'
+        verbose_name_plural = 'Sugestões de Presentes do Chá de Panela'

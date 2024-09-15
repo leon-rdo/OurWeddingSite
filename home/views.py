@@ -1,7 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.views.generic import TemplateView, ListView
-from home.models import Gift, Guest, Message, Settings, TextContent, Gallery
+from home.models import *
 import base64
 from io import BytesIO
 import crcmod
@@ -191,3 +191,8 @@ class RSVPFormView(TemplateView):
                 return JsonResponse({'error': 'Multiple guests found with the same name and phone'}, status=400)
 
         return JsonResponse({'error': 'Invalid action'}, status=400)
+
+
+class BridalShowerGiftListView(ListView):
+    template_name = "home/bridal-shower-gift-list.html"
+    model = BridalShowerGift
