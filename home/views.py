@@ -1,6 +1,7 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views import View
 from django.views.generic import TemplateView, ListView
+from django.contrib.auth.mixins import UserPassesTestMixin
 from home.models import *
 import base64
 from io import BytesIO
@@ -40,8 +41,14 @@ class AboutUsView(TemplateView):
         return context
 
 
-class GalleryView(TemplateView):
+class GalleryView(UserPassesTestMixin, TemplateView):
     template_name = "home/gallery.html"
+
+    def test_func(self):
+        if not Settings.objects.first().hide_gallery:
+            return True
+        else:
+            return self.request.user.has_perm('home.view_gallery')
 
     def get_context_data(self, **kwargs):
         context = super(GalleryView, self).get_context_data(**kwargs)
@@ -105,9 +112,15 @@ class Payload():
         return qr_code_base64
 
 
-class GiftListView(ListView):
+class GiftListView(UserPassesTestMixin, ListView):
     template_name = "home/gift-list.html"
     model = Gift
+
+    def test_func(self):
+        if not Settings.objects.first().hide_gifts:
+            return True
+        else:
+            return self.request.user.has_perm('home.view_gift')
 
     def get_context_data(self, **kwargs):
         context = super(GiftListView, self).get_context_data(**kwargs)
@@ -143,8 +156,14 @@ class MessageFormView(View):
         return JsonResponse({'message': 'Obrigado! Sua mensagem foi enviada.'})
 
 
-class RSVPFormView(TemplateView):
+class RSVPFormView(UserPassesTestMixin, TemplateView):
     template_name = "home/rsvp.html"
+
+    def test_func(self):
+        if not Settings.objects.first().hide_rsvp:
+            return True
+        else:
+            return self.request.user.has_perm('home.view_guest')
 
     def post(self, request, *args, **kwargs):
         phone_number = request.POST.get('phone_number')
@@ -193,6 +212,12 @@ class RSVPFormView(TemplateView):
         return JsonResponse({'error': 'Invalid action'}, status=400)
 
 
-class BridalShowerGiftListView(ListView):
+class BridalShowerGiftListView(UserPassesTestMixin, ListView):
     template_name = "home/bridal-shower-gift-list.html"
     model = BridalShowerGift
+
+    def test_func(self):
+        if not Settings.objects.first().hide_bridal_shower_gift:
+            return True
+        else:
+            return self.request.user.has_perm('home.view_bridalshowergift')
