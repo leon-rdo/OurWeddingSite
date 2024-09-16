@@ -1,7 +1,9 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
+from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView, ListView
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib import messages
 from home.models import *
 import base64
 from io import BytesIO
@@ -221,8 +223,33 @@ class BridalShowerGiftListView(UserPassesTestMixin, ListView):
             return True
         else:
             return self.request.user.has_perm('home.view_bridalshowergift')
+        
+    def get_queryset(self):
+        return BridalShowerGift.objects.filter(guest_name__isnull=True)
 
     def get_context_data(self, **kwargs):
         context = super(BridalShowerGiftListView, self).get_context_data(**kwargs)
         context["bridal_shower_text"] = TextContent.objects.filter(position="bridal_shower_text").first()
         return context
+
+
+class PickGiftView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        if not Settings.objects.first().hide_bridal_shower_gift:
+            return True
+        else:
+            return self.request.user.has_perm('home.view_bridalshowergift')
+
+    def post(self, request, gift_id):
+        guest_name = request.POST.get('name')
+        guest_email = request.POST.get('email')
+        guest_phone = request.POST.get('phone_number')
+        print(request.POST)
+        gift = BridalShowerGift.objects.get(id=gift_id)
+        gift.guest_name = guest_name
+        gift.guest_email = guest_email
+        gift.guest_phone = guest_phone
+        gift.save()
+        messages.success(request, f'Presente {gift.name} escolhido com sucesso!')
+        return HttpResponseRedirect(reverse('home:bridal_shower_gift_list'))

@@ -78,7 +78,7 @@ class BridalShowerGiftSuggestionInline(admin.TabularInline):
 
 @admin.register(BridalShowerGift)
 class BridalShowerGiftAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'category')
+    list_display = ('name', 'category', 'guest_name')
     search_fields = ('name', 'description')
     inlines = [BridalShowerGiftSuggestionInline]
     list_filter = ('category',)
