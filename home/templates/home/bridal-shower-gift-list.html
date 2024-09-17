@@ -314,7 +314,11 @@
               Cores:
               <ul class="list-unstyled m-0 d-flex align-items-center avatar-group ms-2">
                 {% for color in gift.colors.all %}
-                <li data-bs-toggle="tooltip" class="avatar rounded-circle pull-up border border-dark" aria-label="{{ color.name }}" style="background-color: {{ color.color }};">
+                <li data-bs-toggle="tooltip" class="avatar rounded-circle pull-up border border-dark" aria-label="{{ color.name }}" data-bs-original-title="{{ color.name }}" style="background-color: {{ color.color }};">
+                </li>
+                {% empty %}
+                <li data-bs-toggle="tooltip" class="avatar rounded-circle pull-up border border-dark d-flex align-items-center justify-content-center" aria-label="Sem cor definida" data-bs-original-title="Sem cor definida" tool style="background-color: #9da8b5;">
+                  <span>&mdash;</span>
                 </li>
                 {% endfor %}
               </ul>
