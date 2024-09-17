@@ -170,12 +170,10 @@ class BridalShowerGift(models.Model):
     description = models.TextField("Descrição")
     image = models.ImageField("Imagem", upload_to='home/bridal_shower_gifts/')
     category = models.CharField("Categoria", max_length=50, choices=CATEGORIES)
+    colors = models.ManyToManyField('home.BridalShowerGiftColor', verbose_name="Cores", related_name='gifts_colors')
 
-    # Guest
-
-    guest_name = models.CharField("Nome do Convidado", max_length=50, blank=True, null=True)
-    guest_phone = models.CharField("Telefone do Convidado", max_length=20, blank=True, null=True)
-    guest_email = models.EmailField("E-mail do Convidado", blank=True, null=True)
+    def quotas_total(self):
+        BridalShowerGiftQuota().objects.filter(gift=self).aggregate(total=models.Sum('value'))
 
     def __str__(self):
         return self.name
@@ -184,6 +182,34 @@ class BridalShowerGift(models.Model):
         verbose_name = 'Presente do Chá de Panela'
         verbose_name_plural = 'Presentes do Chá de Panela'
 
+
+class BridalShowerGiftQuota(models.Model):
+    
+    gift = models.ForeignKey(BridalShowerGift, on_delete=models.CASCADE, related_name='quotas')
+    value = models.DecimalField("Valor", max_digits=6, decimal_places=2)
+    
+    # Guest
+
+    guest_name = models.CharField("Nome do Convidado", max_length=50, blank=True, null=True)
+    guest_phone = models.CharField("Telefone do Convidado", max_length=20, blank=True, null=True)
+    guest_email = models.EmailField("E-mail do Convidado", blank=True, null=True)
+    
+    class Meta:
+        verbose_name = 'Cota do Presente do CdP'
+        verbose_name_plural = 'Cotas do Presente do CdP'
+
+
+class BridalShowerGiftColor(models.Model):
+    
+    color = models.CharField("Cor", max_length=7)
+    
+    def __str__(self):
+        return self.color
+    
+    class Meta:
+        verbose_name = 'Cor do Presente do CdP'
+        verbose_name_plural = 'Cores do Presente do CdP'
+    
 
 class BridalShowerGiftSuggestion(models.Model):
 
@@ -195,5 +221,5 @@ class BridalShowerGiftSuggestion(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = 'Sugestão de Presente do Chá de Panela'
-        verbose_name_plural = 'Sugestões de Presentes do Chá de Panela'
+        verbose_name = 'Sugestão de Chá de Panela'
+        verbose_name_plural = 'Sugestões de Chá de Panela'

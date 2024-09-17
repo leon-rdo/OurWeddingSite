@@ -3,6 +3,34 @@
 
 {% block extra_head %}
 <title>Chá de Panela</title>
+<style>
+.avatar {
+  position: relative;
+  width: 2.375rem;
+  height: 2.375rem;
+  cursor: pointer;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar .avatar-initial {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background-color: #8592a3;
+  font-weight: 500;
+}
+</style>
 {% endblock extra_head %}
 
 {% block content %}
@@ -119,6 +147,14 @@
             {% else %}
             <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ forloop.counter }}">Presentear</button>
             {% endif %}
+          </div>
+          <div class="card-footer d-flex align-items-center">
+            Cores:
+            {% for color in gift.colors.all %}
+            <div class="avatar">
+              <span class="avatar-initial rounded-circle pull-up bg-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ color.color }}"></span>
+            </div>
+            {% endfor %}
           </div>
         </div>
       </div>

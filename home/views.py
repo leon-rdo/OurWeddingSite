@@ -224,8 +224,8 @@ class BridalShowerGiftListView(UserPassesTestMixin, ListView):
         else:
             return self.request.user.has_perm('home.view_bridalshowergift')
         
-    def get_queryset(self):
-        return BridalShowerGift.objects.filter(guest_name__isnull=True)
+    # def get_queryset(self):
+    #     return BridalShowerGift.objects.filter(guest_name__isnull=True)
 
     def get_context_data(self, **kwargs):
         context = super(BridalShowerGiftListView, self).get_context_data(**kwargs)
