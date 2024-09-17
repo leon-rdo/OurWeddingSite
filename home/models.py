@@ -184,6 +184,7 @@ class BridalShowerGift(models.Model):
     class Meta:
         verbose_name = 'Presente do Chá de Panela'
         verbose_name_plural = 'Presentes do Chá de Panela'
+        ordering = ['category', 'name']
 
 
 class BridalShowerGiftColor(models.Model):

@@ -289,143 +289,44 @@
     </div>
   </section>
   {% endif %}
-  <section class="row" id="gifts">
+  <section class="row my-4" id="gifts">
     <h1>Lista de Presentes</h1>
-    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 justify-content-evenly g-4 my-5">
-      {% for gift in object_list %}
-      <div class="col">
-        <div class="card" style="width: 100%; height: 100%;">
-          <div class="w-100 overflow-hidden" style="height: 18rem;">
-            <img src="{{ gift.image.url }}" class="object-fit-cover w-100 h-100">
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">{{ gift.name }}</h5>
-            <p class="card-text">{{ gift.description }}</p>
-            {% if gift.suggestions.count > 0 %}
-            <button class="btn btn-pink" data-bs-toggle="modal"
-              data-bs-target="#gift{{ forloop.counter }}">Presentear</button>
-            {% else %}
-            <button class="btn btn-pink" data-bs-toggle="modal"
-              data-bs-target="#pickGift{{ forloop.counter }}">Presentear</button>
-            {% endif %}
-          </div>
-          <div class="card-footer d-flex align-items-center">
-            Cores:
-            <ul class="list-unstyled m-0 d-flex align-items-center avatar-group ms-2">
-              {% for color in gift.colors.all %}
-              <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top" class="avatar rounded-circle pull-up border border-dark" aria-label="{{ color.name }}" data-bs-original-title="{{ color.name }}" style="background-color: {{ color.color }};">
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      </div>
-      <!-- Modal -->
-      {% if gift.suggestions.count > 0 %}
-      <div class="modal fade" id="gift{{ forloop.counter }}" tabindex="-1"
-        aria-labelledby="gift{{ forloop.counter }}Label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header ">
-              <h1 class="modal-title fs-5" id="gift{{ forloop.count }}Label">{{ gift.name }}</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+    {% regroup object_list by category as category_list %}
+    {% for category in category_list %}
+      <h3>{{ category.list.0.get_category_display }}</h3>
+      <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 justify-content-evenly g-4 my-2">
+        {% for gift in category.list %}
+        <div class="col" data-category="{{ gift.get_category_display }}">
+          <div class="card" style="width: 100%; height: 100%;">
+            <div class="w-100 overflow-hidden" style="height: 18rem;">
+              <img src="{{ gift.image.url }}" class="object-fit-cover w-100 h-100">
             </div>
-            <ul class="modal-body list-group list-group-flush">
-              <li class="list-group-item bg-pink">Sugestões de onde comprar nos links abaixo:</li>
-              {% for suggestion in gift.suggestions.all %}
-              <li class="list-group-item">
-                &mdash; <a class="text-dark" href="{{ suggestion.link }}" target="_blank">{{ suggestion.name }}</a>
-              </li>
-              {% endfor %}
-            </ul>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-              <button type="button" class="btn btn-pink" data-bs-toggle="modal"
-                data-bs-target="#pickGift{{ forloop.counter }}">Presentear</button>
+            <div class="card-body">
+              <h5 class="card-title">{{ gift.name }}</h5>
+              <p class="card-text">{{ gift.description }}</p>
+              {% if gift.suggestions.count > 0 %}
+                <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ forloop.counter }}">Presentear</button>
+              {% else %}
+                <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ forloop.counter }}">Presentear</button>
+              {% endif %}
+            </div>
+            <div class="card-footer d-flex align-items-center">
+              Cores:
+              <ul class="list-unstyled m-0 d-flex align-items-center avatar-group ms-2">
+                {% for color in gift.colors.all %}
+                <li data-bs-toggle="tooltip" class="avatar rounded-circle pull-up border border-dark" aria-label="{{ color.name }}" style="background-color: {{ color.color }};">
+                </li>
+                {% endfor %}
+              </ul>
             </div>
           </div>
         </div>
+        
+        {% endfor %}
       </div>
-      <div class="modal fade" id="pickGift{{ forloop.counter }}" tabindex="-1"
-        aria-labelledby="pickGift{{ forloop.counter }}Label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header bg-pink">
-              <h1 class="modal-title fs-5" id="gift{{ forloop.count }}Label">Confirmar presente</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-              <form action="{% url 'home:choose_gift' gift.pk %}" method="POST">
-                {% csrf_token %}
-                <div class="mb-3">
-                  <label for="name" class="form-label">Nome</label>
-                  <input type="text" class="form-control" id="name" name="name" required>
-                </div>
-                <div class="mb-3">
-                  <label for="phone_number" class="form-label">Telefone</label>
-                  <input type="text" class="form-control" id="phone_number" name="phone_number" required>
-                </div>
-                <div class="mb-3">
-                  <label for="email" class="form-label">E-mail <small>(Opcional)</small></label>
-                  <input type="email" class="form-control" id="email" name="email">
-                </div>
-                <button type="submit" class="btn btn-pink">Presentear</button>
-              </form>
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-pink" data-bs-toggle="modal"
-                data-bs-target="#gift{{ forloop.counter }}">Voltar</button>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% else %}
-      <div class="modal fade" id="pickGift{{ forloop.counter }}" tabindex="-1"
-        aria-labelledby="pickGift{{ forloop.counter }}Label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header bg-pink">
-              <h1 class="modal-title fs-5" id="gift{{ forloop.count }}Label">Confirmar presente</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-              <form action="{% url 'home:choose_gift' gift.pk %}" method="POST">
-                {% csrf_token %}
-                <div class="mb-3">
-                  <label for="name" class="form-label">Nome</label>
-                  <input type="text" class="form-control" id="name" name="name" required>
-                </div>
-                <div class="mb-3">
-                  <label for="phone_number" class="form-label">Telefone</label>
-                  <input type="text" class="form-control" id="phone_number" name="phone_number" required>
-                </div>
-                <div class="mb-3">
-                  <label for="email" class="form-label">E-mail <small>(Opcional)</small></label>
-                  <input type="email" class="form-control" id="email" name="email">
-                </div>                
-                <button type="submit" class="btn btn-pink">Presentear</button>
-              </form>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-      {% empty %}
-      <div class="col">
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title">Nenhum presente cadastrado</h5>
-            <p class="card-text">Nenhum presente foi cadastrado ainda.</p>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
+    {% endfor %}
   </section>
+  
 </div>
 {% endblock content %}
 
