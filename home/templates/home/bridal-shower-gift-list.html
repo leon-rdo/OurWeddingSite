@@ -294,9 +294,9 @@
     <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 justify-content-evenly g-4 my-5">
       {% for gift in object_list %}
       <div class="col">
-        <div class="card" style="width: 18rem; height: 100%;">
+        <div class="card" style="width: 100%; height: 100%;">
           <div class="w-100 overflow-hidden" style="height: 18rem;">
-            <img src="{{ gift.image.url }}" class="object-fit-contain card-img-top" width="100%">
+            <img src="{{ gift.image.url }}" class="object-fit-cover w-100 h-100">
           </div>
           <div class="card-body">
             <h5 class="card-title">{{ gift.name }}</h5>
@@ -369,10 +369,6 @@
                   <label for="email" class="form-label">E-mail <small>(Opcional)</small></label>
                   <input type="email" class="form-control" id="email" name="email">
                 </div>
-                <!-- <div class="mb-3">
-                  <label for="quota_value" class="form-label">Valor da Cota (R$)</label>
-                  <input type="number" class="form-control" id="quota_value" name="quota_value">
-                </div> -->
                 <button type="submit" class="btn btn-pink">Presentear</button>
               </form>
             </div>
