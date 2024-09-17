@@ -172,8 +172,11 @@ class BridalShowerGift(models.Model):
     category = models.CharField("Categoria", max_length=50, choices=CATEGORIES)
     colors = models.ManyToManyField('home.BridalShowerGiftColor', verbose_name="Cores", related_name='gifts_colors')
 
-    def quotas_total(self):
-        BridalShowerGiftQuota().objects.filter(gift=self).aggregate(total=models.Sum('value'))
+    # Guest
+
+    guest_name = models.CharField("Nome do Convidado", max_length=50, blank=True, null=True)
+    guest_phone = models.CharField("Telefone do Convidado", max_length=20, blank=True, null=True)
+    guest_email = models.EmailField("E-mail do Convidado", blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -181,22 +184,6 @@ class BridalShowerGift(models.Model):
     class Meta:
         verbose_name = 'Presente do Chá de Panela'
         verbose_name_plural = 'Presentes do Chá de Panela'
-
-
-class BridalShowerGiftQuota(models.Model):
-    
-    gift = models.ForeignKey(BridalShowerGift, on_delete=models.CASCADE, related_name='quotas')
-    value = models.DecimalField("Valor", max_digits=6, decimal_places=2)
-    
-    # Guest
-
-    guest_name = models.CharField("Nome do Convidado", max_length=50, blank=True, null=True)
-    guest_phone = models.CharField("Telefone do Convidado", max_length=20, blank=True, null=True)
-    guest_email = models.EmailField("E-mail do Convidado", blank=True, null=True)
-    
-    class Meta:
-        verbose_name = 'Cota do Presente do CdP'
-        verbose_name_plural = 'Cotas do Presente do CdP'
 
 
 class BridalShowerGiftColor(models.Model):

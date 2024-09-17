@@ -224,8 +224,8 @@ class BridalShowerGiftListView(UserPassesTestMixin, ListView):
         else:
             return self.request.user.has_perm('home.view_bridalshowergift')
         
-    # def get_queryset(self):
-    #     return BridalShowerGift.objects.filter(guest_name__isnull=True)
+    def get_queryset(self):
+        return BridalShowerGift.objects.filter(guest_name__isnull=True)
 
     def get_context_data(self, **kwargs):
         context = super(BridalShowerGiftListView, self).get_context_data(**kwargs)
@@ -245,7 +245,6 @@ class PickGiftView(UserPassesTestMixin, View):
         guest_name = request.POST.get('name')
         guest_email = request.POST.get('email')
         guest_phone = request.POST.get('phone_number')
-        print(request.POST)
         gift = BridalShowerGift.objects.get(id=gift_id)
         gift.guest_name = guest_name
         gift.guest_email = guest_email

@@ -78,12 +78,19 @@ class BridalShowerGiftSuggestionInline(admin.TabularInline):
 
 @admin.register(BridalShowerGift)
 class BridalShowerGiftAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category')
+    list_display = ('name', 'category', 'guest_name')
     search_fields = ('name', 'description')
     inlines = [BridalShowerGiftSuggestionInline]
     list_filter = ('category',)
+    fieldsets = (
+        ('Presente', {
+            'fields': ('name', 'description', 'image', 'category', 'colors')
+        }),
+        ('Convidado', {
+            'fields': ('guest_name', 'guest_phone', 'guest_email'),
+            'classes': ('collapse',)
+        })
+    )
 
 
 admin.site.register(BridalShowerGiftColor)
-
-admin.site.register(BridalShowerGiftQuota)
