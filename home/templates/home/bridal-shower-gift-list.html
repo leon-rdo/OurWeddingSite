@@ -4,32 +4,189 @@
 {% block extra_head %}
 <title>Chá de Panela</title>
 <style>
-.avatar {
-  position: relative;
-  width: 2.375rem;
-  height: 2.375rem;
-  cursor: pointer;
-}
+  .avatar {
+    position: relative;
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+  }
 
-.avatar img {
-  width: 100%;
-  height: 100%;
-}
+  .avatar img {
+    width: 100%;
+    height: 100%;
+  }
 
-.avatar .avatar-initial {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  background-color: #8592a3;
-  font-weight: 500;
-}
+  .avatar .avatar-initial {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .pull-up {
+    transition: all 0.25s ease;
+  }
+
+  .pull-up:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.2);
+    z-index: 30;
+    border-radius: 50%;
+  }
+
+  .avatar-xs {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+
+  .avatar-xs .avatar-initial {
+    font-size: 0.625rem;
+  }
+
+  .avatar-xs.avatar-online:after,
+  .avatar-xs.avatar-offline:after,
+  .avatar-xs.avatar-away:after,
+  .avatar-xs.avatar-busy:after {
+    width: 0.325rem;
+    height: 0.325rem;
+    right: 1px;
+  }
+
+  .avatar-sm {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .avatar-sm .avatar-initial {
+    font-size: 0.75rem;
+  }
+
+  .avatar-sm.avatar-online:after,
+  .avatar-sm.avatar-offline:after,
+  .avatar-sm.avatar-away:after,
+  .avatar-sm.avatar-busy:after {
+    width: 0.4rem;
+    height: 0.4rem;
+    right: 2px;
+  }
+
+  .avatar-md {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .avatar-md .avatar-initial {
+    font-size: 1.125rem;
+  }
+
+  .avatar-md.avatar-online:after,
+  .avatar-md.avatar-offline:after,
+  .avatar-md.avatar-away:after,
+  .avatar-md.avatar-busy:after {
+    width: 0.6rem;
+    height: 0.6rem;
+    right: 4px;
+  }
+
+  .avatar-lg {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .avatar-lg .avatar-initial {
+    font-size: 1.5rem;
+  }
+
+  .avatar-lg.avatar-online:after,
+  .avatar-lg.avatar-offline:after,
+  .avatar-lg.avatar-away:after,
+  .avatar-lg.avatar-busy:after {
+    width: 0.8rem;
+    height: 0.8rem;
+    right: 5px;
+  }
+
+  .avatar-xl {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .avatar-xl .avatar-initial {
+    font-size: 1.875rem;
+  }
+
+  .avatar-xl.avatar-online:after,
+  .avatar-xl.avatar-offline:after,
+  .avatar-xl.avatar-away:after,
+  .avatar-xl.avatar-busy:after {
+    width: 0.9rem;
+    height: 0.9rem;
+    right: 6px;
+  }
+
+  .avatar-group .avatar {
+    transition: all 0.25s ease;
+  }
+
+  .avatar-group .avatar img,
+  .avatar-group .avatar .avatar-initial {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .avatar-group .avatar .avatar-initial {
+    background-color: #9da8b5;
+  }
+
+  .avatar-group .avatar:hover {
+    z-index: 30;
+    transition: all 0.25s ease;
+  }
+
+  .avatar-group .avatar {
+    margin-left: -0.8rem;
+  }
+
+  .avatar-group .avatar:first-child {
+    margin-left: 0;
+  }
+
+  .avatar-group .avatar-xs {
+    margin-left: -0.65rem;
+  }
+
+  .avatar-group .avatar-sm {
+    margin-left: -0.75rem;
+  }
+
+  .avatar-group .avatar-md {
+    margin-left: -0.9rem;
+  }
+
+  .avatar-group .avatar-lg {
+    margin-left: -1.5rem;
+  }
+
+  .avatar-group .avatar-xl {
+    margin-left: -1.75rem;
+  }
+
+  .avatar-group .avatar .avatar-initial {
+    background-color: rgba(255, 255, 255, 0.37);
+  }
+
+  .avatar.avatar-online:after,
+  .avatar.avatar-offline:after,
+  .avatar.avatar-away:after,
+  .avatar.avatar-busy:after {
+    box-shadow: 0 0 0 2px #232333;
+  }
 </style>
 {% endblock extra_head %}
 
@@ -137,24 +294,29 @@
     <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 justify-content-evenly g-4 my-5">
       {% for gift in object_list %}
       <div class="col">
-        <div class="card" style="width: 18rem;">
-          <img src="{{ gift.image.url }}" class="card-img-top" width="100%">
+        <div class="card" style="width: 18rem; height: 100%;">
+          <div class="w-100 overflow-hidden" style="height: 18rem;">
+            <img src="{{ gift.image.url }}" class="object-fit-contain card-img-top" width="100%">
+          </div>
           <div class="card-body">
             <h5 class="card-title">{{ gift.name }}</h5>
             <p class="card-text">{{ gift.description }}</p>
             {% if gift.suggestions.count > 0 %}
-            <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ forloop.counter }}">Presentear</button>
+            <button class="btn btn-pink" data-bs-toggle="modal"
+              data-bs-target="#gift{{ forloop.counter }}">Presentear</button>
             {% else %}
-            <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ forloop.counter }}">Presentear</button>
+            <button class="btn btn-pink" data-bs-toggle="modal"
+              data-bs-target="#pickGift{{ forloop.counter }}">Presentear</button>
             {% endif %}
           </div>
           <div class="card-footer d-flex align-items-center">
             Cores:
-            {% for color in gift.colors.all %}
-            <div class="avatar">
-              <span class="avatar-initial rounded-circle pull-up bg-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{ color.color }}"></span>
-            </div>
-            {% endfor %}
+            <ul class="list-unstyled m-0 d-flex align-items-center avatar-group ms-2">
+              {% for color in gift.colors.all %}
+              <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top" class="avatar rounded-circle pull-up border border-dark" aria-label="{{ color.name }}" data-bs-original-title="{{ color.name }}" style="background-color: {{ color.color }};">
+              </li>
+              {% endfor %}
+            </ul>
           </div>
         </div>
       </div>
@@ -211,7 +373,8 @@
               </form>
             </div>
             <div class="modal-footer">
-              <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ forloop.counter }}">Voltar</button>
+              <button class="btn btn-pink" data-bs-toggle="modal"
+                data-bs-target="#gift{{ forloop.counter }}">Voltar</button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             </div>
           </div>
@@ -265,3 +428,16 @@
   </section>
 </div>
 {% endblock content %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  });
+</script>
+{% endblock extra_scripts %}

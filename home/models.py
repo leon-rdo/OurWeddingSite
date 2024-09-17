@@ -202,9 +202,10 @@ class BridalShowerGiftQuota(models.Model):
 class BridalShowerGiftColor(models.Model):
     
     color = models.CharField("Cor", max_length=7)
+    name = models.CharField("Nome", max_length=50)
     
     def __str__(self):
-        return self.color
+        return self.name + ' - ' + self.color
     
     class Meta:
         verbose_name = 'Cor do Presente do CdP'
