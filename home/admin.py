@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.forms import TextInput
 from django.urls import reverse_lazy
 from .models import *
 from django.utils.html import format_html
@@ -93,4 +94,21 @@ class BridalShowerGiftAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(BridalShowerGiftColor)
+@admin.register(BridalShowerGiftColor)
+class BridalShowerGiftColorAdmin(admin.ModelAdmin):
+    
+    from django.forms import ModelForm
+
+    class BridalShowerGiftColorForm(ModelForm):
+        class Meta:
+            model = BridalShowerGiftColor
+            fields = '__all__'
+            widgets = {
+                'color': TextInput(attrs={'type': 'color'}),
+            }
+
+    list_display = ('name', 'color')
+    search_fields = ('name', 'color')
+    form = BridalShowerGiftColorForm
+
+
