@@ -290,10 +290,10 @@
   </section>
   {% endif %}
   <section class="row my-4" id="gifts">
-    <h1>Lista de Presentes</h1>
+    <h1 class="text-center">Lista de Presentes</h1>
     {% regroup object_list by category as category_list %}
     {% for category in category_list %}
-      <h3>{{ category.list.0.get_category_display }}</h3>
+      <h3 class="text-center my-3">{{ category.list.0.get_category_display }}</h3>
       <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 justify-content-evenly g-4 my-2">
         {% for gift in category.list %}
         <div class="col" data-category="{{ gift.get_category_display }}">
