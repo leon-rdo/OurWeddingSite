@@ -29,9 +29,14 @@ class TextContentAdmin(admin.ModelAdmin):
 
 @admin.register(Gallery)
 class GalleryAdmin(admin.ModelAdmin):
-    list_display = ('title', 'featured', 'position')
+    list_display = ('title', 'featured', 'position', 'hide', 'hide_title')
     search_fields = ('title', 'description')
-    list_filter = ('featured', 'position')
+    list_filter = ('featured', 'position', 'hide', 'hide_title')
+    actions = ['hide_selected_galleries']
+
+    def hide_selected_galleries(self, request, queryset):
+        queryset.update(hide=True)
+    hide_selected_galleries.short_description = "Ocultar galerias selecionadas"
 
 
 @admin.register(Gift)
