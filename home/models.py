@@ -170,7 +170,7 @@ class BridalShowerGift(models.Model):
     description = models.TextField("Descrição")
     image = models.ImageField("Imagem", upload_to='home/bridal_shower_gifts/')
     category = models.CharField("Categoria", max_length=50, choices=CATEGORIES)
-    colors = models.ManyToManyField('home.BridalShowerGiftColor', verbose_name="Cores", related_name='gifts_colors')
+    colors = models.ManyToManyField('home.BridalShowerGiftColor', verbose_name="Cores", related_name='gifts_colors', blank=True)
 
     # Guest
 

@@ -110,5 +110,3 @@ class BridalShowerGiftColorAdmin(admin.ModelAdmin):
     list_display = ('name', 'color')
     search_fields = ('name', 'color')
     form = BridalShowerGiftColorForm
-
-
