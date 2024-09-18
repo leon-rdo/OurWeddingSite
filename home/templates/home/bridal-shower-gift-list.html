@@ -121,9 +121,9 @@
               <h5 class="card-title">{{ gift.name }}</h5>
               <p class="card-text">{{ gift.description }}</p>
               {% if gift.suggestions.count > 0 %}
-                <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ forloop.counter }}">Presentear</button>
+                <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ gift.pk }}">Presentear</button>
               {% else %}
-                <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ forloop.counter }}">Presentear</button>
+                <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ gift.pk }}">Presentear</button>
               {% endif %}
             </div>
             <div class="card-footer d-flex align-items-center">
@@ -141,104 +141,109 @@
             </div>
           </div>
         </div>
-        <!-- Modal -->
-        {% if gift.suggestions.count > 0 %}
-        <div class="modal fade" id="gift{{ forloop.counter }}" tabindex="-1"
-          aria-labelledby="gift{{ forloop.counter }}Label" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header ">
-                <h1 class="modal-title fs-5" id="gift{{ forloop.count }}Label">{{ gift.name }}</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-              </div>
-              <ul class="modal-body list-group list-group-flush">
-                <li class="list-group-item bg-pink">Sugestões de onde comprar nos links abaixo:</li>
-                {% for suggestion in gift.suggestions.all %}
-                <li class="list-group-item">
-                  &mdash; <a class="text-dark" href="{{ suggestion.link }}" target="_blank">{{ suggestion.name }}</a>
-                </li>
-                {% endfor %}
-              </ul>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-pink" data-bs-toggle="modal"
-                  data-bs-target="#pickGift{{ forloop.counter }}">Presentear</button>
-              </div>
+      <!-- Modal -->
+      {% if gift.suggestions.count > 0 %}
+      <div class="modal fade" id="gift{{ gift.pk }}" tabindex="-1" aria-labelledby="gift{{ gift.pk }}Label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header ">
+              <h1 class="modal-title fs-5" id="gift{{ gift.pk }}Label">Confirmar presente</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <ul class="modal-body list-group list-group-flush">
+              <li class="list-group-item bg-pink">Sugestões de onde comprar nos links abaixo:</li>
+              {% for suggestion in gift.suggestions.all %}
+              <li class="list-group-item">
+                &mdash; <a class="text-dark" href="{{ suggestion.link }}" target="_blank">{{ suggestion.name }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+              <button type="button" class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ gift.pk }}">Presentear</button>
             </div>
           </div>
         </div>
-        <div class="modal fade" id="pickGift{{ forloop.counter }}" tabindex="-1"
-          aria-labelledby="pickGift{{ forloop.counter }}Label" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header bg-pink">
-                <h1 class="modal-title fs-5" id="gift{{ forloop.count }}Label">Confirmar presente</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-              </div>
-              <div class="modal-body">
-                <form action="{% url 'home:choose_gift' gift.pk %}" method="POST">
-                  {% csrf_token %}
-                  <div class="mb-3">
-                    <label for="name" class="form-label">Nome</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="phone_number" class="form-label">Telefone</label>
-                    <input type="text" class="form-control" id="phone_number" name="phone_number" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="message" class="form-label">E-mail <small>(Opcional)</small></label>
-                    <input type="email" class="form-control" id="email" name="email">
-                  </div>
-                  <button type="submit" class="btn btn-pink">Presentear</button>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ forloop.counter }}">Voltar</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% else %}
-        <div class="modal fade" id="pickGift{{ forloop.counter }}" tabindex="-1"
-          aria-labelledby="pickGift{{ forloop.counter }}Label" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header bg-pink">
-                <h1 class="modal-title fs-5" id="gift{{ forloop.count }}Label">Confirmar presente</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-              </div>
-              <div class="modal-body">
-                <form action="{% url 'home:choose_gift' gift.pk %}" method="POST">
-                  {% csrf_token %}
-                  <div class="mb-3">
-                    <label for="name" class="form-label">Nome</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="phone_number" class="form-label">Telefone</label>
-                    <input type="text" class="form-control" id="phone_number" name="phone_number" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="message" class="form-label">E-mail <small>(Opcional)</small></label>
-                    <input type="email" class="form-control" id="email" name="email">
-                  </div>
-                  <button type="submit" class="btn btn-pink">Presentear</button>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-        {% endfor %}
       </div>
+      <div class="modal fade" id="pickGift{{ gift.pk }}" tabindex="-1" aria-labelledby="pickGift{{ gift.pk }}Label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header bg-pink">
+              <h1 class="modal-title fs-5" id="pickGift{{ gift.pk }}Label">Confirmar presente</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+              <form action="{% url 'home:choose_gift' gift.pk %}" method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label for="name" class="form-label">Nome</label>
+                  <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="mb-3">
+                  <label for="phone_number" class="form-label">Telefone</label>
+                  <input type="text" class="form-control" id="phone_number" name="phone_number" required>
+                </div>
+                <div class="mb-3">
+                  <label for="message" class="form-label">E-mail <small>(Opcional)</small></label>
+                  <input type="email" class="form-control" id="email" name="email">
+                </div>
+                <button type="submit" class="btn btn-pink">Presentear</button>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ gift.pk }}">Voltar</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="modal fade" id="pickGift{{ gift.pk }}" tabindex="-1"
+        aria-labelledby="pickGift{{ gift.pk }}Label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header bg-pink">
+              <h1 class="modal-title fs-5" id="pickGift{{ gift.pk }}Label">Confirmar presente</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+              <form action="{% url 'home:choose_gift' gift.pk %}" method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label for="name" class="form-label">Nome</label>
+                  <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="mb-3">
+                  <label for="phone_number" class="form-label">Telefone</label>
+                  <input type="text" class="form-control" id="phone_number" name="phone_number" required>
+                </div>
+                <div class="mb-3">
+                  <label for="message" class="form-label">E-mail <small>(Opcional)</small></label>
+                  <input type="email" class="form-control" id="email" name="email">
+                </div>
+                <button type="submit" class="btn btn-pink">Presentear</button>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% empty %}
+      <div class="col">
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">Nenhum presente cadastrado</h5>
+            <p class="card-text">Nenhum presente foi cadastrado ainda.</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
     {% endfor %}
   </section>
-  
 </div>
 {% endblock content %}
 
@@ -251,6 +256,21 @@
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)
     })
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    const modalToggles = document.querySelectorAll('[data-bs-toggle="modal"]');
+
+    modalToggles.forEach(function (toggle) {
+      toggle.addEventListener('click', function (event) {
+        const target = event.currentTarget.getAttribute('data-bs-target');
+        const currentModal = bootstrap.Modal.getInstance(document.querySelector('.modal.show'));
+        if (currentModal) {
+          currentModal.hide();  // Fechar modal atual antes de abrir o próximo
+        }
+        const newModal = new bootstrap.Modal(document.querySelector(target));
+        newModal.show();
+      });
+    });
   });
 </script>
 {% endblock extra_scripts %}
