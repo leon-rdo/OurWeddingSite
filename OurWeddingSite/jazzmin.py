@@ -25,6 +25,8 @@ JAZZMIN_SETTINGS = {
         "home.gift": "fas fa-gift",
         "home.message": "fas fa-envelope",
         "home.guest": "fas fa-users",
+        "home.BridalShowerGift": "fas fa-gift",
+        "home.BridalShowerGiftColor": "fas fa-paint-brush",
     },
 
     "changeform_format": "single",
