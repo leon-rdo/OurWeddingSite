@@ -40,7 +40,9 @@
         <div class="u-container-layout u-similar-container u-container-layout-1">
           <img class="u-expanded-width u-image u-image-1" src="{{ image.image.url }}" data-image-width="800"
             data-image-height="846">
-          <h4 class="u-align-center u-text u-text-default u-text-3">{{ image.title }}</h4>
+          {% if not image.hide_title %}
+            <h4 class="u-align-center u-text u-text-default u-text-3">{{ image.title }}</h4>
+          {% endif %}
         </div>
       </div>
       {% endfor %}
@@ -79,7 +81,8 @@
   images.forEach((image, index) => {
     image.addEventListener('click', () => {
       currentImage = index;
-      modalTitle.textContent = image.querySelector('.u-text-3').textContent;
+      var titleElement = image.querySelector('.u-text-3');
+      modalTitle.textContent = titleElement ? titleElement.textContent : 'Foto';
       modalImage.src = image.querySelector('img').src;
       modal.show();
     });
@@ -87,13 +90,15 @@
 
   previousButton.addEventListener('click', () => {
     currentImage = currentImage === 0 ? images.length - 1 : currentImage - 1;
-    modalTitle.textContent = images[currentImage].querySelector('.u-text-3').textContent;
+    var titleElement = images[currentImage].querySelector('.u-text-3');
+    modalTitle.textContent = titleElement ? titleElement.textContent : 'Foto';
     modalImage.src = images[currentImage].querySelector('img').src;
   });
 
   nextButton.addEventListener('click', () => {
     currentImage = currentImage === images.length - 1 ? 0 : currentImage + 1;
-    modalTitle.textContent = images[currentImage].querySelector('.u-text-3').textContent;
+    var titleElement = images[currentImage].querySelector('.u-text-3');
+    modalTitle.textContent = titleElement ? titleElement.textContent : 'Foto';
     modalImage.src = images[currentImage].querySelector('img').src;
   });
 </script>

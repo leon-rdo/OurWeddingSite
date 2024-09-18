@@ -99,6 +99,9 @@ class Gallery(models.Model):
 
     text_content = models.ForeignKey(TextContent, verbose_name="Conteúdo de Texto", related_name="images", on_delete=models.SET_NULL, blank=True, null=True)
 
+    hide = models.BooleanField("Esconder", default=False)
+    hide_title = models.BooleanField("Esconder Título", default=False)
+
     def save(self, *args, **kwargs):
         if not self.featured:
             self.position = None

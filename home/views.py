@@ -56,7 +56,7 @@ class GalleryView(UserPassesTestMixin, TemplateView):
         context = super(GalleryView, self).get_context_data(**kwargs)
         context["gallery_text_1"] = TextContent.objects.filter(position="gallery_text_1").first()
         context["gallery_text_2"] = TextContent.objects.filter(position="gallery_text_2").first()
-        context["gallery"] = Gallery.objects.all()
+        context["gallery"] = Gallery.objects.filter(hide=False)
         return context
 
 
