@@ -74,6 +74,7 @@ class TextContent(models.Model):
         ('about_us_text_5', 'Texto 5 Sobre Nós'),
         ('gallery_text_1', 'Texto1 da Galeria'),
         ('gallery_text_2', 'Texto2 da Galeria'),
+        ('gift_list_text', 'Texto da Lista de Presentes'),
         ('bridal_shower_text', 'Texto do Chá de Panela'),
     ]
     

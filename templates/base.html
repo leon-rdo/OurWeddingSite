@@ -167,7 +167,23 @@
                     button.textContent = '⏸️';
                 }, { once: true });
             });
+
         </script>
+    {% endif %}
+    {% if user.is_staff %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var elements = document.querySelectorAll('[data-text-url]');
+        elements.forEach(function(element) {
+        element.addEventListener('dblclick', function() {
+            var url = this.getAttribute('data-text-url');
+            if (url) {
+            window.location.href = url;
+            }
+        });
+        });
+    });
+    </script>
     {% endif %}
     {% block extra_scripts %}{% endblock extra_scripts %}
 </body>

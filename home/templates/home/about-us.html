@@ -21,7 +21,7 @@
   <div class="u-align-left u-container-align-left u-container-style u-group u-white u-group-2"
     data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
     <div class="u-container-layout u-valign-middle u-container-layout-2">
-      <h1 class="u-align-left u-text u-text-1">{{ about_us_text_1.title }}</h1>
+      <h1 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_1.pk %}">{{ about_us_text_1.title }}</h1>
       <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ about_us_text_1.content }}</p>
     </div>
 </section>
@@ -42,8 +42,8 @@
     class="custom-expanded u-align-left u-container-align-left u-container-style u-group u-shape-rectangle u-white u-group-2"
     data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
     <div class="u-container-layout u-valign-middle u-container-layout-2">
-      <h2 class="u-align-left u-text u-text-1">{{ about_us_text_2.title }}</h2>
-      <p class="u-align-left u-text u-text-2">{{ about_us_text_2.content }}</p>
+      <h2 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_2.pk %}">{{ about_us_text_2.title }}</h2>
+      <p class="u-align-left u-text u-text-2" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_2.pk %}">{{ about_us_text_2.content }}</p>
     </div>
   </div>
 </section>
@@ -53,14 +53,13 @@
   class="u-align-center u-clearfix u-container-align-center u-palette-1-light-2 u-valign-middle-lg u-valign-middle-md u-valign-middle-xl u-section-3"
   id="carousel_b8a3">
   <h2 class="u-align-center u-text u-text-1" data-animation-name="customAnimationIn" data-animation-duration="1500"
-    data-animation-delay="0">{{ about_us_text_3.title }}</h2>
+    data-animation-delay="0" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_3.pk %}">{{ about_us_text_3.title }}</h2>
   <p class="u-align-center u-text u-text-2" data-animation-name="customAnimationIn" data-animation-duration="1500"
-    data-animation-delay="250">{{ about_us_text_3.content }}</p>
+    data-animation-delay="250" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_3.pk %}">{{ about_us_text_3.content }}</p>
   <div class="u-expanded-width u-list u-list-1">
     <div class="u-repeater u-repeater-1">
       {% with about_us_text_3.images.all as images %}{% for image in images %}
-      <div
-        class="u-container-align-left u-container-style u-image u-image-default u-list-item u-repeater-item u-shading u-image-1"
+      <div class="u-container-align-left u-container-style u-image u-image-default u-list-item u-repeater-item u-shading u-image-1"
         data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750"
         style="background-image: url('{{ image.image.url|default:'https://picsum.photos/600/' }}');">
         <div class="u-container-layout u-similar-container u-valign-bottom u-container-layout-1">
@@ -75,8 +74,8 @@
 {% if about_us_text_4 is not None %}
 <section class="u-align-center u-clearfix u-palette-1-light-2 u-section-4" id="carousel_b65a">
   <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-    <h2 class="u-text u-text-1">{{ about_us_text_4.title }}</h2>
-    <p class="u-text u-text-2">{{ about_us_text_4.content }}</p>
+    <h2 class="u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_4.pk %}">{{ about_us_text_4.title }}</h2>
+    <p class="u-text u-text-2" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_4.pk %}">{{ about_us_text_4.content }}</p>
   </div>
 </section>
 {% endif %}
@@ -91,9 +90,9 @@
           class="u-container-align-left u-container-style u-layout-cell u-size-26-lg u-size-26-xl u-size-60-md u-size-60-sm u-size-60-xs u-layout-cell-1"
           data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
           <div class="u-container-layout u-valign-middle u-container-layout-1">
-            <h2 class="u-align-left u-text u-text-1">{{ about_us_text_5.title }}<br>
+            <h2 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_5.pk %}">{{ about_us_text_5.title }}<br>
             </h2>
-            <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ about_us_text_5.content }}
+            <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_5.pk %}">{{ about_us_text_5.content }}
             </p>
           </div>
         </div>

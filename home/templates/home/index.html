@@ -35,7 +35,7 @@
         </div>
 
         {% if intro_text %}
-        <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ intro_text.content }}</p>
+        <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' intro_text.pk %}">{{ intro_text.content }}</p>
         {% endif %}
 
       </div>
@@ -65,9 +65,9 @@
         <div class="u-container-align-left u-container-style u-layout-cell u-size-26 u-layout-cell-2"
           data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
           <div class="u-container-layout u-valign-middle u-container-layout-3">
-            <h2 class="u-align-left u-text u-text-1"><b> {{ text_1.title }}</b> <br>
+            <h2 class="u-align-left u-text u-text-1"><b data-text-url="{% url 'admin:home_textcontent_change' text_1.pk %}"> {{ text_1.title }}</b> <br>
             </h2>
-            <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ text_1.content }}</p>
+            <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' text_1.pk %}">{{ text_1.content }}</p>
           </div>
         </div>
       </div>
@@ -85,7 +85,7 @@
           <div class="u-container-style u-layout-cell u-left-cell u-size-30 u-layout-cell-1"
             data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
             <div class="u-container-layout u-valign-top u-container-layout-1">
-              <h2 class="u-text u-text-1">Informações</h2>
+              <h2 class="u-text u-text-1" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">Informações</h2>
               <div class="u-border-6 u-border-palette-1-base u-line u-line-horizontal u-line-1"></div>
             </div>
           </div>
@@ -189,9 +189,9 @@
                 class="u-align-left u-container-align-left u-container-style u-layout-cell u-left-cell u-size-30 u-layout-cell-2"
                 data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
                 <div class="u-container-layout u-valign-top u-container-layout-2">
-                  <h2 class="u-align-left u-text u-text-1"><span style="font-weight: 700;">{{ text_2.title }}</span>
+                  <h2 class="u-align-left u-text u-text-1"><span style="font-weight: 700;" data-text-url="{% url 'admin:home_textcontent_change' text_2.pk %}">{{ text_2.title }}</span>
                   </h2>
-                  <p class="u-align-left u-text u-text-2">{{ text_2.subtitle }} {{ text_2.images }}</p>
+                  <p class="u-align-left u-text u-text-2" data-text-url="{% url 'admin:home_textcontent_change' text_2.pk %}">{{ text_2.subtitle }}</p>
                 </div>
               </div>
             </div>
@@ -204,8 +204,7 @@
                   <div class="u-align-left u-palette-1-light-2 u-shape u-shape-1"
                     data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
                   </div>
-                  <p class="u-text u-text-4" data-animation-name="customAnimationIn" data-animation-duration="1500"
-                    data-animation-delay="500">{{ text_2.content }}</p>
+                  <p class="u-text u-text-4" data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500" data-text-url="{% url 'admin:home_textcontent_change' text_2.pk %}">{{ text_2.content }}</p>
                   <img src="{{ images.0.image.url|default:'https://picsum.photos/700' }}" alt=""
                     class="u-align-left u-image u-image-2" data-animation-name="customAnimationIn"
                     data-animation-duration="1500" data-animation-delay="250">
@@ -235,8 +234,8 @@
                     class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-1"
                     data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
                     <div class="u-container-layout u-container-layout-1">
-                      <h3 class="u-text u-text-1">{{ text_3.title }}</h3>
-                      <blockquote class="u-text u-text-2">{{ text_3.content }} </blockquote>
+                      <h3 class="u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' text_3.pk %}">{{ text_3.title }}</h3>
+                      <blockquote class="u-text u-text-2" data-text-url="{% url 'admin:home_textcontent_change' text_3.pk %}">{{ text_3.content }} </blockquote>
                     </div>
                   </div>
                 </div>
@@ -249,8 +248,8 @@
                     class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
                     data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
                     <div class="u-container-layout u-valign-top u-container-layout-2">
-                      <h3 class="u-text u-text-3">{{ text_4.title }}</h3>
-                      <blockquote class="u-text u-text-4">{{ text_4.content }} </blockquote>
+                      <h3 class="u-text u-text-3" data-text-url="{% url 'admin:home_textcontent_change' text_4.pk %}">{{ text_4.title }}</h3>
+                      <blockquote class="u-text u-text-4" data-text-url="{% url 'admin:home_textcontent_change' text_4.pk %}">{{ text_4.content }} </blockquote>
                     </div>
                   </div>
                 </div>
@@ -319,8 +318,8 @@
       data-animation-name="flipIn" data-animation-duration="1500" data-animation-direction="X"
       data-animation-delay="750">
       <div class="u-container-layout u-valign-top u-container-layout-1">
-        <h2 class="u-align-center u-text u-text-default u-text-1">{{ text_5.title }}</h2>
-        <p class="u-align-center u-text u-text-2">{{ text_5.content }}</p>
+        <h2 class="u-align-center u-text u-text-default u-text-1" data-text-url="{% url 'admin:home_textcontent_change' text_5.pk %}">{{ text_5.title }}</h2>
+        <p class="u-align-center u-text u-text-2" data-text-url="{% url 'admin:home_textcontent_change' text_5.pk %}">{{ text_5.content }}</p>
       </div>
     </div>
     {% endif %}
@@ -400,7 +399,7 @@
                     class="u-container-align-left u-container-style u-layout-cell u-left-cell u-size-60 u-layout-cell-2"
                     data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
                     <div class="u-container-layout u-valign-top u-container-layout-2">
-                      <p class="u-align-left u-text u-text-3"><b> {{ leave_a_message_text.content }} </b>
+                      <p class="u-align-left u-text u-text-3"><b data-text-url="{% url 'admin:home_textcontent_change' leave_a_message_text.pk %}"> {{ leave_a_message_text.content }} </b>
                         <br>
                         <br> {{ leave_a_message_text2.content }} <br>
                       </p>
@@ -413,7 +412,7 @@
                   <div class="u-container-align-left u-container-style u-layout-cell u-size-36 u-layout-cell-3"
                     data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
                     <div class="u-container-layout u-valign-top u-container-layout-3">
-                      <p class="u-align-left u-text u-text-4">{{ last_text.content }}</p>
+                      <p class="u-align-left u-text u-text-4" data-text-url="{% url 'admin:home_textcontent_change' last_text.pk %}">{{ last_text.content }}</p>
                     </div>
                   </div>
                   <div

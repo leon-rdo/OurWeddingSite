@@ -20,8 +20,8 @@
   <div class="u-align-left u-container-align-left u-container-style u-group u-white u-group-2"
     data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
     <div class="u-container-layout u-valign-middle u-container-layout-2">
-      <h1 class="u-align-left u-text u-text-1">{{ gallery_text_1.title }}</h1>
-      <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ gallery_text_1.content }}</p>
+      <h1 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_1.pk %}">{{ gallery_text_1.title }}</h1>
+      <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_1.pk %}">{{ gallery_text_1.content }}</p>
     </div>
   </div>
 </section>
@@ -29,9 +29,9 @@
   <div class="custom-expanded u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
     data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
   <h2 class="u-align-center u-text u-text-1" data-animation-name="customAnimationIn" data-animation-duration="1500"
-    data-animation-delay="0">{{ gallery_text_2.title }}</h2>
+    data-animation-delay="0" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_2.pk %}">{{ gallery_text_2.title }}</h2>
   <p class="u-align-center u-text u-text-2" data-animation-name="customAnimationIn" data-animation-duration="1500"
-    data-animation-delay="250">{{ gallery_text_2.content }}</p>
+    data-animation-delay="250" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_2.pk %}">{{ gallery_text_2.content }}</p>
   <div class="custom-expanded u-list u-list-1">
     <div class="u-repeater u-repeater-1">
       {% for image in gallery %}

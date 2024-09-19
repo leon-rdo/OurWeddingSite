@@ -7,8 +7,8 @@
 
 {% block content %}
 <div class="container">
-    {% if text_1 is not None %}
-    <section class="u-clearfix u-section-2" id="text_1">
+    {% if gift_list_text is not None %}
+    <section class="u-clearfix u-section-2" id="gift_list_text">
         <div class="u-align-right u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
             data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750"></div>
         <div class="custom-expanded data-layout-selected u-clearfix u-layout-wrap u-layout-wrap-1">
@@ -24,7 +24,7 @@
                                 data-animation-delay="500">
                                 <div class="u-container-layout u-container-layout-2"></div>
                             </div>
-                            <img src="{{ text_1.images.first.image.url }}" alt=""
+                            <img src="{{ gift_list_text.images.first.image.url }}" alt=""
                                 class="u-image u-image-default u-image-2" data-animation-name="customAnimationIn"
                                 data-animation-duration="1500" data-animation-delay="500" data-image-width="1200"
                                 data-image-height="879">
@@ -34,9 +34,9 @@
                         data-animation-name="customAnimationIn" data-animation-duration="1500"
                         data-animation-delay="500">
                         <div class="u-container-layout u-valign-middle u-container-layout-3">
-                            <h2 class="u-align-left u-text u-text-1"><b> {{ text_1.title }}</b> <br>
+                            <h2 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' gift_list_text.pk %}"><b> {{ gift_list_text.title }}</b> <br>
                             </h2>
-                            <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ text_1.content }}</p>
+                            <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' gift_list_text.pk %}">{{ gift_list_text.content }}</p>
                         </div>
                     </div>
                 </div>

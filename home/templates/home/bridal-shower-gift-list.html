@@ -31,9 +31,9 @@
           <div class="u-container-align-left u-container-style u-layout-cell u-size-26 u-layout-cell-2"
             data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
             <div class="u-container-layout u-valign-middle u-container-layout-3">
-              <h2 class="u-align-left u-text u-text-1"><b> {{ bridal_shower_text.title }}</b> <br>
+              <h2 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' bridal_shower_text.pk %}"><b> {{ bridal_shower_text.title }}</b> <br>
               </h2>
-              <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ bridal_shower_text.content }}</p>
+              <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' bridal_shower_text.pk %}">{{ bridal_shower_text.content }}</p>
             </div>
           </div>
         </div>
@@ -70,10 +70,10 @@
                       class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
                       data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
                       <div class="u-container-layout u-valign-top u-container-layout-2">
-                        <h3 class="u-text u-text-3">
+                        <h3 class="u-text u-text-3" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
                           <i class="bi bi-geo-alt-fill"></i> Endereço
                         </h3>
-                        <blockquote class="u-text u-text-2">
+                        <blockquote class="u-text u-text-2" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
                           <address>
                             {{ settings.bridal_shower_address }}
                           </address>
@@ -118,8 +118,8 @@
               <img src="{{ gift.image.url }}" class="object-fit-contain w-100 h-100">
             </div>
             <div class="card-body">
-              <h5 class="card-title">{{ gift.name }}</h5>
-              <p class="card-text">{{ gift.description }}</p>
+              <h5 class="card-title" data-text-url="{% url 'admin:home_bridalshowergift_change' gift.pk %}">{{ gift.name }}</h5>
+              <p class="card-text" data-text-url="{% url 'admin:home_bridalshowergift_change' gift.pk %}">{{ gift.description }}</p>
               {% if gift.suggestions.count > 0 %}
                 <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ gift.pk }}">Presentear</button>
               {% else %}
