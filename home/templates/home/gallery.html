@@ -7,64 +7,72 @@
 {% endblock extra_head %}
 
 {% block content %}
-<section class="u-clearfix u-valign-middle-xs u-section-1" id="sec-fa06">
-  <div class="custom-expanded u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
-    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
-  <img class="u-expanded-width u-image u-image-1"
-    src="{{ gallery_text_1.images.first.image.url|default:'https://picsum.photos/720/1080' }}" data-image-width="1980"
-    data-image-height="1321" data-animation-name="customAnimationIn" data-animation-duration="1500">
-  <div class="u-container-style u-group u-image u-image-tiles u-image-2" data-animation-name="customAnimationIn"
-    data-animation-duration="1500" data-animation-delay="500">
-    <div class="u-container-layout u-container-layout-1"></div>
-  </div>
-  <div class="u-align-left u-container-align-left u-container-style u-group u-white u-group-2"
-    data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
-    <div class="u-container-layout u-valign-middle u-container-layout-2">
-      <h1 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_1.pk %}">{{ gallery_text_1.title }}</h1>
-      <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_1.pk %}">{{ gallery_text_1.content }}</p>
+{% if gallery_text_1 %}
+  <section class="u-clearfix u-valign-middle-xs u-section-1" id="sec-fa06">
+    <div class="custom-expanded u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
+      data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
+    <img class="u-expanded-width u-image u-image-1"
+      src="{{ gallery_text_1.images.first.image.url|default:'https://picsum.photos/720/1080' }}" data-image-width="1980"
+      data-image-height="1321" data-animation-name="customAnimationIn" data-animation-duration="1500">
+    <div class="u-container-style u-group u-image u-image-tiles u-image-2" data-animation-name="customAnimationIn"
+      data-animation-duration="1500" data-animation-delay="500">
+      <div class="u-container-layout u-container-layout-1"></div>
     </div>
-  </div>
-</section>
+    <div class="u-align-left u-container-align-left u-container-style u-group u-white u-group-2"
+      data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
+      <div class="u-container-layout u-valign-middle u-container-layout-2">
+        <h1 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_1.pk %}">{{ gallery_text_1.title }}</h1>
+        <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_1.pk %}">{{ gallery_text_1.content }}</p>
+      </div>
+    </div>
+  </section>
+{% endif %}
 <section class="u-align-center u-clearfix u-valign-top-md u-section-2" id="carousel_0695">
+  {% if gallery_text_2 %}
   <div class="custom-expanded u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
     data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
-  <h2 class="u-align-center u-text u-text-1" data-animation-name="customAnimationIn" data-animation-duration="1500"
-    data-animation-delay="0" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_2.pk %}">{{ gallery_text_2.title }}</h2>
-  <p class="u-align-center u-text u-text-2" data-animation-name="customAnimationIn" data-animation-duration="1500"
-    data-animation-delay="250" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_2.pk %}">{{ gallery_text_2.content }}</p>
-  <div class="custom-expanded u-list u-list-1">
-    <div class="u-repeater u-repeater-1">
-      {% for image in gallery %}
-      <div class="u-container-align-center u-container-style u-list-item u-repeater-item u-list-item-1"
-        data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
-        <div class="u-container-layout u-similar-container u-container-layout-1">
-          <img class="u-expanded-width u-image u-image-1" src="{{ image.image.url }}" data-image-width="800"
-            data-image-height="846">
-          {% if not image.hide_title %}
-            <h4 class="u-align-center u-text u-text-default u-text-3">{{ image.title }}</h4>
-          {% endif %}
+    <h2 class="u-align-center u-text u-text-1" data-animation-name="customAnimationIn" data-animation-duration="1500"
+      data-animation-delay="0" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_2.pk %}">{{ gallery_text_2.title }}</h2>
+    <p class="u-align-center u-text u-text-2" data-animation-name="customAnimationIn" data-animation-duration="1500"
+      data-animation-delay="250" data-text-url="{% url 'admin:home_textcontent_change' gallery_text_2.pk %}">{{ gallery_text_2.content }}</p>
+  {% endif %}
+  {% if gallery %}
+    <div class="custom-expanded u-list u-list-1">
+      <div class="u-repeater u-repeater-1">
+        {% for image in gallery %}
+        <div class="u-container-align-center u-container-style u-list-item u-repeater-item u-list-item-1"
+          data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
+          <div class="u-container-layout u-similar-container u-container-layout-1">
+            <img class="u-expanded-width u-image u-image-1" src="{{ image.image.url }}" data-image-width="800"
+              data-image-height="846">
+            {% if not image.hide_title %}
+              <h4 class="u-align-center u-text u-text-default u-text-3">{{ image.title }}</h4>
+            {% endif %}
+          </div>
         </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-  <div class="modal modal-lg" tabindex="-1" id="pictureModal" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-        </div>
-        <div class="modal-body">
-          <img src="" class="object-fit-contain" id="picture" style="max-height: 100vh; object-fit: contain;">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary">Anterior</button>
-          <button type="button" class="btn btn-primary">Próxima</button>
-        </div>
+        {% endfor %}
       </div>
     </div>
-  </div>
+    <div class="modal modal-lg" tabindex="-1" id="pictureModal" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <img src="" class="object-fit-contain" id="picture" style="max-height: 100vh; object-fit: contain;">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary">Anterior</button>
+            <button type="button" class="btn btn-primary">Próxima</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <p>Nenhuma imagem cadastrada.</p>
+  {% endif %}
 </section>
 {% endblock content %}
 
