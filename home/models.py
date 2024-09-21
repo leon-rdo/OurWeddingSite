@@ -74,7 +74,6 @@ class TextContent(models.Model):
         ('about_us_text_5', 'Texto 5 Sobre Nós'),
         ('gallery_text_1', 'Texto1 da Galeria'),
         ('gallery_text_2', 'Texto2 da Galeria'),
-        ('gift_list_text', 'Texto da Lista de Presentes'),
         ('bridal_shower_text', 'Texto do Chá de Panela'),
     ]
     
@@ -188,7 +187,7 @@ class BridalShowerGift(models.Model):
     class Meta:
         verbose_name = 'Presente do Chá de Panela'
         verbose_name_plural = 'Presentes do Chá de Panela'
-        ordering = ['category', 'name']
+        ordering = ['-category', 'name']
 
 
 class BridalShowerGiftColor(models.Model):
