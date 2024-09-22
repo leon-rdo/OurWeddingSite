@@ -107,31 +107,38 @@
   <section class="row my-4" id="gifts">
     <div class="col-12 text-center">
         <h1 class="">Lista de Presentes</h1>
-        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#forgotMyGift">Esqueci meu presente</button>
-        <div class="modal fade" id="forgotMyGift" tabindex="-1" aria-labelledby="forgotMyGiftLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header ">
-                <h1 class="modal-title fs-5" id="forgotMyGiftLabel">Esqueci meu presente</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-              </div>
-              <form method="get" action="{% url 'home:bridal_shower_gift_list' %}" class="modal-body">
-                  <div class="mb-3">
-                      <label for="forgotMyGift_phone" class="form-label">Telefone</label>
-                      <input type="text" class="form-control" id="forgotMyGift_phone" name="phone">
-                  </div>
-                  <div class="mb-3">
-                      <label for="forgotMyGift_email" class="form-label">E-mail <small>(Opcional)</small></label>
-                      <input type="email" class="form-control" id="forgotMyGift_email" name="email">
-                  </div>
-                  <button type="submit" class="btn btn-pink">Consultar</button>
-              </form>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+
+        {% url 'home:bridal_shower_gift_list' as bridal_shower_gift_list_url %}
+        {% if not request.GET.email and not request.GET.phone %}
+          <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#forgotMyGift">Esqueci meu presente</button>        
+          <!-- Forgot My Gift Modal -->
+          <div class="modal fade" id="forgotMyGift" tabindex="-1" aria-labelledby="forgotMyGiftLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header ">
+                  <h1 class="modal-title fs-5" id="forgotMyGiftLabel">Esqueci meu presente</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <form method="get" action="{{ bridal_shower_gift_list_url }}" class="modal-body">
+                    <div class="mb-3">
+                        <label for="forgotMyGift_phone" class="form-label">Telefone</label>
+                        <input type="text" class="form-control" id="forgotMyGift_phone" name="phone">
+                    </div>
+                    <div class="mb-3">
+                        <label for="forgotMyGift_email" class="form-label">E-mail <small>(Opcional)</small></label>
+                        <input type="email" class="form-control" id="forgotMyGift_email" name="email">
+                    </div>
+                    <button type="submit" class="btn btn-pink">Consultar</button>
+                </form>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        {% else %}
+          <a class="btn btn-pink btn-sm" role="button" href="{{ bridal_shower_gift_list_url }}">Voltar para lista</a>
+        {% endif %}
     </div>
     <div class="col-12">
     {% regroup object_list by category as category_list %}
@@ -266,17 +273,32 @@
         </div>
       </div>
       {% endif %}
-      {% empty %}
-      <div class="col">
-        <div class="card" style="width: 18rem;">
-          <div class="card-body">
-            <h5 class="card-title">Nenhum presente cadastrado</h5>
-            <p class="card-text">Nenhum presente foi cadastrado ainda.</p>
-          </div>
-        </div>
-      </div>
       {% endfor %}
     </div>
+    {% empty %}
+    {% if request.GET.phone or request.GET.email %}
+    <div class="col my-3">
+      <div class="card overflow-hidden" style="width: 100%;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Você ainda não escolheu nada!</h5>
+          <p class="card-text">Nenhum presente foi confirmado em seu nome.</p>
+          <figure class="figure rounded" style="max-width: 25rem;">
+            <img class="figure-img img-fluid border" src="https://attic.sh/3zlbi7gtp8lnac0uc1p2jjsm0jec" alt="Cachorro triste">
+            <figcaption class="figure-caption">Tá esperando o quê? &#128542;</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col my-3">
+      <div class="card" style="width: 100%;">
+        <div class="card-body text-center">
+          <h5 class="card-title">Nenhum presente cadastrado</h5>
+          <p class="card-text">Nenhum presente foi cadastrado ainda.</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
     {% endfor %}
     </div>
   </section>
