@@ -88,6 +88,7 @@ class BridalShowerGiftAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description')
     inlines = [BridalShowerGiftSuggestionInline]
     list_filter = ('category',)
+    actions = ['send_reminder_for_gift']
     fieldsets = (
         ('Presente', {
             'fields': ('name', 'description', 'image', 'category', 'colors')
@@ -97,6 +98,20 @@ class BridalShowerGiftAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         })
     )
+
+    def send_reminder_for_gift(self, request, queryset):
+        for gift in queryset:
+            if gift.guest_phone:
+                settings = Settings.objects.first()
+                datetime = settings.bridal_shower_datetime.strftime("%d/%m/%Y às %Hh%M")
+                message = f'Você escolheu o presente "{gift.name}"\n\nObrigado por confirmar este presente!\n\nLembrando que o chá de panela será em {datetime}.\n\nEstamos muito gratos de saber que você estará nos ajudando em nossa nova jornada, obrigado!\n\nMais informações em https://weddingbliss.site/cha-de-panela/'
+                encoded_message = urllib.parse.quote(message)
+                whatsapp_url = f"https://wa.me/{gift.guest_phone}?text={encoded_message}"
+                self.message_user(request, format_html(
+                    '<a href="{}" target="_blank">Clique aqui para enviar a mensagem para {}</a>', whatsapp_url, gift.guest_name
+                ))
+
+    send_reminder_for_gift.short_description = "Enviar lembrete via WhatsApp"
 
 
 @admin.register(BridalShowerGiftColor)
