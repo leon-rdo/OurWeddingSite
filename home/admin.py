@@ -104,7 +104,7 @@ class BridalShowerGiftAdmin(admin.ModelAdmin):
             if gift.guest_phone:
                 settings = Settings.objects.first()
                 datetime = settings.bridal_shower_datetime.strftime("%d/%m/%Y às %Hh%M")
-                message = f'Você escolheu o presente "{gift.name}"\n\nObrigado por confirmar este presente!\n\nLembrando que o chá de panela será em {datetime}.\n\nEstamos muito gratos de saber que você estará nos ajudando em nossa nova jornada, obrigado!\n\nMais informações em https://weddingbliss.site/cha-de-panela/'
+                message = f'Você escolheu o presente "{gift.name}"\n\nObrigado por confirmar este presente!\n\nLembrando que o chá de panela será em {datetime}.\n\nEstamos muito gratos de saber que você estará nos ajudando em nossa nova jornada, obrigado!\n\nConfira os detalhes sobre as características do seu presente e outras informações importantes: https://weddingbliss.site/cha-de-panela/?{gift.guest_phone}'
                 encoded_message = urllib.parse.quote(message)
                 whatsapp_url = f"https://wa.me/{gift.guest_phone}?text={encoded_message}"
                 self.message_user(request, format_html(
