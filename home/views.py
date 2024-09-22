@@ -1,4 +1,5 @@
 from django.http import JsonResponse, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView, ListView
@@ -223,9 +224,22 @@ class BridalShowerGiftListView(UserPassesTestMixin, ListView):
             return True
         else:
             return self.request.user.has_perm('home.view_bridalshowergift')
-        
+    
     def get_queryset(self):
-        return BridalShowerGift.objects.filter(guest_name__isnull=True)
+        gifts = super(BridalShowerGiftListView, self).get_queryset()
+
+        email = self.request.GET.get('email')
+        phone = self.request.GET.get('phone')
+        
+        if phone and email:
+            return gifts.filter(guest_phone=phone) | gifts.filter(guest_email=email)
+        elif phone:
+            phone = phone.replace('+', '').replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+            return gifts.filter(guest_phone=phone)
+        elif email:
+            return gifts.filter(guest_email=email)
+        else:
+            return gifts.filter(guest_name__isnull=True)
 
     def get_context_data(self, **kwargs):
         context = super(BridalShowerGiftListView, self).get_context_data(**kwargs)
@@ -245,6 +259,7 @@ class PickGiftView(UserPassesTestMixin, View):
         guest_name = request.POST.get('name')
         guest_email = request.POST.get('email')
         guest_phone = request.POST.get('phone_number')
+        guest_phone = guest_phone.replace('+', '').replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
         gift = BridalShowerGift.objects.get(id=gift_id)
         gift.guest_name = guest_name
         gift.guest_email = guest_email

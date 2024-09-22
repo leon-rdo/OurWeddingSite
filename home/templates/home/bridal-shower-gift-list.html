@@ -105,7 +105,35 @@
   </section>
   {% endif %}
   <section class="row my-4" id="gifts">
-    <h1 class="text-center">Lista de Presentes</h1>
+    <div class="col-12 text-center">
+        <h1 class="">Lista de Presentes</h1>
+        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#forgotMyGift">Esqueci meu presente</button>
+        <div class="modal fade" id="forgotMyGift" tabindex="-1" aria-labelledby="forgotMyGiftLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header ">
+                <h1 class="modal-title fs-5" id="forgotMyGiftLabel">Esqueci meu presente</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+              </div>
+              <form method="get" action="{% url 'home:bridal_shower_gift_list' %}" class="modal-body">
+                  <div class="mb-3">
+                      <label for="forgotMyGift_phone" class="form-label">Telefone</label>
+                      <input type="text" class="form-control" id="forgotMyGift_phone" name="phone">
+                  </div>
+                  <div class="mb-3">
+                      <label for="forgotMyGift_email" class="form-label">E-mail <small>(Opcional)</small></label>
+                      <input type="email" class="form-control" id="forgotMyGift_email" name="email">
+                  </div>
+                  <button type="submit" class="btn btn-pink">Consultar</button>
+              </form>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="col-12">
     {% regroup object_list by category as category_list %}
     {% for category in category_list %}
       <h3 class="text-center my-3">{{ category.list.0.get_category_display }}</h3>
@@ -120,7 +148,12 @@
             <div class="card-body">
               <h5 class="card-title" data-text-url="{% url 'admin:home_bridalshowergift_change' gift.pk %}">{{ gift.name }}</h5>
               <p class="card-text" data-text-url="{% url 'admin:home_bridalshowergift_change' gift.pk %}">{{ gift.description }}</p>
-              {% if gift.suggestions.count > 0 %}
+              {% if gift.guest_name %}
+                {% if gift.suggestions.count > 0 %}
+                  <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ gift.pk }}">Sugestões</button>
+                {% endif %}
+                <p class="card-text">Presenteado por: {{ gift.guest_name }}</p>
+              {% elif gift.suggestions.count > 0 %}
                 <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ gift.pk }}">Presentear</button>
               {% else %}
                 <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ gift.pk }}">Presentear</button>
@@ -147,7 +180,7 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header ">
-              <h1 class="modal-title fs-5" id="gift{{ gift.pk }}Label">Confirmar presente</h1>
+              <h1 class="modal-title fs-5" id="gift{{ gift.pk }}Label">Sugestões</h1>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <ul class="modal-body list-group list-group-flush">
@@ -160,7 +193,9 @@
             </ul>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+              {% if not gift.guest_name %}
               <button type="button" class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ gift.pk }}">Presentear</button>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -184,7 +219,7 @@
                   <input type="text" class="form-control" id="phone_number" name="phone_number" required>
                 </div>
                 <div class="mb-3">
-                  <label for="message" class="form-label">E-mail <small>(Opcional)</small></label>
+                  <label for="email" class="form-label">E-mail <small>(Opcional)</small></label>
                   <input type="email" class="form-control" id="email" name="email">
                 </div>
                 <button type="submit" class="btn btn-pink">Presentear</button>
@@ -218,7 +253,7 @@
                   <input type="text" class="form-control" id="phone_number" name="phone_number" required>
                 </div>
                 <div class="mb-3">
-                  <label for="message" class="form-label">E-mail <small>(Opcional)</small></label>
+                  <label for="email" class="form-label">E-mail <small>(Opcional)</small></label>
                   <input type="email" class="form-control" id="email" name="email">
                 </div>
                 <button type="submit" class="btn btn-pink">Presentear</button>
@@ -243,6 +278,7 @@
       {% endfor %}
     </div>
     {% endfor %}
+    </div>
   </section>
 </div>
 {% endblock content %}
