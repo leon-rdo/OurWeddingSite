@@ -87,10 +87,12 @@
                                 <a class="nav-link {% if request.path == gallery_url %}active{% endif %}" href="{{ gallery_url }}">Galeria</a>
                             </li>
                         {% endif %}
+                        {% if not settings.hide_about_us %}
                         {% url 'home:about_us' as about_us_url %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == about_us_url %}active{% endif %}" href="{{ about_us_url }}">Sobre Nós</a>
                         </li>
+                        {% endif %}
                         {% if request.user.is_authenticated %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'admin:index' %}">Administração</a>

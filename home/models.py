@@ -41,6 +41,7 @@ class Settings(models.Model):
     hide_gifts = models.BooleanField("Esconder Presentes", default=False)
     hide_bridal_shower_gift = models.BooleanField("Esconder Presentes do Chá de Panelas", default=False)
     hide_gallery = models.BooleanField("Esconder Galeria", default=False)
+    hide_about_us = models.BooleanField("Esconder Sobre Nós", default=False)
     hide_rsvp = models.BooleanField("Esconder RSVP", default=False)
 
     def save(self, *args, **kwargs):
