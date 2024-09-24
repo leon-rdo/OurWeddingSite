@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="container">
-  {% if bridal_shower_text is not None %}
+  {% if bridal_shower_text is not None and not request.GET.email and not request.GET.phone %}
   <section class="row u-clearfix u-section-2" id="bridal_shower_text">
     <div class="u-align-right u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
       data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750"></div>
@@ -42,67 +42,69 @@
   </section>
   {% endif %}
   {% if settings.bridal_shower_address or settings.bridal_shower_datetime %}
-  <section class="row u-align-center u-clearfix u-container-align-center u-section-5" id="text_3">
-    <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-      <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1">
-        <div class="u-gutter-0 u-layout">
-          <div class="u-layout-row">
-            <div class="u-size-30 u-size-60-md">
-              <div class="u-layout-col">
-                {% if settings.bridal_shower_address %}
-                <div class="u-size-30">
-                  <div class="u-layout-row">
-                    <div
-                      class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-1"
-                      data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
-                      <div class="u-container-layout u-container-layout-1">
-                        <h3 class="u-text u-text-1"><i class="bi bi-calendar"></i> Data e Hora</h3>
-                        <blockquote class="u-text u-text-2">{{ settings.bridal_shower_datetime }}</blockquote>
+  {% if not request.GET.email and not request.GET.phone %}
+    <section class="row u-align-center u-clearfix u-container-align-center u-section-5" id="text_3">
+      <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1">
+          <div class="u-gutter-0 u-layout">
+            <div class="u-layout-row">
+              <div class="u-size-30 u-size-60-md">
+                <div class="u-layout-col">
+                  {% if settings.bridal_shower_address %}
+                  <div class="u-size-30">
+                    <div class="u-layout-row">
+                      <div
+                        class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-1"
+                        data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
+                        <div class="u-container-layout u-container-layout-1">
+                          <h3 class="u-text u-text-1"><i class="bi bi-calendar"></i> Data e Hora</h3>
+                          <blockquote class="u-text u-text-2">{{ settings.bridal_shower_datetime }}</blockquote>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                {% endif %}
-                {% if settings.bridal_shower_datetime %}
-                <div class="u-size-30">
-                  <div class="u-layout-row">
-                    <div
-                      class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
-                      data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
-                      <div class="u-container-layout u-valign-top u-container-layout-2">
-                        <h3 class="u-text u-text-3" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
-                          <i class="bi bi-geo-alt-fill"></i> Endereço
-                        </h3>
-                        <blockquote class="u-text u-text-2" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
-                          <address>
-                            {{ settings.bridal_shower_address }}
-                          </address>
-                        </blockquote>
+                  {% endif %}
+                  {% if settings.bridal_shower_datetime %}
+                  <div class="u-size-30">
+                    <div class="u-layout-row">
+                      <div
+                        class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
+                        data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
+                        <div class="u-container-layout u-valign-top u-container-layout-2">
+                          <h3 class="u-text u-text-3" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
+                            <i class="bi bi-geo-alt-fill"></i> Endereço
+                          </h3>
+                          <blockquote class="u-text u-text-2" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
+                            <address>
+                              {{ settings.bridal_shower_address }}
+                            </address>
+                          </blockquote>
+                        </div>
                       </div>
                     </div>
                   </div>
+                  {% endif %}
                 </div>
-                {% endif %}
               </div>
-            </div>
-            <div class="u-size-30 u-size-60-md">
-              <div class="u-layout-col">
-                <div class="u-container-style u-image u-layout-cell u-right-cell u-size-60 u-image-1"
-                  data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"
-                  style="background-image: none;">
-                  <address class="u-container-layout u-container-layout-3 figure w-100">
-                    <iframe class="figure-img rounded" width="100%" height="90%" frameborder="0" scrolling="no"
-                      marginheight="0" marginwidth="0" id="gmap_canvas_ceremony"
-                      src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.bridal_shower_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
-                  </address>
+              <div class="u-size-30 u-size-60-md">
+                <div class="u-layout-col">
+                  <div class="u-container-style u-image u-layout-cell u-right-cell u-size-60 u-image-1"
+                    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"
+                    style="background-image: none;">
+                    <address class="u-container-layout u-container-layout-3 figure w-100">
+                      <iframe class="figure-img rounded" width="100%" height="90%" frameborder="0" scrolling="no"
+                        marginheight="0" marginwidth="0" id="gmap_canvas_ceremony"
+                        src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.bridal_shower_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
+                    </address>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  {% endif %}
   {% endif %}
   <section class="row my-4" id="gifts">
     <div class="col-12 text-center">
