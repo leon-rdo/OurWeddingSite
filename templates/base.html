@@ -11,10 +11,10 @@
     {% if settings.logo %}
     <link rel="shortcut icon" href="{{ settings.logo.url }}" type="image/x-icon">
     {% endif %}
-    <link rel="stylesheet" href="{% static 'wedding-theme/nicepage.css' %}" media="screen">
-    <link rel="stylesheet" href="{% static 'wedding-theme/index.css' %}" media="screen">
+    <link rel="stylesheet" href="{% static 'home/css/nicepage.css' %}" media="screen">
+    <link rel="stylesheet" href="{% static 'home/css/index.css' %}" media="screen">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script class="u-script" type="text/javascript" src="{% static 'wedding-theme/nicepage.js' %}" defer=""></script>
+    <script class="u-script" type="text/javascript" src="{% static 'home/scripts/nicepage.js' %}" defer=""></script>
     <meta name="generator" content="Nicepage 6.16.5, nicepage.com, Django 5.1.1">
     <meta name="referrer" content="origin">
     <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Playfair+Display:400,400i,500,500i,600,600i,700,700i,800,800i,900,900i|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
@@ -131,46 +131,7 @@
         <button class="floating-button" id="audio-control-button">
             ▶️
         </button>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var audio = document.getElementById('background-audio');
-                audio.volume = 0.5;
-                var button = document.getElementById('audio-control-button');
-    
-                function updateButton() {
-                    if (audio.paused) {
-                        button.textContent = '▶️';
-                    } else {
-                        button.textContent = '⏸️';
-                    }
-                }
-    
-                button.addEventListener('click', function() {
-                    if (audio.paused) {
-                        audio.play().catch(function(error) {
-                            console.log('Autoplay foi bloqueado. Tentando reproduzir após interação do usuário.');
-                        });
-                    } else {
-                        audio.pause();
-                    }
-                    updateButton();
-                });
-    
-                // Tentar reproduzir o áudio automaticamente
-                audio.play().catch(function(error) {
-                    console.log('Autoplay foi bloqueado. Tentando reproduzir após interação do usuário.');
-                });
-    
-                // Atualizar o botão inicialmente
-                updateButton();
-
-                document.addEventListener('click', function() {
-                    audio.play();
-                    button.textContent = '⏸️';
-                }, { once: true });
-            });
-
-        </script>
+        <script src="{% static 'home/scripts/scripts.js' %}"></script>
     {% endif %}
     {% if user.is_staff %}
     <script>
