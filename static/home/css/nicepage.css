@@ -5,6 +5,23 @@
  * Copyright 2014-2021 Froala Labs
  */
 
+ #loader {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#page-content {
+  display: none;
+}
+
 .floating-button {
   position: fixed;
   bottom: 20px;

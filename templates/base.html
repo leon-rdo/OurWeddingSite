@@ -44,84 +44,93 @@
 </head>
 
 <body class="u-body u-xl-mode">
-    <header class="u-clearfix u-header u-header " id="sec-4a91">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light px-md-5">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="{% url 'home:index' %}">
-                    {% if settings.logo %}
-                        <img src="{{ settings.logo.url }}" alt="Logo" style="width: 70px;">
-                    {% else %}
-                        <h4 class="m-0">Logo</h4>
-                    {% endif %}
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        {% url 'home:index' as home_url %}
-                        <li class="nav-item me-3">
-                            <a class="nav-link {% if request.path == home_url %}active{% endif %}" aria-current="page" href="{{ home_url }}">Página Inicial</a>
-                        </li>
-                        {% if not settings.hide_rsvp %}
-                            {% url 'home:rsvp' as rsvp_url %}
-                            <li class="nav-item me-3">
-                                <a class="nav-link {% if request.path == rsvp_url %}active{% endif %}" href="{{ rsvp_url }}">Confirmar Presença</a>
-                            </li>
-                        {% endif %}
-                        {% if not settings.hide_gifts %}
-                            {% url 'home:gift_list' as gift_list_url %}
-                            <li class="nav-item me-3">
-                                <a class="nav-link {% if request.path == gift_list_url %}active{% endif %}" href="{{ gift_list_url }}">Lista de Presentes</a>
-                            </li>
-                        {% endif %}
-                        {% if not settings.hide_bridal_shower_gift %}
-                            {% url 'home:bridal_shower_gift_list' as bridal_shower_gift_list_url %}
-                            <li class="nav-item me-3">
-                                <a class="nav-link {% if request.path == bridal_shower_gift_list_url %}active{% endif %}" href="{{ bridal_shower_gift_list_url }}">Chá de Panela</a>
-                            </li>
-                        {% endif %}
-                        {% if not settings.hide_gallery %}
-                            {% url 'home:gallery' as gallery_url %}
-                            <li class="nav-item me-3">
-                                <a class="nav-link {% if request.path == gallery_url %}active{% endif %}" href="{{ gallery_url }}">Galeria</a>
-                            </li>
-                        {% endif %}
-                        {% if not settings.hide_about_us %}
-                        {% url 'home:about_us' as about_us_url %}
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.path == about_us_url %}active{% endif %}" href="{{ about_us_url }}">Sobre Nós</a>
-                        </li>
-                        {% endif %}
-                        {% if request.user.is_authenticated %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'admin:index' %}">Administração</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        
-    </header>
-
-    <main class="container-fluid p-0">
-        {% block content %}{% endblock content %}
-    </main>
-
-    <footer class="u-align-center u-clearfix u-container-align-center u-footer u-grey-80 u-footer" id="sec-548a">
-        <div class="u-clearfix u-sheet u-sheet-1">
-            <p class="u-small-text u-text u-text-variant u-text-1">{{ footer.content }}</p>
+    <div id="loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
         </div>
-    </footer>
-    <section class="u-backlink u-clearfix u-grey-80">
-        <p class="u-text">
-            <span>Site criado por <a class="u-link text-pink" href="https://leonardocosta.dev/" target="_blank">Leonardo Costa</a> com o design de </span>
-            <a class="u-link text-pink" href="https://nicepage.com/" target="_blank" rel="nofollow">
-                <span>Nicepage</span>
-            </a>.
-        </p>
-    </section>
+    </div>
+
+    <div id="page-content" style="display: none;">
+        <header class="u-clearfix u-header u-header " id="sec-4a91">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light px-md-5">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="{% url 'home:index' %}">
+                        {% if settings.logo %}
+                            <img src="{{ settings.logo.url }}" alt="Logo" style="width: 70px;">
+                        {% else %}
+                            <h4 class="m-0">Logo</h4>
+                        {% endif %}
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto">
+                            {% url 'home:index' as home_url %}
+                            <li class="nav-item me-3">
+                                <a class="nav-link {% if request.path == home_url %}active{% endif %}" aria-current="page" href="{{ home_url }}">Página Inicial</a>
+                            </li>
+                            {% if not settings.hide_rsvp %}
+                                {% url 'home:rsvp' as rsvp_url %}
+                                <li class="nav-item me-3">
+                                    <a class="nav-link {% if request.path == rsvp_url %}active{% endif %}" href="{{ rsvp_url }}">Confirmar Presença</a>
+                                </li>
+                            {% endif %}
+                            {% if not settings.hide_gifts %}
+                                {% url 'home:gift_list' as gift_list_url %}
+                                <li class="nav-item me-3">
+                                    <a class="nav-link {% if request.path == gift_list_url %}active{% endif %}" href="{{ gift_list_url }}">Lista de Presentes</a>
+                                </li>
+                            {% endif %}
+                            {% if not settings.hide_bridal_shower_gift %}
+                                {% url 'home:bridal_shower_gift_list' as bridal_shower_gift_list_url %}
+                                <li class="nav-item me-3">
+                                    <a class="nav-link {% if request.path == bridal_shower_gift_list_url %}active{% endif %}" href="{{ bridal_shower_gift_list_url }}">Chá de Panela</a>
+                                </li>
+                            {% endif %}
+                            {% if not settings.hide_gallery %}
+                                {% url 'home:gallery' as gallery_url %}
+                                <li class="nav-item me-3">
+                                    <a class="nav-link {% if request.path == gallery_url %}active{% endif %}" href="{{ gallery_url }}">Galeria</a>
+                                </li>
+                            {% endif %}
+                            {% if not settings.hide_about_us %}
+                            {% url 'home:about_us' as about_us_url %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.path == about_us_url %}active{% endif %}" href="{{ about_us_url }}">Sobre Nós</a>
+                            </li>
+                            {% endif %}
+                            {% if request.user.is_authenticated %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'admin:index' %}">Administração</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            
+        </header>
+
+        <main class="container-fluid p-0">
+            {% block content %}{% endblock content %}
+        </main>
+
+        <footer class="u-align-center u-clearfix u-container-align-center u-footer u-grey-80 u-footer" id="sec-548a">
+            <div class="u-clearfix u-sheet u-sheet-1">
+                <p class="u-small-text u-text u-text-variant u-text-1">{{ footer.content }}</p>
+            </div>
+        </footer>
+        <section class="u-backlink u-clearfix u-grey-80">
+            <p class="u-text">
+                <span>Site criado por <a class="u-link text-pink" href="https://leonardocosta.dev/" target="_blank">Leonardo Costa</a> com o design de </span>
+                <a class="u-link text-pink" href="https://nicepage.com/" target="_blank" rel="nofollow">
+                    <span>Nicepage</span>
+                </a>.
+            </p>
+        </section>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     {% if settings.song %}
         <audio id="background-audio" loop>
