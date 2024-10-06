@@ -222,8 +222,8 @@
               <h1 class="modal-title fs-5" id="pickGift{{ gift.pk }}Label">Confirmar presente</h1>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
-            <div class="modal-body">
-              <form action="{% url 'home:choose_gift' gift.pk %}" method="POST">
+            <form action="{% url 'home:choose_gift' gift.pk %}" method="POST">
+              <div class="modal-body">
                 {% csrf_token %}
                 <div class="mb-3">
                   <label for="name" class="form-label">Nome</label>
@@ -237,13 +237,12 @@
                   <label for="email" class="form-label">E-mail <small>(Opcional)</small></label>
                   <input type="email" class="form-control" id="email" name="email">
                 </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-target="#gift{{ gift.pk }}" data-bs-toggle="modal">Voltar</button>
                 <button type="submit" class="btn btn-pink">Presentear</button>
-              </form>
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-pink" data-bs-target="#gift{{ gift.pk }}" data-bs-toggle="modal">Voltar</button>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       </div>
