@@ -28,10 +28,10 @@
     <meta property="og:locale" content="pt_BR">
     <meta property="og:title" content="{{ settings.couple_name }}">
     <meta property="og:site_name" content="{{ settings.couple_name }}">
-    <link rel="canonical" href="{{ settings.site_url }}">
-    <meta property="og:url" content="{{ settings.site_url }}">
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}">
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}">
     {% if settings.site_image %}
-    <meta property="og:image" content="{{ settings.site_url }}{{ settings.site_image.url }}">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ settings.site_image.url }}">
     {% endif %}
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
