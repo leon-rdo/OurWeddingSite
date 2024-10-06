@@ -91,7 +91,7 @@ class BridalShowerGiftAdmin(admin.ModelAdmin):
     actions = ['send_reminder_for_gift']
     fieldsets = (
         ('Presente', {
-            'fields': ('name', 'description', 'image', 'category', 'colors')
+            'fields': ('name', 'description', 'image', 'category', 'price', 'colors')
         }),
         ('Convidado', {
             'fields': ('way_to_gift', 'guest_name', 'guest_phone', 'guest_email'),
