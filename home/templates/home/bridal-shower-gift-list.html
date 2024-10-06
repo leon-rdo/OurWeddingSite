@@ -66,8 +66,7 @@
                   {% if settings.bridal_shower_datetime %}
                   <div class="u-size-30">
                     <div class="u-layout-row">
-                      <div
-                        class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
+                      <div class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
                         data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
                         <div class="u-container-layout u-valign-top u-container-layout-2">
                           <h3 class="u-text u-text-3" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
@@ -148,7 +147,7 @@
       <hr>
       <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 justify-content-evenly g-4 my-2">
       {% for gift in category.list %}
-        <div class="col" data-category="{{ gift.get_category_display }}">
+        <div class="col" data-category="{{ gift.get_category_display }}" id="{{ gift.name|slugify }}">
           <div class="card" style="width: 100%; height: 100%;">
             <div class="w-100 overflow-hidden" style="height: 18rem;">
               <img src="{{ gift.image.url }}" class="object-fit-contain w-100 h-100">
@@ -167,18 +166,26 @@
                 <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ gift.pk }}">Presentear</button>
               {% endif %}
             </div>
-            <div class="card-footer d-flex align-items-center">
-              Cores:
-              <ul class="list-unstyled m-0 d-flex align-items-center color-group ms-2">
-                {% for color in gift.colors.all %}
-                <li data-bs-toggle="tooltip" class="color rounded-circle pull-up border border-dark" aria-label="{{ color.name }}" data-bs-original-title="{{ color.name }}" style="background-color: {{ color.color }};">
-                </li>
-                {% empty %}
-                <li data-bs-toggle="tooltip" class="color rounded-circle pull-up border border-dark d-flex align-items-center justify-content-center" aria-label="Sem cor definida" data-bs-original-title="Sem cor definida" tool style="background-color: #9da8b5;">
-                  <span>&mdash;</span>
-                </li>
-                {% endfor %}
-              </ul>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                Cores:
+                <ul class="list-unstyled m-0 d-flex align-items-center color-group ms-2">
+                  {% for color in gift.colors.all %}
+                  <li data-bs-toggle="tooltip" class="color rounded-circle pull-up border border-dark" aria-label="{{ color.name }}" data-bs-original-title="{{ color.name }}" style="background-color: {{ color.color }};">
+                  </li>
+                  
+                  {% empty %}
+                  <li data-bs-toggle="tooltip" class="color rounded-circle pull-up border border-dark d-flex align-items-center justify-content-center" aria-label="Sem cor definida" data-bs-original-title="Sem cor definida" tool style="background-color: #9da8b5;">
+                    <span>&mdash;</span>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% if user.is_staff %}
+                <button class="btn btn-pink" onclick="navigator.share({ url: '{{ request.scheme }}://{{ request.get_host }}/#{{ gift.name|slugify }}' });"></a>
+                  <i class="bi bi-share-fill text-dark"></i>
+                </button>
+              {% endif %}
             </div>
           </div>
         </div>
