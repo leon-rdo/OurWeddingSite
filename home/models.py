@@ -172,6 +172,7 @@ class BridalShowerGift(models.Model):
 
     name = models.CharField("Nome", max_length=50)
     description = models.TextField("Descrição")
+    price = models.DecimalField("Preço", max_digits=6, decimal_places=2, blank=True, null=True)
     image = models.ImageField("Imagem", upload_to='home/bridal_shower_gifts/')
     category = models.CharField("Categoria", max_length=50, choices=CATEGORIES)
     colors = models.ManyToManyField('home.BridalShowerGiftColor', verbose_name="Cores", related_name='gifts_colors', blank=True)
@@ -181,6 +182,7 @@ class BridalShowerGift(models.Model):
     guest_name = models.CharField("Nome do Convidado", max_length=50, blank=True, null=True)
     guest_phone = models.CharField("Telefone do Convidado", max_length=20, blank=True, null=True)
     guest_email = models.EmailField("E-mail do Convidado", blank=True, null=True)
+    way_to_gift = models.CharField("Forma de Presentear", max_length=50, choices=[('take', 'Levar no dia'), ('send', 'Enviar pela internet'), ('money', 'Dar o dinheiro')], blank=True, null=True)
 
     def __str__(self):
         return self.name
