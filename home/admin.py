@@ -94,7 +94,7 @@ class BridalShowerGiftAdmin(admin.ModelAdmin):
             'fields': ('name', 'description', 'image', 'category', 'colors')
         }),
         ('Convidado', {
-            'fields': ('guest_name', 'guest_phone', 'guest_email'),
+            'fields': ('way_to_gift', 'guest_name', 'guest_phone', 'guest_email'),
             'classes': ('collapse',)
         })
     )

@@ -30,9 +30,11 @@
           <div class="u-container-align-left u-container-style u-layout-cell u-size-26 u-layout-cell-2"
             data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
             <div class="u-container-layout u-valign-middle u-container-layout-3">
-              <h2 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' bridal_shower_text.pk %}"><b> {{ bridal_shower_text.title }}</b> <br>
+              <h2 class="u-align-left u-text u-text-1"
+                data-text-url="{% url 'admin:home_textcontent_change' bridal_shower_text.pk %}"><b> {{ bridal_shower_text.title }}</b> <br>
               </h2>
-              <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' bridal_shower_text.pk %}">{{ bridal_shower_text.content }}</p>
+              <p class="u-align-left u-large-text u-text u-text-variant u-text-2"
+                data-text-url="{% url 'admin:home_textcontent_change' bridal_shower_text.pk %}">{{ bridal_shower_text.content|linebreaks }}</p>
             </div>
           </div>
         </div>
@@ -42,111 +44,115 @@
   {% endif %}
   {% if settings.bridal_shower_address or settings.bridal_shower_datetime %}
   {% if not request.GET.email and not request.GET.phone %}
-    <section class="row u-align-center u-clearfix u-container-align-center u-section-5" id="text_3">
-      <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-        <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1">
-          <div class="u-gutter-0 u-layout">
-            <div class="u-layout-row">
-              <div class="u-size-30 u-size-60-md">
-                <div class="u-layout-col">
-                  {% if settings.bridal_shower_address %}
-                  <div class="u-size-30">
-                    <div class="u-layout-row">
-                      <div
-                        class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-1"
-                        data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
-                        <div class="u-container-layout u-container-layout-1">
-                          <h3 class="u-text u-text-1"><i class="bi bi-calendar"></i> Data e Hora</h3>
-                          <blockquote class="u-text u-text-2">{{ settings.bridal_shower_datetime }}</blockquote>
-                        </div>
+  <section class="row u-align-center u-clearfix u-container-align-center u-section-5" id="text_3">
+    <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+      <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1">
+        <div class="u-gutter-0 u-layout">
+          <div class="u-layout-row">
+            <div class="u-size-30 u-size-60-md">
+              <div class="u-layout-col">
+                {% if settings.bridal_shower_address %}
+                <div class="u-size-30">
+                  <div class="u-layout-row">
+                    <div
+                      class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-1"
+                      data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
+                      <div class="u-container-layout u-container-layout-1">
+                        <h3 class="u-text u-text-1"><i class="bi bi-calendar"></i> Data e Hora</h3>
+                        <blockquote class="u-text u-text-2">{{ settings.bridal_shower_datetime }}</blockquote>
                       </div>
                     </div>
                   </div>
-                  {% endif %}
-                  {% if settings.bridal_shower_datetime %}
-                  <div class="u-size-30">
-                    <div class="u-layout-row">
-                      <div class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
-                        data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
-                        <div class="u-container-layout u-valign-top u-container-layout-2">
-                          <h3 class="u-text u-text-3" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
-                            <i class="bi bi-geo-alt-fill"></i> Endereço
-                          </h3>
-                          <blockquote class="u-text u-text-2" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
-                            <address>
-                              {{ settings.bridal_shower_address }}
-                            </address>
-                          </blockquote>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {% endif %}
                 </div>
-              </div>
-              <div class="u-size-30 u-size-60-md">
-                <div class="u-layout-col">
-                  <div class="u-container-style u-image u-layout-cell u-right-cell u-size-60 u-image-1"
-                    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"
-                    style="background-image: none;">
-                    <address class="u-container-layout u-container-layout-3 figure w-100">
-                      <iframe class="figure-img rounded" width="100%" height="90%" frameborder="0" scrolling="no"
-                        marginheight="0" marginwidth="0" id="gmap_canvas_ceremony"
-                        src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.bridal_shower_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
-                    </address>
+                {% endif %}
+                {% if settings.bridal_shower_datetime %}
+                <div class="u-size-30">
+                  <div class="u-layout-row">
+                    <div
+                      class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
+                      data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
+                      <div class="u-container-layout u-valign-top u-container-layout-2">
+                        <h3 class="u-text u-text-3" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
+                          <i class="bi bi-geo-alt-fill"></i> Endereço
+                        </h3>
+                        <blockquote class="u-text u-text-2"
+                          data-text-url="{% url 'admin:home_settings_change' settings.pk %}">
+                          <address>
+                            {{ settings.bridal_shower_address }}
+                          </address>
+                        </blockquote>
+                      </div>
+                    </div>
                   </div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="u-size-30 u-size-60-md">
+              <div class="u-layout-col">
+                <div class="u-container-style u-image u-layout-cell u-right-cell u-size-60 u-image-1"
+                  data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"
+                  style="background-image: none;">
+                  <address class="u-container-layout u-container-layout-3 figure w-100">
+                    <iframe class="figure-img rounded" width="100%" height="90%" frameborder="0" scrolling="no"
+                      marginheight="0" marginwidth="0" id="gmap_canvas_ceremony"
+                      src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.bridal_shower_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
+                  </address>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
   {% endif %}
   {% endif %}
   <section class="row my-4" id="gifts">
     <div class="col-12 text-center">
-        <h1 class="">Lista de Presentes</h1>
+      <h1>Lista de Presentes</h1>
 
-        {% url 'home:bridal_shower_gift_list' as bridal_shower_gift_list_url %}
-        {% if not request.GET.email and not request.GET.phone %}
-          <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#forgotMyGift">Esqueci meu presente</button>        
-          <!-- Forgot My Gift Modal -->
-          <div class="modal fade" id="forgotMyGift" tabindex="-1" aria-labelledby="forgotMyGiftLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header ">
-                  <h1 class="modal-title fs-5" id="forgotMyGiftLabel">Esqueci meu presente</h1>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                </div>
-                <form method="get" action="{{ bridal_shower_gift_list_url }}" class="modal-body">
-                    <div class="mb-3">
-                        <label for="forgotMyGift_phone" class="form-label">Telefone</label>
-                        <input type="text" class="form-control" id="forgotMyGift_phone" name="phone">
-                    </div>
-                    <div class="mb-3">
-                        <label for="forgotMyGift_email" class="form-label">E-mail <small>(Opcional)</small></label>
-                        <input type="email" class="form-control" id="forgotMyGift_email" name="email">
-                    </div>
-                    <button type="submit" class="btn btn-pink">Consultar</button>
-                </form>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                </div>
+      {% url 'home:bridal_shower_gift_list' as bridal_shower_gift_list_url %}
+      {% if not request.GET.email and not request.GET.phone %}
+      <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#forgotMyGift">Esqueci meu
+        presente</button>
+      <!-- Forgot My Gift Modal -->
+      <div class="modal fade" id="forgotMyGift" tabindex="-1" aria-labelledby="forgotMyGiftLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header ">
+              <h1 class="modal-title fs-5" id="forgotMyGiftLabel">Esqueci meu presente</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form method="get" action="{{ bridal_shower_gift_list_url }}" class="modal-body">
+              <div class="mb-3">
+                <label for="forgotMyGift_phone" class="form-label">Telefone:</label>
+                <input type="text" class="form-control" id="forgotMyGift_phone" name="phone">
               </div>
+              <div class="mb-3">
+                <label for="forgotMyGift_email" class="form-label">E-mail <small>(Opcional)</small>:</label>
+                <input type="email" class="form-control" id="forgotMyGift_email" name="email">
+              </div>
+              <button type="submit" class="btn btn-pink">Consultar</button>
+            </form>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </div>
           </div>
-        {% else %}
-          <a class="btn btn-pink btn-sm" role="button" href="{{ bridal_shower_gift_list_url }}">Voltar para lista</a>
-        {% endif %}
+        </div>
+      </div>
+      {% else %}
+      <h2 class="fs-4">Presentes escolhidos:</h2>
+      <a class="btn btn-pink btn-sm" role="button" href="{{ bridal_shower_gift_list_url }}">Voltar para lista</a>
+      {% endif %}
     </div>
     <div class="col-12">
-    {% regroup object_list by category as category_list %}
-    {% for category in category_list %}
+      {% regroup object_list by category as category_list %}
+      {% for category in category_list %}
       <h3 class="text-center my-3">{{ category.list.0.get_category_display }}</h3>
       <hr>
       <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 justify-content-evenly g-4 my-2">
-      {% for gift in category.list %}
+        {% for gift in category.list %}
         <div class="col" data-category="{{ gift.get_category_display }}" id="{{ gift.name|slugify }}">
           <div class="card" style="width: 100%; height: 100%;">
             <div class="w-100 overflow-hidden" style="height: 18rem;">
@@ -156,14 +162,42 @@
               <h5 class="card-title" data-text-url="{% url 'admin:home_bridalshowergift_change' gift.pk %}">{{ gift.name }}</h5>
               <p class="card-text" data-text-url="{% url 'admin:home_bridalshowergift_change' gift.pk %}">{{ gift.description }}</p>
               {% if gift.guest_name %}
-                {% if gift.suggestions.count > 0 %}
-                  <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ gift.pk }}">Sugestões</button>
-                {% endif %}
-                <p class="card-text">Presenteado por: {{ gift.guest_name }}</p>
-              {% elif gift.suggestions.count > 0 %}
-                <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ gift.pk }}">Presentear</button>
+              {% if gift.suggestions.count > 0 %}
+              <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ gift.pk }}">Sugestões</button>
+              {% if gift.price %}
+              <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#pix{{ gift.pk }}">Fazer pix</button>
+              <div class="modal fade" id="pix{{ gift.pk }}" tabindex="-1"
+              aria-labelledby="pix{{ gift.pk }}Label" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="pix{{ gift.pk }}Label">{{ gift.name }}</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <figure class="modal-body">
+                            <img src="data:image/png;base64,{{ gift.qr_code }}" alt="QR Code para {{ gift.name }} no valor de R$ {{ gift.price }}" class="img-fluid figure">
+                            <figcaption class="figure-caption text-center">Valor: R$ {{ gift.price }}</figcaption>
+                        </figure>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            <button type="button" class="btn btn-primary"><i class="bi bi-copy"></i> Pix Copia e Cola</button>
+                            <button type="button" class="btn btn-primary" onclick="copyToClipboard()"><i class="bi bi-copy"></i> Copiar chave pix</button>
+                        </div>
+                    </div>
+                </div>
+              </div>
+              {% endif %}
               {% else %}
-                <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ gift.pk }}">Presentear</button>
+              {% if gift.price %}
+              {% endif %}
+              {% endif %}
+              <p class="card-text">Presenteado por: {{ gift.guest_name }}</p>
+              {% elif gift.suggestions.count > 0 %}
+              <button class="btn btn-pink" data-bs-toggle="modal"
+                data-bs-target="#gift{{ gift.pk }}">Presentear</button>
+              {% else %}
+              <button class="btn btn-pink" data-bs-toggle="modal"
+                data-bs-target="#pickGift{{ gift.pk }}">Presentear</button>
               {% endif %}
             </div>
             <div class="card-footer d-flex justify-content-between align-items-center">
@@ -171,150 +205,246 @@
                 Cores:
                 <ul class="list-unstyled m-0 d-flex align-items-center color-group ms-2">
                   {% for color in gift.colors.all %}
-                  <li data-bs-toggle="tooltip" class="color rounded-circle pull-up border border-dark" aria-label="{{ color.name }}" data-bs-original-title="{{ color.name }}" style="background-color: {{ color.color }};">
+                  <li data-bs-toggle="tooltip" class="color rounded-circle pull-up border border-dark"
+                    aria-label="{{ color.name }}" data-bs-original-title="{{ color.name }}"
+                    style="background-color: {{ color.color }};">
                   </li>
-                  
+
                   {% empty %}
-                  <li data-bs-toggle="tooltip" class="color rounded-circle pull-up border border-dark d-flex align-items-center justify-content-center" aria-label="Sem cor definida" data-bs-original-title="Sem cor definida" tool style="background-color: #9da8b5;">
+                  <li data-bs-toggle="tooltip"
+                    class="color rounded-circle pull-up border border-dark d-flex align-items-center justify-content-center"
+                    aria-label="Sem cor definida" data-bs-original-title="Sem cor definida" tool
+                    style="background-color: #9da8b5;">
                     <span>&mdash;</span>
                   </li>
                   {% endfor %}
                 </ul>
               </div>
               {% if user.is_staff %}
-                <button class="btn btn-pink" onclick="navigator.share({ url: '{{ request.scheme }}://{{ request.get_host }}/#{{ gift.name|slugify }}' });"></a>
-                  <i class="bi bi-share-fill text-dark"></i>
-                </button>
+              <button class="btn btn-pink"
+                onclick="navigator.share({ url: '{{ request.scheme }}://{{ request.get_host }}/#{{ gift.name|slugify }}' });"></a>
+                <i class="bi bi-share-fill text-dark"></i>
+              </button>
               {% endif %}
             </div>
           </div>
         </div>
-      <!-- Modal -->
-      {% if gift.suggestions.count > 0 %}
-      <div class="modal fade" id="gift{{ gift.pk }}" tabindex="-1" aria-labelledby="gift{{ gift.pk }}Label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header ">
-              <h1 class="modal-title fs-5" id="gift{{ gift.pk }}Label">Sugestões</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <ul class="modal-body list-group list-group-flush">
-              <li class="list-group-item bg-pink">Sugestões de onde comprar nos links abaixo:</li>
-              {% for suggestion in gift.suggestions.all %}
-              <li class="list-group-item">
-                &mdash; <a class="text-dark" href="{{ suggestion.link }}" target="_blank">{{ suggestion.name }}</a>
-              </li>
-              {% endfor %}
-            </ul>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-              {% if not gift.guest_name %}
-              <button type="button" class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#pickGift{{ gift.pk }}">Presentear</button>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal fade" id="pickGift{{ gift.pk }}" tabindex="-1" aria-labelledby="pickGift{{ gift.pk }}Label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header bg-pink">
-              <h1 class="modal-title fs-5" id="pickGift{{ gift.pk }}Label">Confirmar presente</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <form action="{% url 'home:choose_gift' gift.pk %}" method="POST">
-              <div class="modal-body">
-                {% csrf_token %}
-                <div class="mb-3">
-                  <label for="name" class="form-label">Nome</label>
-                  <input type="text" class="form-control" id="name" name="name" required>
-                </div>
-                <div class="mb-3">
-                  <label for="phone_number" class="form-label">Telefone</label>
-                  <input type="text" class="form-control" id="phone_number" name="phone_number" required>
-                </div>
-                <div class="mb-3">
-                  <label for="email" class="form-label">E-mail <small>(Opcional)</small></label>
-                  <input type="email" class="form-control" id="email" name="email">
-                </div>
+        <!-- Modal -->
+        {% if gift.suggestions.count > 0 %}
+        <div class="modal fade" id="gift{{ gift.pk }}" tabindex="-1" aria-labelledby="gift{{ gift.pk }}Label"
+          aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header ">
+                <h1 class="modal-title fs-5" id="gift{{ gift.pk }}Label">Sugestões</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
               </div>
+              <ul class="modal-body list-group list-group-flush">
+                <li class="list-group-item bg-pink">Sugestões de onde comprar nos links abaixo:</li>
+                {% for suggestion in gift.suggestions.all %}
+                <li class="list-group-item">
+                  &mdash; <a class="text-dark" href="{{ suggestion.link }}" target="_blank">{{ suggestion.name }}</a>
+                </li>
+                {% endfor %}
+              </ul>
               <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-target="#gift{{ gift.pk }}" data-bs-toggle="modal">Voltar</button>
-                <button type="submit" class="btn btn-pink">Presentear</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                {% if not gift.guest_name %}
+                <button type="button" class="btn btn-pink" data-bs-toggle="modal"
+                  data-bs-target="#pickGift{{ gift.pk }}">Presentear</button>
+                {% endif %}
               </div>
-            </form>
+            </div>
+          </div>
+        </div>
+        <div class="modal fade" id="pickGift{{ gift.pk }}" tabindex="-1" aria-labelledby="pickGift{{ gift.pk }}Label"
+          aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header bg-pink">
+                <h1 class="modal-title fs-5" id="pickGift{{ gift.pk }}Label">Confirmar presente</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+              </div>
+              <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="gift_id" value="{{ gift.id }}">
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label class="form-label">Forma de Presentear:</label>
+                    <div class="d-flex flex-column flex-md-row justify-content-evenly">
+                      <div class="border rounded p-1">
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" name="way_to_gift" id="way_to_gift_take"
+                            value="take" checked>
+                          <label class="form-check-label" for="way_to_gift_take">
+                            Levar no dia
+                          </label>
+                        </div>
+                      </div>
+                      <div class="border rounded p-1">
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" name="way_to_gift" id="way_to_gift_send"
+                            value="send">
+                          <label class="form-check-label" for="way_to_gift_send">
+                            Enviar pela internet
+                          </label>
+                        </div>
+                      </div>
+                      {% if gift.price %}
+                        <div class="border rounded p-1">
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="way_to_gift" id="way_to_gift_money"
+                              value="money">
+                            <label class="form-check-label" for="way_to_gift_money">
+                              Dar o dinheiro
+                            </label>
+                          </div>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% if gift.price %}
+                  <div class="mb-3" id="price-container" style="display:none;">
+                    <label for="price" class="form-label">Valor:</label>
+                    <input type="text" class="form-control" id="price" value="R$ {{ gift.price }}" disabled>
+                  </div>
+                  {% endif %}
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Nome:</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="phone_number" class="form-label">Telefone:</label>
+                    <input type="text" class="form-control" id="phone_number" name="phone_number" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">E-mail <small>(Opcional):</small></label>
+                    <input type="email" class="form-control" id="email" name="email">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-secondary" data-bs-target="#gift{{ gift.pk }}"
+                    data-bs-toggle="modal">Voltar</button>
+                  <button type="submit" class="btn btn-pink">Presentear</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="modal fade" id="pickGift{{ gift.pk }}" tabindex="-1" aria-labelledby="pickGift{{ gift.pk }}Label"
+          aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header bg-pink">
+                <h1 class="modal-title fs-5" id="pickGift{{ gift.pk }}Label">Confirmar presente</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+              </div>
+              <form method="POST">
+                <div class="modal-body">
+                  {% csrf_token %}
+                  <input type="hidden" name="gift_id" value="{{ gift.id }}">
+                  <div class="mb-3">
+                    <label class="form-label">Forma de Presentear:</label>
+                    <div class="d-flex flex-column flex-md-row justify-content-evenly">
+                      <div class="border rounded p-1">
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" name="way_to_gift" id="way_to_gift_take"
+                            value="take" checked>
+                          <label class="form-check-label" for="way_to_gift_take">
+                            Levar no dia
+                          </label>
+                        </div>
+                      </div>
+                      <div class="border rounded p-1">
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" name="way_to_gift" id="way_to_gift_send"
+                            value="send">
+                          <label class="form-check-label" for="way_to_gift_send">
+                            Enviar pela internet
+                          </label>
+                        </div>
+                      </div>
+                      {% if gift.price %}
+                        <div class="border rounded p-1">
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="way_to_gift" id="way_to_gift_money"
+                              value="money">
+                            <label class="form-check-label" for="way_to_gift_money">
+                              Dar o dinheiro
+                            </label>
+                          </div>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% if gift.price %}
+                    <div class="mb-3"> 
+                      <label for="name" class="form-label">Valor:</label>
+                      <input type="text" class="form-control" id="price" value="R$ {{ gift.price }}" disabled>
+                    </div>
+                  {% endif %}
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Nome:</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="phone_number" class="form-label">Telefone:</label>
+                    <input type="text" class="form-control" id="phone_number" name="phone_number" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="email" class="form-label">E-mail <small>(Opcional):</small></label>
+                    <input type="email" class="form-control" id="email" name="email">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-secondary" data-bs-target="#gift{{ gift.pk }}"
+                    data-bs-toggle="modal">Voltar</button>
+                  <button type="submit" class="btn btn-pink">Presentear</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% empty %}
+      {% if request.GET.phone or request.GET.email %}
+      <div class="col my-3">
+        <div class="card overflow-hidden" style="width: 100%;">
+          <div class="card-body text-center">
+            <h5 class="card-title">Você ainda não escolheu nada!</h5>
+            <p class="card-text">Nenhum presente foi confirmado em seu nome.</p>
+            <figure class="figure rounded" style="max-width: 25rem;">
+              <img class="figure-img img-fluid border" src="https://attic.sh/3zlbi7gtp8lnac0uc1p2jjsm0jec"
+                alt="Cachorro triste">
+              <figcaption class="figure-caption">Tá esperando o quê? &#128542;</figcaption>
+            </figure>
           </div>
         </div>
       </div>
       {% else %}
-      <div class="modal fade" id="pickGift{{ gift.pk }}" tabindex="-1"
-        aria-labelledby="pickGift{{ gift.pk }}Label" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header bg-pink">
-              <h1 class="modal-title fs-5" id="pickGift{{ gift.pk }}Label">Confirmar presente</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-              <form action="{% url 'home:choose_gift' gift.pk %}" method="POST">
-                {% csrf_token %}
-                <div class="mb-3">
-                  <label for="name" class="form-label">Nome</label>
-                  <input type="text" class="form-control" id="name" name="name" required>
-                </div>
-                <div class="mb-3">
-                  <label for="phone_number" class="form-label">Telefone</label>
-                  <input type="text" class="form-control" id="phone_number" name="phone_number" required>
-                </div>
-                <div class="mb-3">
-                  <label for="email" class="form-label">E-mail <small>(Opcional)</small></label>
-                  <input type="email" class="form-control" id="email" name="email">
-                </div>
-                <button type="submit" class="btn btn-pink">Presentear</button>
-              </form>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            </div>
+      <div class="col my-3">
+        <div class="card" style="width: 100%;">
+          <div class="card-body text-center">
+            <h5 class="card-title">Nenhum presente cadastrado</h5>
+            <p class="card-text">Nenhum presente foi cadastrado ainda.</p>
           </div>
         </div>
       </div>
       {% endif %}
       {% endfor %}
     </div>
-    {% empty %}
-    {% if request.GET.phone or request.GET.email %}
-    <div class="col my-3">
-      <div class="card overflow-hidden" style="width: 100%;">
-        <div class="card-body text-center">
-          <h5 class="card-title">Você ainda não escolheu nada!</h5>
-          <p class="card-text">Nenhum presente foi confirmado em seu nome.</p>
-          <figure class="figure rounded" style="max-width: 25rem;">
-            <img class="figure-img img-fluid border" src="https://attic.sh/3zlbi7gtp8lnac0uc1p2jjsm0jec" alt="Cachorro triste">
-            <figcaption class="figure-caption">Tá esperando o quê? &#128542;</figcaption>
-          </figure>
-        </div>
-      </div>
-    </div>
-    {% else %}
-    <div class="col my-3">
-      <div class="card" style="width: 100%;">
-        <div class="card-body text-center">
-          <h5 class="card-title">Nenhum presente cadastrado</h5>
-          <p class="card-text">Nenhum presente foi cadastrado ainda.</p>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-    {% endfor %}
-    </div>
   </section>
 </div>
 {% endblock content %}
 
 {% block extra_scripts %}
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+  integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+  integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -324,42 +454,84 @@
     })
   });
   document.addEventListener('hidden.bs.modal', function () {
-      if (!document.querySelector('.modal.show')) {
-          document.body.classList.remove('modal-open');
-          const backdrop = document.querySelector('.modal-backdrop');
-          if (backdrop) {
-              backdrop.remove();
-          }
+    if (!document.querySelector('.modal.show')) {
+      document.body.classList.remove('modal-open');
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) {
+        backdrop.remove();
       }
+    }
   });
   const modals = document.querySelectorAll('.modal');
   modals.forEach(modal => {
-      modal.addEventListener('hidden.bs.modal', function () {
-          const backdrop = document.querySelector('.modal-backdrop');
-          if (backdrop) {
-              backdrop.remove();
-          }
-      });
+    modal.addEventListener('hidden.bs.modal', function () {
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) {
+        backdrop.remove();
+      }
+    });
   });
   document.addEventListener('hidden.bs.modal', function () {
-      if (!document.querySelector('.modal.show')) {
-          const backdrop = document.querySelector('.modal-backdrop');
-          if (backdrop) {
-              backdrop.remove();
-          }
+    if (!document.querySelector('.modal.show')) {
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) {
+        backdrop.remove();
       }
+    }
   });
   const backButtons = document.querySelectorAll('[data-bs-target][data-bs-toggle="modal"]');
 
   backButtons.forEach(button => {
-      button.addEventListener('click', function (event) {
-          const currentModal = bootstrap.Modal.getInstance(this.closest('.modal'));
-          currentModal.hide();
-          setTimeout(() => {
-              const targetModal = new bootstrap.Modal(document.querySelector(this.getAttribute('data-bs-target')));
-              targetModal.show();
-          }, 500);
-      });
+    button.addEventListener('click', function (event) {
+      const currentModal = bootstrap.Modal.getInstance(this.closest('.modal'));
+      currentModal.hide();
+      setTimeout(() => {
+        const targetModal = new bootstrap.Modal(document.querySelector(this.getAttribute('data-bs-target')));
+        targetModal.show();
+      }, 500);
+    });
   });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const moneyOption = document.getElementById('way_to_gift_money');
+    const takeOption = document.getElementById('way_to_gift_take');
+    const sendOption = document.getElementById('way_to_gift_send');
+    const priceContainer = document.getElementById('price-container');
+
+    function togglePriceField(show) {
+      if (show) {
+        priceContainer.style.display = 'block';
+      } else {
+        priceContainer.style.display = 'none';
+      }
+    }
+
+    // Ensure it hides price field initially
+    togglePriceField(false);
+
+    // Add event listeners to check if 'money' option is selected
+    moneyOption.addEventListener('change', function() {
+      togglePriceField(moneyOption.checked);
+    });
+
+    // Hide price if other options are selected
+    takeOption.addEventListener('change', function() {
+      togglePriceField(false);
+    });
+    sendOption.addEventListener('change', function() {
+      togglePriceField(false);
+    });
+    const giftId = "{{ request.GET.gift|default_if_none:'' }}";
+    if (giftId !== '') {
+      // Exibe o modal automaticamente
+      var pixModal = new bootstrap.Modal(document.getElementById('pix' + giftId));
+      pixModal.show();
+    }
+  });
+
+  function copyToClipboard() {
+        navigator.clipboard.writeText("{{ settings.pix_key }}");
+        alert('Chave copiada para a área de transferência');
+    }
 </script>
 {% endblock extra_scripts %}

@@ -113,6 +113,18 @@
         </header>
 
         <main class="container-fluid p-0">
+            
+            {% if messages %}
+                <div class="position-absolute start-50 translate-middle-x mt-3" style="z-index: 1050; width: 100%; max-width: 600px; top: 4rem;">
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    <strong>{% if message.tags == 'success' %}Oba!{% else %}Ops!{% endif %}</strong> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            
             {% block content %}{% endblock content %}
         </main>
 

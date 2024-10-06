@@ -1,5 +1,5 @@
 from django.http import JsonResponse, HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView, ListView
@@ -244,26 +244,44 @@ class BridalShowerGiftListView(UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(BridalShowerGiftListView, self).get_context_data(**kwargs)
         context["bridal_shower_text"] = TextContent.objects.filter(position="bridal_shower_text").first()
+        
+        email = self.request.GET.get('email')
+        phone = self.request.GET.get('phone')
+
+        if phone or email:
+            settings = Settings.objects.first()
+            for gift in context['object_list']:
+                if gift.price:
+                    payload = Payload(
+                        nome=settings.account_holder,
+                        chavepix=settings.pix_key,
+                        valor=str(gift.price),
+                        cidade="Belem",
+                        txtId=str(gift.id),
+                        diretorio=''
+                    )
+                    payload.gerarPayload()
+                    qr_code_base64 = payload.gerarQrCode(payload.payload_completa, '')
+
+                    # Passar o QR code gerado para o contexto de cada presente
+                    gift.qr_code = qr_code_base64
         return context
 
-
-class PickGiftView(UserPassesTestMixin, View):
-
-    def test_func(self):
-        if not Settings.objects.first().hide_bridal_shower_gift:
-            return True
-        else:
-            return self.request.user.has_perm('home.view_bridalshowergift')
-
-    def post(self, request, gift_id):
+    def post(self, request, *args, **kwargs):
+        way_to_gift = request.POST.get('way_to_gift')
         guest_name = request.POST.get('name')
         guest_email = request.POST.get('email')
         guest_phone = request.POST.get('phone_number')
         guest_phone = guest_phone.replace('+', '').replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
-        gift = BridalShowerGift.objects.get(id=gift_id)
+        gift_id = request.POST.get('gift_id')
+        gift = get_object_or_404(BridalShowerGift, id=gift_id)
+        gift.way_to_gift = way_to_gift
         gift.guest_name = guest_name
         gift.guest_email = guest_email
         gift.guest_phone = guest_phone
         gift.save()
-        messages.success(request, f'Presente {gift.name} escolhido com sucesso!')
-        return HttpResponseRedirect(reverse('home:bridal_shower_gift_list'))
+        if way_to_gift == 'money':
+            messages.success(request, f'Presente {gift.name} escolhido com sucesso! Confira o pix')
+        else:
+            messages.success(request, f'Presente {gift.name} escolhido com sucesso!')
+        return HttpResponseRedirect(reverse('home:bridal_shower_gift_list') + f'?phone={guest_phone}&email={guest_email}&gift={gift_id}')
