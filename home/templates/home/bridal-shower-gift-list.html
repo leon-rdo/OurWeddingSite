@@ -222,7 +222,7 @@
               </div>
               {% if user.is_staff %}
               <button class="btn btn-pink"
-                onclick="navigator.share({ url: '{{ request.scheme }}://{{ request.get_host }}/#{{ gift.name|slugify }}' });"></a>
+                onclick="navigator.share({ url: '{{ request.scheme }}://{{ request.get_host }}/cha-de-panela/#{{ gift.name|slugify }}' });"></a>
                 <i class="bi bi-share-fill text-dark"></i>
               </button>
               {% endif %}
