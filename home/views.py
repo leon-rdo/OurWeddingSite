@@ -282,6 +282,7 @@ class BridalShowerGiftListView(UserPassesTestMixin, ListView):
         gift.save()
         if way_to_gift == 'money':
             messages.success(request, f'Presente {gift.name} escolhido com sucesso! Confira o pix')
+            return HttpResponseRedirect(reverse('home:bridal_shower_gift_list') + f'?phone={guest_phone}&email={guest_email}&gift={gift_id}')
         else:
             messages.success(request, f'Presente {gift.name} escolhido com sucesso!')
-        return HttpResponseRedirect(reverse('home:bridal_shower_gift_list') + f'?phone={guest_phone}&email={guest_email}&gift={gift_id}')
+            return HttpResponseRedirect(reverse('home:bridal_shower_gift_list') + f'?phone={guest_phone}&email={guest_email}')

@@ -169,6 +169,7 @@
               {% if gift.guest_name %}
               {% if gift.suggestions.count > 0 %}
               <button class="btn btn-pink" data-bs-toggle="modal" data-bs-target="#gift{{ gift.pk }}">Sugestões</button>
+              {% endif %}
               {% if gift.price %}
               <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#pix{{ gift.pk }}">Fazer pix</button>
               <div class="modal fade" id="pix{{ gift.pk }}" tabindex="-1" aria-labelledby="pix{{ gift.pk }}Label" aria-hidden="true">
@@ -184,16 +185,12 @@
                     </figure>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                      <button type="button" class="btn btn-primary"><i class="bi bi-copy"></i> Pix Copia e Cola</button>
+                      <button type="button" class="btn btn-primary" onclick="copyToClipboard('{{ gift.qr_code }}')"><i class="bi bi-copy"></i> Pix Copia e Cola</button>
                       <button type="button" class="btn btn-primary" onclick="copyToClipboard()"><i class="bi bi-copy"></i> Copiar chave pix</button>
                     </div>
                   </div>
                 </div>
               </div>
-              {% endif %}
-              {% else %}
-              {% if gift.price %}
-              {% endif %}
               {% endif %}
               <p class="card-text">Presenteado por: {{ gift.guest_name }}</p>
               {% elif gift.suggestions.count > 0 %}
@@ -528,5 +525,10 @@
         navigator.clipboard.writeText("{{ settings.pix_key }}");
         alert('Chave copiada para a área de transferência');
     }
+
+  function copyToClipboard(code) {
+      navigator.clipboard.writeText(code);
+      alert('Código do pix copiado para a área de transferência');
+  }
 </script>
 {% endblock extra_scripts %}
