@@ -265,6 +265,7 @@ class BridalShowerGiftListView(UserPassesTestMixin, ListView):
 
                     # Passar o QR code gerado para o contexto de cada presente
                     gift.qr_code = qr_code_base64
+                    gift.payload = payload.payload_completa
         return context
 
     def post(self, request, *args, **kwargs):
