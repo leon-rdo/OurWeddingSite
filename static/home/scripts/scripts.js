@@ -60,6 +60,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(code);
+    navigator.clipboard.writeText(text);
     alert('Copiado para a área de transferência');
 }
