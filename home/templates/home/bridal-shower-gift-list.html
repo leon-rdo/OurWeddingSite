@@ -296,7 +296,7 @@
                     </div>
                   </div>
                   {% if gift.price %}
-                  <div class="mb-3" id="price-container" style="display:none;">
+                  <div class="mb-3 price-container" style="display:none;">
                     <label for="price" class="form-label">Valor:</label>
                     <input type="text" class="form-control" id="price" value="R$ {{ gift.price }}" disabled>
                   </div>
@@ -371,7 +371,7 @@
                     </div>
                   </div>
                   {% if gift.price %}
-                    <div class="mb-3"> 
+                    <div class="mb-3 price-container"> 
                       <label for="name" class="form-label">Valor:</label>
                       <input type="text" class="form-control" id="price" value="R$ {{ gift.price }}" disabled>
                     </div>
@@ -485,40 +485,28 @@
   });
 
   document.addEventListener('DOMContentLoaded', function() {
-    const moneyOption = document.getElementById('way_to_gift_money');
-    const takeOption = document.getElementById('way_to_gift_take');
-    const sendOption = document.getElementById('way_to_gift_send');
-    const priceContainer = document.getElementById('price-container');
+    // Select all modals with id starting with 'pickGift'
+    var modals = document.querySelectorAll('[id^="pickGift"]');
 
-    function togglePriceField(show) {
-      if (show) {
-        priceContainer.style.display = 'block';
-      } else {
-        priceContainer.style.display = 'none';
+    modals.forEach(function(modal) {
+      var priceContainer = modal.querySelector('.price-container');
+      if (priceContainer) {
+        var wayToGiftRadios = modal.querySelectorAll('input[name="way_to_gift"]');
+        function updatePriceContainer() {
+          var selectedValue = modal.querySelector('input[name="way_to_gift"]:checked').value;
+          if (selectedValue === 'money') {
+            priceContainer.style.display = 'block';
+          } else {
+            priceContainer.style.display = 'none';
+          }
+        }
+        wayToGiftRadios.forEach(function(radio) {
+          radio.addEventListener('change', updatePriceContainer);
+        });
+        // Initialize on page load
+        updatePriceContainer();
       }
-    }
-
-    // Ensure it hides price field initially
-    togglePriceField(false);
-
-    // Add event listeners to check if 'money' option is selected
-    moneyOption.addEventListener('change', function() {
-      togglePriceField(moneyOption.checked);
     });
-
-    // Hide price if other options are selected
-    takeOption.addEventListener('change', function() {
-      togglePriceField(false);
-    });
-    sendOption.addEventListener('change', function() {
-      togglePriceField(false);
-    });
-    const giftId = "{{ request.GET.gift|default_if_none:'' }}";
-    if (giftId !== '') {
-      // Exibe o modal automaticamente
-      var pixModal = new bootstrap.Modal(document.getElementById('pix' + giftId));
-      pixModal.show();
-    }
   });
 
   function copyToClipboard() {
