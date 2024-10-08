@@ -58,3 +58,8 @@ document.addEventListener('DOMContentLoaded', function () {
         button.textContent = '⏸️';
     }, { once: true });
 });
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(code);
+    alert('Copiado para a área de transferência');
+}
