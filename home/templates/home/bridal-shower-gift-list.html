@@ -440,54 +440,14 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    // Initialize Bootstrap tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
-  });
-  document.addEventListener('hidden.bs.modal', function () {
-    if (!document.querySelector('.modal.show')) {
-      document.body.classList.remove('modal-open');
-      const backdrop = document.querySelector('.modal-backdrop');
-      if (backdrop) {
-        backdrop.remove();
-      }
-    }
-  });
-  const modals = document.querySelectorAll('.modal');
-  modals.forEach(modal => {
-    modal.addEventListener('hidden.bs.modal', function () {
-      const backdrop = document.querySelector('.modal-backdrop');
-      if (backdrop) {
-        backdrop.remove();
-      }
+      return new bootstrap.Tooltip(tooltipTriggerEl);
     });
-  });
-  document.addEventListener('hidden.bs.modal', function () {
-    if (!document.querySelector('.modal.show')) {
-      const backdrop = document.querySelector('.modal-backdrop');
-      if (backdrop) {
-        backdrop.remove();
-      }
-    }
-  });
-  const backButtons = document.querySelectorAll('[data-bs-target][data-bs-toggle="modal"]');
 
-  backButtons.forEach(button => {
-    button.addEventListener('click', function (event) {
-      const currentModal = bootstrap.Modal.getInstance(this.closest('.modal'));
-      currentModal.hide();
-      setTimeout(() => {
-        const targetModal = new bootstrap.Modal(document.querySelector(this.getAttribute('data-bs-target')));
-        targetModal.show();
-      }, 500);
-    });
-  });
-
-  document.addEventListener('DOMContentLoaded', function() {
-    // Select all modals with id starting with 'pickGift'
+    // Handle the display of the price container in modals
     var modals = document.querySelectorAll('[id^="pickGift"]');
-
     modals.forEach(function(modal) {
       var priceContainer = modal.querySelector('.price-container');
       if (priceContainer) {
@@ -507,16 +467,42 @@
         updatePriceContainer();
       }
     });
+
+    // Handle back buttons to switch between modals smoothly
+    const backButtons = document.querySelectorAll('[data-bs-target][data-bs-toggle="modal"]');
+    backButtons.forEach(button => {
+      button.addEventListener('click', function (event) {
+        const currentModal = bootstrap.Modal.getInstance(this.closest('.modal'));
+        currentModal.hide();
+        setTimeout(() => {
+          const targetModalElement = document.querySelector(this.getAttribute('data-bs-target'));
+          const targetModal = new bootstrap.Modal(targetModalElement);
+          targetModal.show();
+        }, 500);
+      });
+    });
   });
 
-  function copyToClipboard() {
-        navigator.clipboard.writeText("{{ settings.pix_key }}");
-        alert('Chave copiada para a área de transferência');
+  // Remove modal backdrop when all modals are closed
+  document.addEventListener('hidden.bs.modal', function () {
+    if (!document.querySelector('.modal.show')) {
+      document.body.classList.remove('modal-open');
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) {
+        backdrop.remove();
+      }
     }
+  });
 
-  function copyToClipboard(code) {
-      navigator.clipboard.writeText(code);
-      alert('Código do pix copiado para a área de transferência');
+  // Functions to copy Pix key and code to clipboard
+  function copyPixKeyToClipboard() {
+    navigator.clipboard.writeText("{{ settings.pix_key }}");
+    alert('Chave Pix copiada para a área de transferência');
   }
-</script>
+
+  function copyPixCodeToClipboard(code) {
+    navigator.clipboard.writeText(code);
+    alert('Código Pix copiado para a área de transferência');
+  }
+</script>  
 {% endblock extra_scripts %}
