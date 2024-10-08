@@ -25,6 +25,14 @@ document.addEventListener('DOMContentLoaded', function () {
             updatePriceContainer();
         }
     });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const giftId = urlParams.get('gift');
+    
+    if (giftId) {
+        const pixModal = new bootstrap.Modal(document.getElementById('pix' + giftId));
+        pixModal.show();
+    }
 });
 document.addEventListener('hidden.bs.modal', function () {
     if (!document.querySelector('.modal.show')) {
