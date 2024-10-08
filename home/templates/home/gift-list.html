@@ -85,12 +85,3 @@
     </section>
 </div>
 {% endblock content %}
-
-{% block extra_scripts %}
-<script>
-    function copyToClipboard() {
-        navigator.clipboard.writeText("{{ settings.pix_key }}");
-        alert('Chave copiada para a área de transferência');
-    }
-</script>
-{% endblock extra_scripts %}

@@ -60,6 +60,13 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text);
-    alert('Copiado para a área de transferência');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            alert('Copiado para a área de transferência');
+        }).catch(function(err) {
+            console.error('Erro ao copiar para a área de transferência: ', err);
+        });
+    } else {
+        console.warn('Clipboard API não está disponível.');
+    }
 }
