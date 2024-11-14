@@ -75,8 +75,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'OurWeddingSite.context_processors.settings',
-            ],
-            "builtins": ["home.templatetags.length_is"],
+            ]
         },
     },
 ]
