@@ -142,8 +142,10 @@ class GiftListView(UserPassesTestMixin, ListView):
                 )
                 payload.gerarPayload()
                 gift.qr_code = payload.gerarQrCode(payload.payload_completa, '')
+                gift.payload = payload.payload_completa
             else:
                 gift.qr_code = None
+                gift.payload = None
 
         return context
 
