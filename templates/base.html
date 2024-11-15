@@ -152,7 +152,6 @@
         <button class="floating-button" id="audio-control-button">
             ▶️
         </button>
-        <script src="{% static 'home/scripts/scripts.js' %}"></script>
     {% endif %}
     {% if user.is_staff %}
     <script>
@@ -170,6 +169,7 @@
     </script>
     {% endif %}
     {% block extra_scripts %}{% endblock extra_scripts %}
+    <script src="{% static 'home/scripts/scripts.js' %}"></script>
 </body>
 
 </html>

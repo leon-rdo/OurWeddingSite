@@ -21,49 +21,54 @@ document.addEventListener('DOMContentLoaded', function () {
             images[i].addEventListener("error", imageLoaded); // Contabiliza erros também
         }
     }
-    
+
     var audio = document.getElementById('background-audio');
-    audio.volume = 0.5;
-    var button = document.getElementById('audio-control-button');
+    if (audio) {
 
-    function updateButton() {
-        if (audio.paused) {
-            button.textContent = '▶️';
-        } else {
-            button.textContent = '⏸️';
-        }
-    }
+        audio.volume = 0.5;
 
-    button.addEventListener('click', function () {
-        if (audio.paused) {
-            audio.play().catch(function (error) {
-                console.log('Autoplay foi bloqueado. Tentando reproduzir após interação do usuário.');
-            });
-        } else {
-            audio.pause();
+        var button = document.getElementById('audio-control-button');
+
+        function updateButton() {
+            if (audio.paused) {
+                button.textContent = '▶️';
+            } else {
+                button.textContent = '⏸️';
+            }
         }
+
+        button.addEventListener('click', function () {
+            if (audio.paused) {
+                audio.play().catch(function (error) {
+                    console.log('Autoplay foi bloqueado. Tentando reproduzir após interação do usuário.');
+                });
+            } else {
+                audio.pause();
+            }
+            updateButton();
+        });
+
+        // Tentar reproduzir o áudio automaticamente
+        audio.play().catch(function (error) {
+            console.log('Autoplay foi bloqueado. Tentando reproduzir após interação do usuário.');
+        });
+
+        // Atualizar o botão inicialmente
         updateButton();
-    });
 
-    // Tentar reproduzir o áudio automaticamente
-    audio.play().catch(function (error) {
-        console.log('Autoplay foi bloqueado. Tentando reproduzir após interação do usuário.');
-    });
+        document.addEventListener('click', function () {
+            audio.play();
+            button.textContent = '⏸️';
+        }, { once: true });
 
-    // Atualizar o botão inicialmente
-    updateButton();
-
-    document.addEventListener('click', function () {
-        audio.play();
-        button.textContent = '⏸️';
-    }, { once: true });
+    };
 });
 
 function copyToClipboard(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function() {
+        navigator.clipboard.writeText(text).then(function () {
             alert('Copiado para a área de transferência');
-        }).catch(function(err) {
+        }).catch(function (err) {
             console.error('Erro ao copiar para a área de transferência: ', err);
         });
     } else {
