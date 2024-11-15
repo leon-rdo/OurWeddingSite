@@ -156,6 +156,7 @@ class Gift(models.Model):
     class Meta:
         verbose_name = 'Presente'
         verbose_name_plural = 'Presentes'
+        ordering = ['-price']
 
 
 class BridalShowerGift(models.Model):
