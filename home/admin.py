@@ -82,12 +82,28 @@ class BridalShowerGiftSuggestionInline(admin.TabularInline):
     fields = ('name', 'link')
 
 
+class GuestNameFilter(admin.SimpleListFilter):
+    title = 'Escolhido?'
+    parameter_name = 'guest_name'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('with_guest', 'Escolhido'),
+            ('without_guest', 'Não-Escolhido'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'with_guest':
+            return queryset.exclude(guest_name__isnull=True).exclude(guest_name__exact='')
+        if self.value() == 'without_guest':
+            return queryset.filter(guest_name__isnull=True) | queryset.filter(guest_name__exact='')
+
 @admin.register(BridalShowerGift)
 class BridalShowerGiftAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'guest_name')
-    search_fields = ('name', 'description')
+    search_fields = ('name', 'description', 'price', 'guest_name', 'guest_phone', 'guest_email')
     inlines = [BridalShowerGiftSuggestionInline]
-    list_filter = ('category',)
+    list_filter = ('category', GuestNameFilter, 'way_to_gift', 'colors')
     actions = ['send_reminder_for_gift']
     fieldsets = (
         ('Presente', {

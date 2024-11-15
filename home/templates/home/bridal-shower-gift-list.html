@@ -115,8 +115,10 @@
 
       {% url 'home:bridal_shower_gift_list' as bridal_shower_gift_list_url %}
       {% if not request.GET.email and not request.GET.phone %}
-      <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#forgotMyGift">Esqueci meu
-        presente</button>
+      <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#forgotMyGift">Esqueci meu presente</button>
+      {% if request.user.is_staff %}
+                <a class="btn btn-info btn-sm" href="{% url 'admin:home_bridalshowergift_changelist' %}" role="button">Lista completa</a>
+      {% endif %}
       <!-- Forgot My Gift Modal -->
       <div class="modal fade" id="forgotMyGift" tabindex="-1" aria-labelledby="forgotMyGiftLabel" aria-hidden="true">
         <div class="modal-dialog">
