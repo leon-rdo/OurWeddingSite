@@ -45,9 +45,11 @@
     {% endif %}
     <section class="row row-cols-1 row-cols-md-3 row-cols-lg-4 justify-content-evenly align-items-stretch g-4 my-5" id="gifts">
         {% for gift in object_list %}
-        <div class="col">
+        <div class="col d-flex justify-content-center">
             <div class="card h-100" style="width: 18rem;">
-                <img src="{{ gift.image.url }}" class="card-img-top" width="100%">
+                <div class="blur-card-img-container" style="background-image: url('{{ gift.image.url }}');">
+                    <img src="{{ gift.image.url }}" class="card-img-top h-100 object-fit-contain" style="position: relative; filter: none;">
+                </div>
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ gift.name }}</h5>
                     <p class="card-text">{{ gift.description }}</p>

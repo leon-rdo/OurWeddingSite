@@ -1509,6 +1509,32 @@ ol {
   background-color: #EEDFE3!important;
 }
 
+.blur-card-img-container {
+  position: relative;
+  width: 100%;
+  height: 18rem;
+  overflow: hidden;
+}
+
+.blur-card-img-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: inherit;
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px);
+  z-index: 1;
+}
+
+.blur-card-img-container img {
+  position: relative;
+  z-index: 2;
+}
+
 .u-link,
 a {
   border-top-width: 0;
