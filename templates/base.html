@@ -6,8 +6,18 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NCR2LXZW7L"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-NCR2LXZW7L');
+    </script>
+
     <meta name="keywords" content="Ideia de casamentos, Casamento  moderno, Cerimônia de casamento, Entre em contato conosco">
-    <meta name="description" content="">
     {% if settings.logo %}
     <link rel="shortcut icon" href="{{ settings.logo.url }}" type="image/x-icon">
     {% endif %}
