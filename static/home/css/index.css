@@ -1829,3 +1829,87 @@
     min-height: 234px;
   }
 }
+@media (max-width: 768px) {
+  #hero {
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  #hero .u-sheet-1 {
+    min-height: 100vh;
+    align-items: flex-end !important;
+    padding-bottom: 2rem;
+  }
+  
+  .countdown-container {
+    background: rgba(212, 182, 190, 0.92) !important;
+    padding: 1.5rem !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .countdown-container h1 {
+    font-size: 1.8rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  #countdown-timer {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+  
+  #countdown-timer > div {
+    padding: 0.5rem !important;
+  }
+  
+  #countdown-timer span {
+    font-size: 1.5rem !important;
+  }
+  
+  .countdown-container p {
+    font-size: 0.9rem !important;
+    margin-top: 1rem !important;
+  }
+}
+
+@media (min-width: 769px) {
+  #hero {
+    min-height: 600px;
+  }
+  
+  .countdown-container {
+    background: rgba(212, 182, 190, 0.95);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  #countdown-timer {
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  #countdown-timer > div {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    min-width: 80px;
+  }
+  
+  #countdown-timer span {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  #countdown-timer div div {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
