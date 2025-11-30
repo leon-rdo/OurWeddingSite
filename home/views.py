@@ -18,12 +18,109 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, TemplateView
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from home.models import Gift, BridalShowerGift, TextContent, Gallery, Settings, Message, Guest, Payment
 
 
 logger = logging.getLogger('home')
 
+
+
+def send_payment_confirmation_email(payment_obj, gift):
+    """
+    Envia e-mail de confirmação de pagamento
+    """
+    try:
+        settings = Settings.objects.first()
+        
+        # Determinar tipo de presente
+        gift_type = "Presente de Casamento"
+        if isinstance(gift, BridalShowerGift):
+            gift_type = "Presente de Chá de Panela"
+        
+        # Contexto para o template
+        context = {
+            'payment': payment_obj,
+            'gift': gift,
+            'gift_type': gift_type,
+            'settings': settings,
+            'site_url': django_settings.SITE_URL,
+        }
+        
+        # Renderizar template HTML
+        html_content = render_to_string('home/emails/payment_confirmation.html', context)
+        text_content = strip_tags(html_content)
+        
+        # Criar e-mail
+        subject = f'✅ Pagamento Confirmado - {gift.name}'
+        from_email = django_settings.DEFAULT_FROM_EMAIL
+        to_email = payment_obj.payer_email
+        
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_content,
+            from_email=from_email,
+            to=[to_email]
+        )
+        
+        email.attach_alternative(html_content, "text/html")
+        
+        # Enviar
+        email.send()
+        
+        logger.info(f"E-mail de confirmação enviado para {to_email} - Pagamento: {payment_obj.payment_id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Erro ao enviar e-mail de confirmação: {str(e)}", exc_info=True)
+        return False
+
+
+def send_payment_pending_email(payment_obj, gift):
+    """
+    Envia e-mail informando que o pagamento está pendente
+    """
+    try:
+        settings = Settings.objects.first()
+        
+        gift_type = "Presente de Casamento"
+        if isinstance(gift, BridalShowerGift):
+            gift_type = "Presente de Chá de Panela"
+        
+        context = {
+            'payment': payment_obj,
+            'gift': gift,
+            'gift_type': gift_type,
+            'settings': settings,
+            'site_url': django_settings.SITE_URL,
+        }
+        
+        html_content = render_to_string('home/emails/payment_pending.html', context)
+        text_content = strip_tags(html_content)
+        
+        subject = f'⏳ Pagamento em Análise - {gift.name}'
+        from_email = django_settings.DEFAULT_FROM_EMAIL
+        to_email = payment_obj.payer_email
+        
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_content,
+            from_email=from_email,
+            to=[to_email]
+        )
+        
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+        
+        logger.info(f"E-mail de pendência enviado para {to_email} - Pagamento: {payment_obj.payment_id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Erro ao enviar e-mail de pendência: {str(e)}", exc_info=True)
+        return False
 
 def get_friendly_payment_message(status_detail, status=None):
     """
@@ -639,52 +736,89 @@ class MercadoPagoWebhookView(View):
                 payment_id = str(data['data']['id'])
                 
                 sdk = mercadopago.SDK(django_settings.MERCADO_PAGO_ACCESS_TOKEN)
-                
                 payment_info = sdk.payment().get(payment_id)
                 payment_data = payment_info["response"]
                 
                 try:
                     payment = Payment.objects.get(payment_id=payment_id)
-                    payment.payment_status = payment_data['status']
-                    if payment_data['status'] == 'approved' and not payment.payment_date:
+                    old_status = payment.payment_status
+                    new_status = payment_data['status']
+                    
+                    payment.payment_status = new_status
+                    
+                    if new_status == 'approved' and not payment.payment_date:
                         payment.payment_date = datetime.now()
+                    
                     payment.save()
+                    
+                    # Enviar e-mail se aprovado
+                    if new_status == 'approved':
+                        try:
+                            gift = payment.gift
+                            if gift:
+                                send_payment_confirmation_email(payment, gift)
+                        except Exception as email_error:
+                            logger.error(f"Erro ao enviar e-mail de confirmação: {str(email_error)}")
+                    
                 except Payment.DoesNotExist:
                     external_ref = payment_data.get('external_reference', '')
+                    
                     if external_ref:
                         parts = external_ref.split('_')
+                        
                         if len(parts) >= 2:
                             gift_type = parts[0]
                             gift_id = parts[1]
                             
-                            if gift_type == 'gift':
-                                gift = Gift.objects.get(id=gift_id)
-                            else:
-                                gift = BridalShowerGift.objects.get(id=gift_id)
-                            
-                            content_type = ContentType.objects.get_for_model(gift)
-                            Payment.objects.create(
-                                content_type=content_type,
-                                object_id=gift.id,
-                                payment_id=payment_id,
-                                payment_status=payment_data['status'],
-                                payer_name=payment_data.get('payer', {}).get('first_name', ''),
-                                payer_email=payment_data.get('payer', {}).get('email', ''),
-                                amount=payment_data.get('transaction_amount', 0),
-                                payment_method=payment_data.get('payment_method_id', ''),
-                                installments=payment_data.get('installments', 1),
-                                payment_date=datetime.now() if payment_data['status'] == 'approved' else None
-                            )
+                            try:
+                                if gift_type == 'gift':
+                                    gift = Gift.objects.get(id=gift_id)
+                                else:
+                                    gift = BridalShowerGift.objects.get(id=gift_id)
+                                
+                                content_type = ContentType.objects.get_for_model(gift)
+                                payer_info = payment_data.get('payer', {})
+                                payer_name = payer_info.get('first_name', '')
+                                if payer_info.get('last_name'):
+                                    payer_name += ' ' + payer_info.get('last_name', '')
+                                
+                                payer_email = payer_info.get('email', '')
+                                
+                                payment = Payment.objects.create(
+                                    content_type=content_type,
+                                    object_id=gift.id,
+                                    payment_id=payment_id,
+                                    payment_status=payment_data['status'],
+                                    payer_name=payer_name or 'Nome não informado',
+                                    payer_email=payer_email,
+                                    amount=payment_data.get('transaction_amount', 0),
+                                    payment_method=payment_data.get('payment_method_id', ''),
+                                    installments=payment_data.get('installments', 1),
+                                    payment_date=datetime.now() if payment_data['status'] == 'approved' else None
+                                )
+                                
+                                # Enviar e-mail apropriado
+                                if payment_data['status'] == 'approved':
+                                    send_payment_confirmation_email(payment, gift)
+                                elif payment_data['status'] in ['pending', 'in_process']:
+                                    send_payment_pending_email(payment, gift)
+                                    
+                            except (Gift.DoesNotExist, BridalShowerGift.DoesNotExist) as e:
+                                logger.error(f"Gift não encontrado: {str(e)}")
+                            except Exception as gift_error:
+                                logger.error(f"Erro ao processar gift: {str(gift_error)}")
             
             return HttpResponse(status=200)
             
+        except json.JSONDecodeError:
+            return HttpResponse(status=200)
         except Exception as e:
             logger.error(f"Erro no webhook: {str(e)}")
             return HttpResponse(status=200)
     
     def get(self, request):
         return HttpResponse(status=200)
-
+    
 
 class PaymentStatusView(View):
     """
