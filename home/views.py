@@ -1,7 +1,8 @@
 import base64
-import json
 from datetime import datetime
 from io import BytesIO
+import json
+import logging
 
 import crcmod
 import mercadopago
@@ -19,6 +20,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, TemplateView
 
 from home.models import Gift, BridalShowerGift, TextContent, Gallery, Settings, Message, Guest, Payment
+
+
+logger = logging.getLogger('home')
 
 
 class IndexView(TemplateView):
@@ -323,7 +327,7 @@ class CreatePaymentView(View):
                 gift = get_object_or_404(BridalShowerGift, id=gift_id)
             
             if not amount:
-                payment_amount = float(gift.remaining_amount if hasattr(gift, 'remaining_amount') else gift.price)
+                payment_amount = float(gift.price)
             else:
                 payment_amount = float(amount)
             
@@ -393,7 +397,7 @@ class ProcessPaymentView(View):
                 gift = get_object_or_404(BridalShowerGift, id=gift_id)
             
             if not amount:
-                payment_amount = float(gift.remaining_amount if hasattr(gift, 'remaining_amount') else gift.price)
+                payment_amount = float(gift.price)
             else:
                 payment_amount = float(amount)
             
@@ -412,7 +416,7 @@ class ProcessPaymentView(View):
                         if not issuer_id:
                             issuer_id = card_info['response'].get('issuer_id')
                 except Exception as e:
-                    print(f"Erro ao buscar info do token: {e}")
+                    logger.error(f"Erro ao buscar info do token: {e}")
             
             # Validar campos obrigatórios
             if not payment_method_id:
@@ -448,7 +452,7 @@ class ProcessPaymentView(View):
             payment = payment_response["response"]
             
             # Log para debug
-            print(f"Payment response: {payment}")
+            logger.debug(f"Payment response: {payment}")
             
             if 'id' not in payment:
                 # Extrair mensagem de erro mais específica
@@ -495,7 +499,7 @@ class ProcessPaymentView(View):
                 'message': 'Dados inválidos'
             }, status=400)
         except Exception as e:
-            print(f"Erro ao processar pagamento: {str(e)}")
+            logger.error(f"Erro ao processar pagamento: {str(e)}")
             import traceback
             traceback.print_exc()
             
@@ -559,7 +563,7 @@ class MercadoPagoWebhookView(View):
             return HttpResponse(status=200)
             
         except Exception as e:
-            print(f"Erro no webhook: {str(e)}")
+            logger.error(f"Erro no webhook: {str(e)}")
             return HttpResponse(status=200)
     
     def get(self, request):
