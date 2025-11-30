@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<title>Erro no Pagamento</title>
+<style>
+    .failure-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .failure-card {
+        max-width: 600px;
+        text-align: center;
+        padding: 2rem;
+    }
+    .failure-icon {
+        font-size: 5rem;
+        color: #dc3545;
+        animation: shake 0.5s ease-in-out;
+    }
+    @keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        25% {
+            transform: translateX(-10px);
+        }
+        75% {
+            transform: translateX(10px);
+        }
+    }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<div class="container">
+    <div class="failure-container">
+        <div class="failure-card">
+            <div class="failure-icon mb-4">
+                <i class="bi bi-x-circle-fill"></i>
+            </div>
+            
+            <h1 class="display-4 mb-3">Ops! Algo deu errado</h1>
+            
+            <div class="alert alert-danger mb-4">
+                <h5 class="mb-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i> {{ error_message }}
+                </h5>
+            </div>
+            
+            {% if suggestion %}
+            <div class="card border-warning mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-lightbulb-fill text-warning"></i> Sugestão
+                    </h5>
+                    <p class="card-text">{{ suggestion }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card bg-light mb-4">
+                <div class="card-body text-start">
+                    <h5 class="card-title">
+                        <i class="bi bi-info-circle-fill"></i> O que fazer agora?
+                    </h5>
+                    <ul class="card-text mb-0">
+                        <li>Verifique se todos os dados do cartão estão corretos</li>
+                        <li>Confirme se o cartão tem limite disponível</li>
+                        <li>Tente com outro cartão de crédito</li>
+                        <li>Entre em contato com seu banco se o problema persistir</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                {% if settings.hide_gifts == False %}
+                <a href="{% url 'home:gift_list' %}" class="btn btn-pink btn-lg">
+                    <i class="bi bi-arrow-counterclockwise"></i> Tentar Novamente
+                </a>
+                {% endif %}
+                <a href="{% url 'home:index' %}" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-house-fill"></i> Voltar ao Site
+                </a>
+            </div>
+            
+            <div class="mt-5">
+                <p class="text-muted mb-2">
+                    Mesmo assim, {{ settings.couple_names }} agradecem sua intenção! <span>💕</span>
+                </p>
+                <p class="text-muted">
+                    <i class="bi bi-envelope-fill"></i> 
+                    Precisa de ajuda? Entre em contato conosco.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

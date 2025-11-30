@@ -23,6 +23,7 @@ JAZZMIN_SETTINGS = {
         "home.textcontent": "fas fa-file-alt",
         "home.gallery": "fas fa-images",
         "home.gift": "fas fa-gift",
+        "home.payment": "fas fa-credit-card",
         "home.message": "fas fa-envelope",
         "home.guest": "fas fa-users",
         "home.BridalShowerGift": "fas fa-gift",

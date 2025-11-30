@@ -1,0 +1,165 @@
+{% extends 'base.html' %} {% load static %} {% block extra_head %}
+<title>Pagamento Pendente</title>
+<style>
+  .pending-container {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pending-card {
+    max-width: 600px;
+    text-align: center;
+    padding: 2rem;
+  }
+  .pending-icon {
+    font-size: 5rem;
+    color: #ffc107;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  .spinner-border-lg {
+    width: 3rem;
+    height: 3rem;
+  }
+</style>
+{% endblock extra_head %} {% block content %}
+<div class="container">
+  <div class="pending-container">
+    <div class="pending-card">
+      <div class="pending-icon mb-4">
+        <i class="bi bi-clock-fill"></i>
+      </div>
+
+      <h1 class="display-4 mb-3">Pagamento em Análise</h1>
+
+      {% if payment %}
+      <div class="alert alert-warning mb-4">
+        <h5 class="mb-3">Detalhes do Presente</h5>
+        <p class="mb-1"><strong>Presente:</strong> {{ gift.name }}</p>
+        <p class="mb-1"><strong>Valor:</strong> R$ {{ payment.amount }}</p>
+        <p class="mb-1"><strong>Pagador:</strong> {{ payment.payer_name }}</p>
+        {% if payment.installments > 1 %}
+        <p class="mb-0">
+          <strong>Parcelamento:</strong> {{ payment.installments }}x
+        </p>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="mb-4">
+        <h3 class="mb-3">Obrigado pela Contribuição! 🙏</h3>
+        <p class="lead">Seu pagamento está sendo processado.</p>
+        <p>{{ settings.couple_names }} agradecem sua generosidade!</p>
+      </div>
+
+      <div class="card bg-light mb-4">
+        <div class="card-body">
+          <div class="mb-3">
+            <div
+              class="spinner-border spinner-border-lg text-warning"
+              role="status"
+            >
+              <span class="visually-hidden">Processando...</span>
+            </div>
+          </div>
+          <h5 class="card-title">
+            <i class="bi bi-hourglass-split"></i> Aguardando Confirmação
+          </h5>
+          <p class="card-text">
+            Seu pagamento está sendo analisado pela instituição financeira. Isso
+            pode levar alguns minutos ou até algumas horas, dependendo do método
+            de pagamento escolhido.
+          </p>
+        </div>
+      </div>
+
+      <div class="card border-info mb-4">
+        <div class="card-body text-start">
+          <h5 class="card-title">
+            <i class="bi bi-info-circle-fill text-info"></i> O que acontece
+            agora?
+          </h5>
+          <ul class="card-text mb-0">
+            <li>Você receberá um e-mail quando o pagamento for confirmado</li>
+            <li>O presente será marcado como pago automaticamente</li>
+            <li>
+              Em caso de recusa, você será notificado para tentar novamente
+            </li>
+            <li>O prazo máximo de confirmação é de 48 horas</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <i class="bi bi-bell-fill"></i>
+        <strong>Importante:</strong> Não feche esta página se quiser acompanhar
+        o status em tempo real. Caso contrário, aguarde o e-mail de confirmação.
+      </div>
+
+      <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+        <a href="{% url 'home:index' %}" class="btn btn-pink btn-lg">
+          <i class="bi bi-house-fill"></i> Voltar ao Site
+        </a>
+        {% if settings.hide_gifts == False %}
+        <a
+          href="{% url 'home:gift_list' %}"
+          class="btn btn-outline-secondary btn-lg"
+        >
+          <i class="bi bi-gift-fill"></i> Ver Lista de Presentes
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="mt-5 text-muted">
+        <p class="mb-2">
+          Sua participação em nosso dia especial já está garantida! ❤️
+        </p>
+        <p class="mb-0">
+          <i class="bi bi-envelope-fill"></i>
+          Dúvidas? Entre em contato conosco.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // {% if payment %}
+  let checkCount = 0;
+  const maxChecks = 20; // Verificar por até 10 minutos (20 checks x 30s)
+
+  const checkPaymentStatus = setInterval(async function() {
+      checkCount++;
+
+      if (checkCount > maxChecks) {
+          clearInterval(checkPaymentStatus);
+          return;
+      }
+
+      try {
+          const response = await fetch('{% url "home:payment_status" payment.payment_id %}');
+          const data = await response.json();
+
+          if (data.status === 'approved') {
+              clearInterval(checkPaymentStatus);
+              window.location.href = '{% url "home:payment_success" %}?payment_id={{ payment.payment_id }}';
+          } else if (data.status === 'rejected' || data.status === 'cancelled') {
+              clearInterval(checkPaymentStatus);
+              window.location.href = '{% url "home:payment_failure" %}?error=Pagamento rejeitado';
+          }
+      } catch (error) {
+          console.error('Erro ao verificar status:', error);
+      }
+  }, 30000); // Verificar a cada 30 segundos
+  // {% endif %}
+</script>
+{% endblock content %}

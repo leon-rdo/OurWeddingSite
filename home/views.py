@@ -1,15 +1,241 @@
-from django.http import JsonResponse, HttpResponseRedirect
+import base64
+from datetime import datetime
+from io import BytesIO
+import json
+import logging
+
+import crcmod
+import mercadopago
+import qrcode
+from django.conf import settings as django_settings
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import TemplateView, ListView
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.contrib import messages
-from home.models import *
-import base64
-from io import BytesIO
-import crcmod
-import qrcode
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import ListView, TemplateView
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
+from home.models import Gift, BridalShowerGift, TextContent, Gallery, Settings, Message, Guest, Payment
+
+
+logger = logging.getLogger('home')
+
+
+
+def send_payment_confirmation_email(payment_obj, gift):
+    """
+    Envia e-mail de confirmação de pagamento
+    """
+    try:
+        settings = Settings.objects.first()
+        
+        # Determinar tipo de presente
+        gift_type = "Presente de Casamento"
+        if isinstance(gift, BridalShowerGift):
+            gift_type = "Presente de Chá de Panela"
+        
+        # Contexto para o template
+        context = {
+            'payment': payment_obj,
+            'gift': gift,
+            'gift_type': gift_type,
+            'settings': settings,
+            'site_url': django_settings.SITE_URL,
+        }
+        
+        # Renderizar template HTML
+        html_content = render_to_string('home/emails/payment_confirmation.html', context)
+        text_content = strip_tags(html_content)
+        
+        # Criar e-mail
+        subject = f'✅ Pagamento Confirmado - {gift.name}'
+        from_email = django_settings.DEFAULT_FROM_EMAIL
+        to_email = payment_obj.payer_email
+        
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_content,
+            from_email=from_email,
+            to=[to_email]
+        )
+        
+        email.attach_alternative(html_content, "text/html")
+        
+        # Enviar
+        email.send()
+        
+        logger.info(f"E-mail de confirmação enviado para {to_email} - Pagamento: {payment_obj.payment_id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Erro ao enviar e-mail de confirmação: {str(e)}", exc_info=True)
+        return False
+
+
+def send_payment_pending_email(payment_obj, gift):
+    """
+    Envia e-mail informando que o pagamento está pendente
+    """
+    try:
+        settings = Settings.objects.first()
+        
+        gift_type = "Presente de Casamento"
+        if isinstance(gift, BridalShowerGift):
+            gift_type = "Presente de Chá de Panela"
+        
+        context = {
+            'payment': payment_obj,
+            'gift': gift,
+            'gift_type': gift_type,
+            'settings': settings,
+            'site_url': django_settings.SITE_URL,
+        }
+        
+        html_content = render_to_string('home/emails/payment_pending.html', context)
+        text_content = strip_tags(html_content)
+        
+        subject = f'⏳ Pagamento em Análise - {gift.name}'
+        from_email = django_settings.DEFAULT_FROM_EMAIL
+        to_email = payment_obj.payer_email
+        
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_content,
+            from_email=from_email,
+            to=[to_email]
+        )
+        
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+        
+        logger.info(f"E-mail de pendência enviado para {to_email} - Pagamento: {payment_obj.payment_id}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Erro ao enviar e-mail de pendência: {str(e)}", exc_info=True)
+        return False
+
+def get_friendly_payment_message(status_detail, status=None):
+    """
+    Converte status_detail do Mercado Pago em mensagens amigáveis
+    """
+    
+    # Mensagens para status aprovados
+    approved_messages = {
+        'accredited': 'Pagamento aprovado e creditado! 🎉',
+    }
+    
+    # Mensagens para status pendentes
+    pending_messages = {
+        'pending_contingency': 'Estamos processando seu pagamento. Em breve você receberá o resultado por e-mail.',
+        'pending_review_manual': 'Seu pagamento está sendo analisado. Você receberá o resultado em até 2 dias úteis.',
+        'pending_waiting_payment': 'Aguardando o pagamento ser processado.',
+        'pending_waiting_transfer': 'Aguardando a transferência bancária.',
+    }
+    
+    # Mensagens para status rejeitados - organizadas por tipo de problema
+    rejected_messages = {
+        # Problemas com o cartão
+        'cc_rejected_bad_filled_card_number': 'Verifique o número do cartão e tente novamente.',
+        'cc_rejected_bad_filled_date': 'Verifique a data de validade do cartão.',
+        'cc_rejected_bad_filled_other': 'Verifique os dados do cartão e tente novamente.',
+        'cc_rejected_bad_filled_security_code': 'Verifique o código de segurança (CVV) do cartão.',
+        
+        # Cartão inválido ou vencido
+        'cc_rejected_blacklist': 'Não foi possível processar seu pagamento. Entre em contato com seu banco.',
+        'cc_rejected_call_for_authorize': 'Entre em contato com seu banco para autorizar o pagamento.',
+        'cc_rejected_card_disabled': 'Este cartão está desabilitado. Entre em contato com seu banco.',
+        'cc_rejected_card_error': 'Não foi possível processar seu cartão. Tente com outro cartão.',
+        'cc_rejected_duplicated_payment': 'Você já realizou um pagamento com esse valor recentemente. Se foi um erro, tente novamente em alguns minutos.',
+        'cc_rejected_high_risk': 'Seu pagamento foi recusado por segurança. Entre em contato com seu banco.',
+        'cc_rejected_insufficient_amount': 'Saldo ou limite insuficiente no cartão. Tente com outro cartão.',
+        'cc_rejected_invalid_installments': 'O número de parcelas selecionado não está disponível. Escolha outra opção.',
+        'cc_rejected_max_attempts': 'Você atingiu o limite de tentativas permitidas. Tente novamente em 24 horas.',
+        'cc_rejected_other_reason': 'O pagamento foi recusado. Entre em contato com seu banco para mais informações.',
+        
+        # Problemas específicos
+        'cc_amount_rate_limit_exceeded': 'Você excedeu o limite de pagamentos. Tente novamente mais tarde.',
+        'rejected_insufficient_data': 'Alguns dados estão incompletos. Por favor, revise as informações.',
+        'rejected_by_bank': 'Pagamento recusado pelo banco. Entre em contato com sua instituição financeira.',
+        'rejected_by_regulations': 'Pagamento recusado por questões regulatórias. Entre em contato com seu banco.',
+        
+        # Genéricos
+        'rejected_other_reason': 'Não foi possível processar o pagamento. Tente com outro método de pagamento.',
+    }
+    
+    # Mensagens para cancelamentos
+    cancelled_messages = {
+        'cancelled': 'O pagamento foi cancelado.',
+        'cc_rejected_cancelled': 'O pagamento foi cancelado.',
+    }
+    
+    # Tentar encontrar mensagem específica
+    if status == 'approved':
+        return approved_messages.get(status_detail, 'Pagamento aprovado com sucesso! 🎉')
+    
+    if status == 'pending' or status == 'in_process':
+        return pending_messages.get(
+            status_detail, 
+            'Seu pagamento está sendo processado. Você receberá uma confirmação em breve.'
+        )
+    
+    if status == 'rejected':
+        return rejected_messages.get(
+            status_detail,
+            'Pagamento não autorizado. Verifique os dados do cartão ou tente com outro método de pagamento.'
+        )
+    
+    if status == 'cancelled':
+        return cancelled_messages.get(status_detail, 'O pagamento foi cancelado.')
+    
+    # Mensagem genérica se não encontrar status específico
+    return rejected_messages.get(
+        status_detail,
+        'Não foi possível processar o pagamento. Por favor, verifique seus dados e tente novamente.'
+    )
+
+
+def get_payment_suggestion(status_detail):
+    """
+    Retorna sugestões de ação baseadas no status_detail
+    """
+    suggestions = {
+        # Problemas com dados do cartão
+        'cc_rejected_bad_filled_card_number': 'Digite o número do cartão sem espaços ou caracteres especiais.',
+        'cc_rejected_bad_filled_date': 'Verifique se o cartão não está vencido.',
+        'cc_rejected_bad_filled_security_code': 'O código CVV tem 3 ou 4 dígitos e fica no verso do cartão.',
+        
+        # Problemas de limite/saldo
+        'cc_rejected_insufficient_amount': 'Verifique seu saldo ou limite disponível com seu banco.',
+        
+        # Problemas de autorização
+        'cc_rejected_call_for_authorize': 'Ligue para o número no verso do seu cartão antes de tentar novamente.',
+        'cc_rejected_card_disabled': 'Seu cartão pode estar bloqueado. Entre em contato com o banco.',
+        
+        # Limite de tentativas
+        'cc_rejected_max_attempts': 'Por segurança, aguarde 24 horas antes de nova tentativa.',
+        
+        # Problemas com banco
+        'rejected_by_bank': 'Seu banco recusou a transação. Entre em contato com eles para entender o motivo.',
+        
+        # Pagamento duplicado
+        'cc_rejected_duplicated_payment': 'Aguarde alguns minutos antes de tentar realizar o pagamento novamente.',
+        
+        # Parcelas inválidas
+        'cc_rejected_invalid_installments': 'Tente escolher um número diferente de parcelas.',
+        
+        # Genérico
+        'default': 'Tente usar outro cartão ou método de pagamento.',
+    }
+    
+    return suggestions.get(status_detail, suggestions['default'])
 
 
 class IndexView(TemplateView):
@@ -128,6 +354,7 @@ class GiftListView(UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(GiftListView, self).get_context_data(**kwargs)
         context["gift_list_text"] = TextContent.objects.filter(position="gift_list_text").first()
+        context["MERCADO_PAGO_PUBLIC_KEY"] = django_settings.MERCADO_PAGO_PUBLIC_KEY
         
         settings = Settings.objects.first()
         for gift in context['object_list']:
@@ -289,3 +516,396 @@ class BridalShowerGiftListView(UserPassesTestMixin, ListView):
         else:
             messages.success(request, f'Presente {gift.name} escolhido com sucesso!')
             return HttpResponseRedirect(reverse('home:bridal_shower_gift_list') + f'?phone={guest_phone}&email={guest_email}')
+
+
+class CreatePaymentView(View):
+    """
+    View para criar preferência de pagamento no Mercado Pago
+    """
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            gift_type = data.get('gift_type')
+            gift_id = data.get('gift_id')
+            buyer_name = data.get('buyer_name')
+            buyer_email = data.get('buyer_email')
+            amount = data.get('amount')
+            
+            sdk = mercadopago.SDK(django_settings.MERCADO_PAGO_ACCESS_TOKEN)
+            
+            if gift_type == 'gift':
+                gift = get_object_or_404(Gift, id=gift_id)
+            else:
+                gift = get_object_or_404(BridalShowerGift, id=gift_id)
+            
+            if not amount:
+                payment_amount = float(gift.price)
+            else:
+                payment_amount = float(amount)
+            
+            preference_data = {
+                "items": [
+                    {
+                        "title": gift.name,
+                        "description": gift.description[:255],
+                        "quantity": 1,
+                        "currency_id": "BRL",
+                        "unit_price": payment_amount
+                    }
+                ],
+                "payer": {
+                    "name": buyer_name,
+                    "email": buyer_email,
+                },
+                "back_urls": {
+                    "success": f"{django_settings.SITE_URL}/pagamento/sucesso/",
+                    "failure": f"{django_settings.SITE_URL}/pagamento/falha/",
+                    "pending": f"{django_settings.SITE_URL}/pagamento/pendente/"
+                },
+                "auto_return": "approved",
+                "notification_url": f"{django_settings.SITE_URL}/webhook/mercadopago/",
+                "external_reference": f"{gift_type}_{gift_id}_{buyer_email}",
+                "statement_descriptor": "PRESENTE CASAMENTO",
+                "payment_methods": {
+                    "excluded_payment_types": [],
+                    "installments": 12
+                }
+            }
+            
+            preference_response = sdk.preference().create(preference_data)
+            preference = preference_response["response"]
+            
+            return JsonResponse({
+                'status': 'success',
+                'preference_id': preference['id'],
+                'init_point': preference['init_point']
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+
+
+class ProcessPaymentView(View):
+    """
+    View para processar pagamento com cartão via checkout transparente
+    """
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            sdk = mercadopago.SDK(django_settings.MERCADO_PAGO_ACCESS_TOKEN)
+            
+            gift_type = data.get('gift_type')
+            gift_id = data.get('gift_id')
+            amount = data.get('amount')
+            
+            if gift_type == 'gift':
+                gift = get_object_or_404(Gift, id=gift_id)
+            else:
+                gift = get_object_or_404(BridalShowerGift, id=gift_id)
+            
+            if not amount:
+                payment_amount = float(gift.price)
+            else:
+                payment_amount = float(amount)
+            
+            # Obter informações do token para pegar payment_method_id e issuer_id
+            token = data.get('token')
+            payment_method_id = data.get('payment_method_id')
+            issuer_id = data.get('issuer_id')
+            
+            # Se não vier payment_method_id, tentar obter do card token
+            if not payment_method_id:
+                try:
+                    # Buscar informações do token
+                    card_info = sdk.card_token().get(token)
+                    if card_info and 'response' in card_info:
+                        payment_method_id = card_info['response'].get('payment_method_id')
+                        if not issuer_id:
+                            issuer_id = card_info['response'].get('issuer_id')
+                except Exception as e:
+                    logger.error(f"Erro ao buscar info do token: {e}")
+            
+            # Validar campos obrigatórios
+            if not payment_method_id:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Método de pagamento não identificado. Por favor, tente novamente.'
+                }, status=400)
+            
+            payment_data = {
+                "transaction_amount": payment_amount,
+                "token": token,
+                "description": gift.name,
+                "installments": int(data.get('installments', 1)),
+                "payment_method_id": payment_method_id,
+                "payer": {
+                    "email": data.get('email'),
+                    "identification": {
+                        "type": data.get('identification_type'),
+                        "number": data.get('identification_number')
+                    }
+                },
+                "notification_url": f"{django_settings.SITE_URL}/webhook/mercadopago/",
+                "external_reference": f"{gift_type}_{gift_id}_{data.get('email')}",
+                "statement_descriptor": "PRESENTE CASAMENTO"
+            }
+            
+            # Adicionar issuer_id apenas se existir
+            if issuer_id:
+                payment_data["issuer_id"] = issuer_id
+            
+            # Criar pagamento
+            payment_response = sdk.payment().create(payment_data)
+            payment = payment_response["response"]
+            
+            # Log para debug
+            logger.debug(f"Payment response: {payment}")
+            
+            if 'id' not in payment:
+                # Extrair mensagem de erro mais específica
+                error_message = 'Erro ao processar pagamento'
+                if 'message' in payment:
+                    error_message = payment['message']
+                elif 'cause' in payment:
+                    causes = payment['cause']
+                    if isinstance(causes, list) and len(causes) > 0:
+                        error_message = causes[0].get('description', error_message)
+                
+                return JsonResponse({
+                    'status': 'error',
+                    'message': error_message,
+                    'details': payment
+                }, status=400)
+            
+            # Criar registro de pagamento
+            content_type = ContentType.objects.get_for_model(gift)
+            Payment.objects.create(
+                content_type=content_type,
+                object_id=gift.id,
+                payment_id=str(payment['id']),
+                payment_status=payment['status'],
+                payer_name=data.get('payer_name', ''),
+                payer_email=data.get('email', ''),
+                payer_phone=data.get('phone', ''),
+                amount=payment_amount,
+                payment_method=payment.get('payment_method_id', ''),
+                installments=int(data.get('installments', 1)),
+                payment_date=datetime.now() if payment['status'] == 'approved' else None
+            )
+            
+            return JsonResponse({
+                'status': 'success',
+                'payment_id': payment['id'],
+                'status_detail': payment['status'],
+                'status_message': payment.get('status_detail', '')
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Dados inválidos'
+            }, status=400)
+        except Exception as e:
+            logger.error(f"Erro ao processar pagamento: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Erro ao processar pagamento: {str(e)}'
+            }, status=400)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MercadoPagoWebhookView(View):
+    """
+    View para receber notificações do Mercado Pago sobre status de pagamentos
+    """
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            if data.get('type') == 'payment':
+                payment_id = str(data['data']['id'])
+                
+                sdk = mercadopago.SDK(django_settings.MERCADO_PAGO_ACCESS_TOKEN)
+                payment_info = sdk.payment().get(payment_id)
+                payment_data = payment_info["response"]
+                
+                try:
+                    payment = Payment.objects.get(payment_id=payment_id)
+                    old_status = payment.payment_status
+                    new_status = payment_data['status']
+                    
+                    payment.payment_status = new_status
+                    
+                    if new_status == 'approved' and not payment.payment_date:
+                        payment.payment_date = datetime.now()
+                    
+                    payment.save()
+                    
+                    # Enviar e-mail se aprovado
+                    if new_status == 'approved':
+                        try:
+                            gift = payment.gift
+                            if gift:
+                                send_payment_confirmation_email(payment, gift)
+                        except Exception as email_error:
+                            logger.error(f"Erro ao enviar e-mail de confirmação: {str(email_error)}")
+                    
+                except Payment.DoesNotExist:
+                    external_ref = payment_data.get('external_reference', '')
+                    
+                    if external_ref:
+                        parts = external_ref.split('_')
+                        
+                        if len(parts) >= 2:
+                            gift_type = parts[0]
+                            gift_id = parts[1]
+                            
+                            try:
+                                if gift_type == 'gift':
+                                    gift = Gift.objects.get(id=gift_id)
+                                else:
+                                    gift = BridalShowerGift.objects.get(id=gift_id)
+                                
+                                content_type = ContentType.objects.get_for_model(gift)
+                                payer_info = payment_data.get('payer', {})
+                                payer_name = payer_info.get('first_name', '')
+                                if payer_info.get('last_name'):
+                                    payer_name += ' ' + payer_info.get('last_name', '')
+                                
+                                payer_email = payer_info.get('email', '')
+                                
+                                payment = Payment.objects.create(
+                                    content_type=content_type,
+                                    object_id=gift.id,
+                                    payment_id=payment_id,
+                                    payment_status=payment_data['status'],
+                                    payer_name=payer_name or 'Nome não informado',
+                                    payer_email=payer_email,
+                                    amount=payment_data.get('transaction_amount', 0),
+                                    payment_method=payment_data.get('payment_method_id', ''),
+                                    installments=payment_data.get('installments', 1),
+                                    payment_date=datetime.now() if payment_data['status'] == 'approved' else None
+                                )
+                                
+                                # Enviar e-mail apropriado
+                                if payment_data['status'] == 'approved':
+                                    send_payment_confirmation_email(payment, gift)
+                                elif payment_data['status'] in ['pending', 'in_process']:
+                                    send_payment_pending_email(payment, gift)
+                                    
+                            except (Gift.DoesNotExist, BridalShowerGift.DoesNotExist) as e:
+                                logger.error(f"Gift não encontrado: {str(e)}")
+                            except Exception as gift_error:
+                                logger.error(f"Erro ao processar gift: {str(gift_error)}")
+            
+            return HttpResponse(status=200)
+            
+        except json.JSONDecodeError:
+            return HttpResponse(status=200)
+        except Exception as e:
+            logger.error(f"Erro no webhook: {str(e)}")
+            return HttpResponse(status=200)
+    
+    def get(self, request):
+        return HttpResponse(status=200)
+    
+
+class PaymentStatusView(View):
+    """
+    View para verificar status de um pagamento
+    """
+    
+    def get(self, request, payment_id):
+        try:
+            sdk = mercadopago.SDK(django_settings.MERCADO_PAGO_ACCESS_TOKEN)
+            payment_info = sdk.payment().get(payment_id)
+            payment = payment_info["response"]
+            
+            return JsonResponse({
+                'status': payment['status'],
+                'status_detail': payment.get('status_detail', ''),
+                'transaction_amount': payment['transaction_amount']
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+
+
+class PaymentSuccessView(TemplateView):
+    """
+    View para página de sucesso do pagamento
+    """
+    template_name = "home/payment-success.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        payment_id = self.request.GET.get('payment_id')
+        external_reference = self.request.GET.get('external_reference')
+        
+        if payment_id:
+            try:
+                payment = Payment.objects.get(payment_id=payment_id)
+                context['payment'] = payment
+                context['gift'] = payment.gift
+            except Payment.DoesNotExist:
+                pass
+        
+        return context
+
+
+class PaymentFailureView(TemplateView):
+    """
+    View para página de falha do pagamento
+    """
+    template_name = "home/payment-failure.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        error_raw = self.request.GET.get('error', '')
+        
+        if error_raw:
+            print("Status Detail:j", error_raw)
+            context['error_message'] = get_friendly_payment_message(error_raw, 'rejected')
+            context['suggestion'] = get_payment_suggestion(error_raw)
+        else:
+            context['error_message'] = error_raw if error_raw else 'Não foi possível processar o pagamento.'
+            context['suggestion'] = 'Verifique os dados do cartão ou tente com outro método de pagamento.'
+        
+        return context
+
+
+class PaymentPendingView(TemplateView):
+    """
+    View para página de pagamento pendente
+    """
+    template_name = "home/payment-pending.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        payment_id = self.request.GET.get('payment_id')
+        
+        if payment_id:
+            try:
+                payment = Payment.objects.get(payment_id=payment_id)
+                context['payment'] = payment
+                context['gift'] = payment.gift
+            except Payment.DoesNotExist:
+                pass
+        
+        return context
