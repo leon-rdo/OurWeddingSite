@@ -355,6 +355,9 @@
     );
   }
 
+  // Armazenar payment_method_id e issuer_id para cada formulário
+  const paymentMethodData = {};
+
   // Configurar eventos para cada formulário
   document.querySelectorAll(".payment-form-element").forEach((form) => {
     const giftId = form.querySelector('[name="gift_id"]').value;
@@ -362,13 +365,19 @@
     const installmentsSelect = document.getElementById(`installments${giftId}`);
     const submitBtn = document.getElementById(`submitBtn${giftId}`);
 
+    // Inicializar objeto para armazenar dados do método de pagamento
+    paymentMethodData[giftId] = {
+      payment_method_id: null,
+      issuer_id: null
+    };
+
     // Formatar número do cartão enquanto digita
     cardNumberInput.addEventListener("input", function (e) {
       let value = e.target.value.replace(/\s/g, "");
       e.target.value = formatCardNumber(value);
     });
 
-    // Buscar parcelas quando digitar o cartão
+    // Buscar informações do cartão e parcelas
     cardNumberInput.addEventListener("blur", async function () {
       const cardNumber = this.value.replace(/\s/g, "");
       if (cardNumber.length >= 6) {
@@ -378,7 +387,28 @@
             .querySelector("h6")
             .textContent.match(/[\d.,]+/)[0]
             .replace(",", ".");
-          const response = await mp.getInstallments({
+
+          // Buscar método de pagamento
+          const paymentMethods = await mp.getPaymentMethods({ bin: bin });
+          
+          if (paymentMethods.results && paymentMethods.results.length > 0) {
+            const paymentMethod = paymentMethods.results[0];
+            paymentMethodData[giftId].payment_method_id = paymentMethod.id;
+            
+            // Buscar issuer se necessário
+            if (paymentMethod.additional_info_needed.includes("issuer_id")) {
+              const issuers = await mp.getIssuers({
+                paymentMethodId: paymentMethod.id,
+                bin: bin
+              });
+              if (issuers.length > 0) {
+                paymentMethodData[giftId].issuer_id = issuers[0].id;
+              }
+            }
+          }
+
+          // Buscar parcelas
+          const installments = await mp.getInstallments({
             amount: giftPrice,
             bin: bin,
           });
@@ -386,16 +416,20 @@
           // Preencher select de parcelas
           installmentsSelect.innerHTML =
             '<option value="">Selecione...</option>';
-          response[0].payer_costs.forEach((installment) => {
-            const option = document.createElement("option");
-            option.value = installment.installments;
-            option.text = `${
-              installment.installments
-            }x de R$ ${installment.installment_amount.toFixed(2)}`;
-            installmentsSelect.appendChild(option);
-          });
+          
+          if (installments && installments[0] && installments[0].payer_costs) {
+            installments[0].payer_costs.forEach((installment) => {
+              const option = document.createElement("option");
+              option.value = installment.installments;
+              option.text = `${installment.installments}x de R$ ${installment.installment_amount.toFixed(2)}`;
+              if (installment.installment_rate === 0) {
+                option.text += " sem juros";
+              }
+              installmentsSelect.appendChild(option);
+            });
+          }
         } catch (error) {
-          console.error("Erro ao buscar parcelas:", error);
+          console.error("Erro ao buscar informações do cartão:", error);
         }
       }
     });
@@ -414,6 +448,11 @@
       spinner.classList.remove("d-none");
 
       try {
+        // Validar se tem payment_method_id
+        if (!paymentMethodData[giftId].payment_method_id) {
+          throw new Error("Não foi possível identificar o método de pagamento. Verifique o número do cartão.");
+        }
+
         // Criar token do cartão
         const cardData = {
           cardNumber: document
@@ -435,12 +474,17 @@
 
         const token = await mp.createCardToken(cardData);
 
+        if (!token || !token.id) {
+          throw new Error("Erro ao gerar token do cartão");
+        }
+
         // Enviar pagamento para o servidor
         const paymentData = {
           gift_id: giftId,
           gift_type: "gift",
           token: token.id,
-          payment_method_id: token.payment_method_id,
+          payment_method_id: paymentMethodData[giftId].payment_method_id,
+          issuer_id: paymentMethodData[giftId].issuer_id,
           installments: installmentsSelect.value,
           payer_name: document.getElementById(`payerName${giftId}`).value,
           email: document.getElementById(`payerEmail${giftId}`).value,
@@ -462,20 +506,46 @@
         const result = await response.json();
 
         if (result.status === "success") {
-          successDiv.textContent = "Pagamento processado com sucesso!";
-          successDiv.classList.remove("d-none");
-
-          setTimeout(() => {
-            location.reload();
-          }, 2000);
+          const paymentStatus = result.status_detail;
+          
+          // Mapear status do Mercado Pago para ações
+          if (paymentStatus === 'approved') {
+            successDiv.textContent = "Pagamento aprovado com sucesso!";
+            successDiv.classList.remove("d-none");
+            
+            setTimeout(() => {
+              window.location.href = '{% url "home:payment_success" %}?payment_id=' + result.payment_id;
+            }, 2000);
+            
+          } else if (paymentStatus === 'pending' || paymentStatus === 'in_process') {
+            successDiv.textContent = "Pagamento em análise...";
+            successDiv.classList.remove("d-none");
+            
+            setTimeout(() => {
+              window.location.href = '{% url "home:payment_pending" %}?payment_id=' + result.payment_id;
+            }, 2000);
+            
+          } else if (paymentStatus === 'rejected' || paymentStatus === 'cancelled') {
+            // Pagamento rejeitado ou cancelado
+            const errorMessage = result.status_message || 'Pagamento não autorizado pela operadora do cartão.';
+            
+            setTimeout(() => {
+              window.location.href = '{% url "home:payment_failure" %}?error=' + encodeURIComponent(errorMessage);
+            }, 1000);
+            
+          } else {
+            // Status desconhecido, mostrar erro
+            throw new Error('Status de pagamento desconhecido: ' + paymentStatus);
+          }
         } else {
           throw new Error(result.message || "Erro ao processar pagamento");
         }
       } catch (error) {
+        console.error("Erro:", error);
         errorDiv.textContent =
           error.message || "Erro ao processar pagamento. Tente novamente.";
         errorDiv.classList.remove("d-none");
-      } finally {
+        
         submitBtn.disabled = false;
         spinner.classList.add("d-none");
       }

@@ -397,13 +397,36 @@ class ProcessPaymentView(View):
             else:
                 payment_amount = float(amount)
             
+            # Obter informações do token para pegar payment_method_id e issuer_id
+            token = data.get('token')
+            payment_method_id = data.get('payment_method_id')
+            issuer_id = data.get('issuer_id')
+            
+            # Se não vier payment_method_id, tentar obter do card token
+            if not payment_method_id:
+                try:
+                    # Buscar informações do token
+                    card_info = sdk.card_token().get(token)
+                    if card_info and 'response' in card_info:
+                        payment_method_id = card_info['response'].get('payment_method_id')
+                        if not issuer_id:
+                            issuer_id = card_info['response'].get('issuer_id')
+                except Exception as e:
+                    print(f"Erro ao buscar info do token: {e}")
+            
+            # Validar campos obrigatórios
+            if not payment_method_id:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Método de pagamento não identificado. Por favor, tente novamente.'
+                }, status=400)
+            
             payment_data = {
                 "transaction_amount": payment_amount,
-                "token": data.get('token'),
+                "token": token,
                 "description": gift.name,
                 "installments": int(data.get('installments', 1)),
-                "payment_method_id": data.get('payment_method_id'),
-                "issuer_id": data.get('issuer_id'),
+                "payment_method_id": payment_method_id,
                 "payer": {
                     "email": data.get('email'),
                     "identification": {
@@ -416,16 +439,34 @@ class ProcessPaymentView(View):
                 "statement_descriptor": "PRESENTE CASAMENTO"
             }
             
+            # Adicionar issuer_id apenas se existir
+            if issuer_id:
+                payment_data["issuer_id"] = issuer_id
+            
+            # Criar pagamento
             payment_response = sdk.payment().create(payment_data)
             payment = payment_response["response"]
             
+            # Log para debug
+            print(f"Payment response: {payment}")
+            
             if 'id' not in payment:
-                error_message = payment.get('message', 'Unknown error creating payment')
+                # Extrair mensagem de erro mais específica
+                error_message = 'Erro ao processar pagamento'
+                if 'message' in payment:
+                    error_message = payment['message']
+                elif 'cause' in payment:
+                    causes = payment['cause']
+                    if isinstance(causes, list) and len(causes) > 0:
+                        error_message = causes[0].get('description', error_message)
+                
                 return JsonResponse({
                     'status': 'error',
-                    'message': error_message
+                    'message': error_message,
+                    'details': payment
                 }, status=400)
             
+            # Criar registro de pagamento
             content_type = ContentType.objects.get_for_model(gift)
             Payment.objects.create(
                 content_type=content_type,
@@ -448,10 +489,19 @@ class ProcessPaymentView(View):
                 'status_message': payment.get('status_detail', '')
             })
             
-        except Exception as e:
+        except json.JSONDecodeError:
             return JsonResponse({
                 'status': 'error',
-                'message': str(e)
+                'message': 'Dados inválidos'
+            }, status=400)
+        except Exception as e:
+            print(f"Erro ao processar pagamento: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Erro ao processar pagamento: {str(e)}'
             }, status=400)
 
 
@@ -538,3 +588,62 @@ class PaymentStatusView(View):
                 'status': 'error',
                 'message': str(e)
             }, status=400)
+
+
+class PaymentSuccessView(TemplateView):
+    """
+    View para página de sucesso do pagamento
+    """
+    template_name = "home/payment-success.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        payment_id = self.request.GET.get('payment_id')
+        external_reference = self.request.GET.get('external_reference')
+        
+        if payment_id:
+            try:
+                payment = Payment.objects.get(payment_id=payment_id)
+                context['payment'] = payment
+                context['gift'] = payment.gift
+            except Payment.DoesNotExist:
+                pass
+        
+        return context
+
+
+class PaymentFailureView(TemplateView):
+    """
+    View para página de falha do pagamento
+    """
+    template_name = "home/payment-failure.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        context['error_message'] = self.request.GET.get('error', 'Não foi possível processar o pagamento.')
+        
+        return context
+
+
+class PaymentPendingView(TemplateView):
+    """
+    View para página de pagamento pendente
+    """
+    template_name = "home/payment-pending.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        payment_id = self.request.GET.get('payment_id')
+        
+        if payment_id:
+            try:
+                payment = Payment.objects.get(payment_id=payment_id)
+                context['payment'] = payment
+                context['gift'] = payment.gift
+            except Payment.DoesNotExist:
+                pass
+        
+        return context

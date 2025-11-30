@@ -16,4 +16,7 @@ urlpatterns = [
     path('payment/process/', ProcessPaymentView.as_view(), name='process_payment'),
     path('webhook/mercadopago/', MercadoPagoWebhookView.as_view(), name='mp_webhook'),
     path('payment/status/<int:payment_id>/', PaymentStatusView.as_view(), name='payment_status'),
+    path('pagamento/sucesso/', PaymentSuccessView.as_view(), name='payment_success'),
+    path('pagamento/falha/', PaymentFailureView.as_view(), name='payment_failure'),
+    path('pagamento/pendente/', PaymentPendingView.as_view(), name='payment_pending'),
 ]
