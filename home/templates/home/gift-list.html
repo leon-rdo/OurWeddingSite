@@ -19,6 +19,20 @@
       no-repeat right 10px center;
     background-size: 50px;
   }
+  .payment-option-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+  .payment-option-card:hover {
+    border-color: var(--bs-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  .payment-option-card.active {
+    border-color: var(--bs-success);
+    background-color: rgba(40, 167, 69, 0.05);
+  }
 </style>
 {% endblock extra_head %} {% block content %}
 <div class="container">
@@ -111,16 +125,26 @@
             src="{{ gift.image.url }}"
             class="card-img-top h-100 object-fit-contain"
           />
-          {% if gift.payment_status == 'approved' %}
+          {% if gift.is_fully_paid %}
           <div class="position-absolute top-0 end-0 m-2">
             <span class="badge bg-success">PAGO</span>
+          </div>
+          {% elif gift.total_paid > 0 %}
+          <div class="position-absolute top-0 end-0 m-2">
+            <span class="badge bg-warning">PARCIAL</span>
           </div>
           {% endif %}
         </div>
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">{{ gift.name }}</h5>
           <p class="card-text">{{ gift.description }}</p>
-          {% if gift.payment_status != 'approved' %}
+          
+          {% if gift.total_paid > 0 and not gift.is_fully_paid %}
+          <div class="alert alert-info py-2 px-2 small mb-2">
+            <strong>Valor restante:</strong> R$ {{ gift.remaining_amount }}
+          </div>
+          {% endif %}
+        
           <button
             class="btn btn-pink mt-auto"
             data-bs-toggle="modal"
@@ -131,11 +155,24 @@
           >
             R$ {{ gift.price }}
           </button>
+        {% comment  %} 
+          {% if not gift.is_fully_paid %}
+          <button
+            class="btn btn-pink mt-auto"
+            data-bs-toggle="modal"
+            data-bs-target="#paymentModal{{ gift.id }}"
+            data-gift-id="{{ gift.id }}"
+            data-gift-name="{{ gift.name }}"
+            data-gift-price="{{ gift.price }}"
+            >
+            R$ {{ gift.price }}
+          </button>
           {% else %}
           <button class="btn btn-secondary mt-auto" disabled>
             Já Presenteado
           </button>
           {% endif %}
+        {% endcomment %}
         </div>
       </div>
     </div>
@@ -160,176 +197,236 @@
             ></button>
           </div>
           <div class="modal-body">
-            <div class="payment-form">
-              <form id="paymentForm{{ gift.id }}" class="payment-form-element">
-                <input type="hidden" name="gift_id" value="{{ gift.id }}" />
-                <input type="hidden" name="gift_type" value="gift" />
-
-                <div class="mb-3">
-                  <h6>Valor: R$ {{ gift.price }}</h6>
+            <!-- Seleção do método de pagamento -->
+            <div class="mb-4">
+              <h6 class="mb-3">Escolha a forma de pagamento:</h6>
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="card payment-option-card" data-payment-method="card" data-gift-id="{{ gift.id }}">
+                    <div class="card-body text-center">
+                      <i class="bi bi-credit-card" style="font-size: 2rem;"></i>
+                      <h6 class="mt-2 mb-0">Cartão de Crédito</h6>
+                      <small class="text-muted">Parcelamento em até 12x</small>
+                    </div>
+                  </div>
                 </div>
-
-                <div class="mb-3">
-                  <label for="payerName{{ gift.id }}" class="form-label"
-                    >Nome Completo</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="payerName{{ gift.id }}"
-                    name="payer_name"
-                    required
-                  />
+                <div class="col-6">
+                  <div class="card payment-option-card" data-payment-method="pix" data-gift-id="{{ gift.id }}">
+                    <div class="card-body text-center">
+                      <i class="bi bi-qr-code" style="font-size: 2rem;"></i>
+                      <h6 class="mt-2 mb-0">PIX</h6>
+                      <small class="text-muted">Pagamento instantâneo</small>
+                    </div>
+                  </div>
                 </div>
+              </div>
+            </div>
 
-                <div class="mb-3">
-                  <label for="payerEmail{{ gift.id }}" class="form-label"
-                    >Email</label
-                  >
-                  <input
-                    type="email"
-                    class="form-control"
-                    id="payerEmail{{ gift.id }}"
-                    name="email"
-                    required
-                  />
-                </div>
+            <!-- Formulário de Cartão -->
+            <div class="payment-method-container" id="cardPayment{{ gift.id }}" style="display: none;">
+              <div class="payment-form">
+                <form id="paymentForm{{ gift.id }}" class="payment-form-element">
+                  <input type="hidden" name="gift_id" value="{{ gift.id }}" />
+                  <input type="hidden" name="gift_type" value="gift" />
 
-                <div class="mb-3">
-                  <label for="docType{{ gift.id }}" class="form-label"
-                    >Tipo de Documento</label
-                  >
-                  <select
-                    class="form-select"
-                    id="docType{{ gift.id }}"
-                    name="identification_type"
-                    required
-                  >
-                    <option value="CPF">CPF</option>
-                    <option value="CNPJ">CNPJ</option>
-                  </select>
-                </div>
+                  <div class="mb-3">
+                    <h6>Valor: R$ {{ gift.price }}</h6>
+                  </div>
 
-                <div class="mb-3">
-                  <label for="docNumber{{ gift.id }}" class="form-label"
-                    >Número do Documento</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="docNumber{{ gift.id }}"
-                    name="identification_number"
-                    required
-                  />
-                </div>
-
-                <div class="mb-3">
-                  <label for="cardNumber{{ gift.id }}" class="form-label"
-                    >Número do Cartão</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="cardNumber{{ gift.id }}"
-                    placeholder="0000 0000 0000 0000"
-                    maxlength="19"
-                    required
-                  />
-                </div>
-
-                <div class="row">
-                  <div class="col-md-4 mb-3">
-                    <label
-                      for="cardExpirationMonth{{ gift.id }}"
-                      class="form-label"
-                      >Mês</label
+                  <div class="mb-3">
+                    <label for="payerName{{ gift.id }}" class="form-label"
+                      >Nome Completo</label
                     >
                     <input
                       type="text"
                       class="form-control"
-                      id="cardExpirationMonth{{ gift.id }}"
-                      placeholder="MM"
-                      maxlength="2"
+                      id="payerName{{ gift.id }}"
+                      name="payer_name"
                       required
                     />
                   </div>
-                  <div class="col-md-4 mb-3">
-                    <label
-                      for="cardExpirationYear{{ gift.id }}"
-                      class="form-label"
-                      >Ano</label
+
+                  <div class="mb-3">
+                    <label for="payerEmail{{ gift.id }}" class="form-label"
+                      >Email</label
+                    >
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="payerEmail{{ gift.id }}"
+                      name="email"
+                      required
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="docType{{ gift.id }}" class="form-label"
+                      >Tipo de Documento</label
+                    >
+                    <select
+                      class="form-select"
+                      id="docType{{ gift.id }}"
+                      name="identification_type"
+                      required
+                    >
+                      <option value="CPF">CPF</option>
+                      <option value="CNPJ">CNPJ</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="docNumber{{ gift.id }}" class="form-label"
+                      >Número do Documento</label
                     >
                     <input
                       type="text"
                       class="form-control"
-                      id="cardExpirationYear{{ gift.id }}"
-                      placeholder="AA"
-                      maxlength="2"
+                      id="docNumber{{ gift.id }}"
+                      name="identification_number"
                       required
                     />
                   </div>
-                  <div class="col-md-4 mb-3">
-                    <label for="securityCode{{ gift.id }}" class="form-label"
-                      >CVV</label
+
+                  <div class="mb-3">
+                    <label for="cardNumber{{ gift.id }}" class="form-label"
+                      >Número do Cartão</label
                     >
                     <input
                       type="text"
                       class="form-control"
-                      id="securityCode{{ gift.id }}"
-                      placeholder="123"
-                      maxlength="4"
+                      id="cardNumber{{ gift.id }}"
+                      placeholder="0000 0000 0000 0000"
+                      maxlength="19"
                       required
                     />
                   </div>
-                </div>
 
+                  <div class="row">
+                    <div class="col-md-4 mb-3">
+                      <label
+                        for="cardExpirationMonth{{ gift.id }}"
+                        class="form-label"
+                        >Mês</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="cardExpirationMonth{{ gift.id }}"
+                        placeholder="MM"
+                        maxlength="2"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label
+                        for="cardExpirationYear{{ gift.id }}"
+                        class="form-label"
+                        >Ano</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="cardExpirationYear{{ gift.id }}"
+                        placeholder="AA"
+                        maxlength="2"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label for="securityCode{{ gift.id }}" class="form-label"
+                        >CVV</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="securityCode{{ gift.id }}"
+                        placeholder="123"
+                        maxlength="4"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="cardholderName{{ gift.id }}" class="form-label"
+                      >Nome no Cartão</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="cardholderName{{ gift.id }}"
+                      required
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="installments{{ gift.id }}" class="form-label"
+                      >Parcelas</label
+                    >
+                    <select
+                      class="form-select"
+                      id="installments{{ gift.id }}"
+                      name="installments"
+                      required
+                    >
+                      <option value="">Selecione...</option>
+                    </select>
+                  </div>
+
+                  <div
+                    id="errorMessage{{ gift.id }}"
+                    class="alert alert-danger d-none"
+                  ></div>
+                  <div
+                    id="successMessage{{ gift.id }}"
+                    class="alert alert-success d-none"
+                  ></div>
+
+                  <button
+                    type="submit"
+                    class="btn btn-success w-100"
+                    id="submitBtn{{ gift.id }}"
+                  >
+                    <span
+                      class="spinner-border spinner-border-sm d-none"
+                      role="status"
+                    ></span>
+                    Finalizar Pagamento
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- PIX Payment -->
+            <div class="payment-method-container" id="pixPayment{{ gift.id }}" style="display: none;">
+              {% if gift.qr_code %}
+              <div class="text-center">
+                <h6 class="mb-3">Escaneie o QR Code para pagar</h6>
+                <img src="data:image/png;base64,{{ gift.qr_code }}" alt="QR Code PIX" class="img-fluid mb-3" style="max-width: 300px;">
+                
+                <div class="alert alert-info">
+                  <strong>Valor:</strong> R$ {{ gift.price }}
+                </div>
+                
                 <div class="mb-3">
-                  <label for="cardholderName{{ gift.id }}" class="form-label"
-                    >Nome no Cartão</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="cardholderName{{ gift.id }}"
-                    required
-                  />
+                  <label class="form-label">PIX Copia e Cola:</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="pixCode{{ gift.id }}" value="{{ gift.payload }}" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="copyPixCode('{{ gift.id }}')">
+                      <i class="bi bi-clipboard"></i> Copiar
+                    </button>
+                  </div>
                 </div>
-
-                <div class="mb-3">
-                  <label for="installments{{ gift.id }}" class="form-label"
-                    >Parcelas</label
-                  >
-                  <select
-                    class="form-select"
-                    id="installments{{ gift.id }}"
-                    name="installments"
-                    required
-                  >
-                    <option value="">Selecione...</option>
-                  </select>
+                
+                <div class="alert alert-warning">
+                  <i class="bi bi-info-circle"></i> Após realizar o pagamento via PIX, você não precisa aguardar uma confirmação nesta tela.
                 </div>
-
-                <div
-                  id="errorMessage{{ gift.id }}"
-                  class="alert alert-danger d-none"
-                ></div>
-                <div
-                  id="successMessage{{ gift.id }}"
-                  class="alert alert-success d-none"
-                ></div>
-
-                <button
-                  type="submit"
-                  class="btn btn-success w-100"
-                  id="submitBtn{{ gift.id }}"
-                >
-                  <span
-                    class="spinner-border spinner-border-sm d-none"
-                    role="status"
-                  ></span>
-                  Finalizar Pagamento
-                </button>
-              </form>
+              </div>
+              {% else %}
+              <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i> PIX não configurado para este presente. Por favor, escolha cartão de crédito.
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -340,9 +437,43 @@
 </div>
 
 <script>
+  // Função para copiar código PIX
+  function copyPixCode(giftId) {
+    const pixCodeInput = document.getElementById(`pixCode${giftId}`);
+    pixCodeInput.select();
+    document.execCommand('copy');
+    
+    alert('Código PIX copiado para a área de transferência!');
+  }
+
   // Inicializar Mercado Pago
   const mp = new MercadoPago("{{ MERCADO_PAGO_PUBLIC_KEY }}", {
     locale: "pt-BR",
+  });
+
+  // Selecionar método de pagamento
+  document.querySelectorAll('.payment-option-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const giftId = this.dataset.giftId;
+      const method = this.dataset.paymentMethod;
+      
+      // Remover active de todos os cards do mesmo modal
+      document.querySelectorAll(`[data-gift-id="${giftId}"].payment-option-card`).forEach(c => {
+        c.classList.remove('active');
+      });
+      
+      // Adicionar active no card clicado
+      this.classList.add('active');
+      
+      // Mostrar/esconder formulários
+      if (method === 'card') {
+        document.getElementById(`cardPayment${giftId}`).style.display = 'block';
+        document.getElementById(`pixPayment${giftId}`).style.display = 'none';
+      } else {
+        document.getElementById(`cardPayment${giftId}`).style.display = 'none';
+        document.getElementById(`pixPayment${giftId}`).style.display = 'block';
+      }
+    });
   });
 
   // Função para formatar número do cartão
@@ -528,9 +659,10 @@
           } else if (paymentStatus === 'rejected' || paymentStatus === 'cancelled') {
             // Pagamento rejeitado ou cancelado
             const errorMessage = result.status_message || 'Pagamento não autorizado pela operadora do cartão.';
+            const statusDetail = result.status_detail || 'rejected_other_reason';
             
             setTimeout(() => {
-              window.location.href = '{% url "home:payment_failure" %}?error=' + encodeURIComponent(errorMessage);
+              window.location.href = '{% url "home:payment_failure" %}?status_detail=' + encodeURIComponent(statusDetail);
             }, 1000);
             
           } else {
