@@ -25,6 +25,122 @@ from home.models import Gift, BridalShowerGift, TextContent, Gallery, Settings, 
 logger = logging.getLogger('home')
 
 
+def get_friendly_payment_message(status_detail, status=None):
+    """
+    Converte status_detail do Mercado Pago em mensagens amigáveis
+    """
+    
+    # Mensagens para status aprovados
+    approved_messages = {
+        'accredited': 'Pagamento aprovado e creditado! 🎉',
+    }
+    
+    # Mensagens para status pendentes
+    pending_messages = {
+        'pending_contingency': 'Estamos processando seu pagamento. Em breve você receberá o resultado por e-mail.',
+        'pending_review_manual': 'Seu pagamento está sendo analisado. Você receberá o resultado em até 2 dias úteis.',
+        'pending_waiting_payment': 'Aguardando o pagamento ser processado.',
+        'pending_waiting_transfer': 'Aguardando a transferência bancária.',
+    }
+    
+    # Mensagens para status rejeitados - organizadas por tipo de problema
+    rejected_messages = {
+        # Problemas com o cartão
+        'cc_rejected_bad_filled_card_number': 'Verifique o número do cartão e tente novamente.',
+        'cc_rejected_bad_filled_date': 'Verifique a data de validade do cartão.',
+        'cc_rejected_bad_filled_other': 'Verifique os dados do cartão e tente novamente.',
+        'cc_rejected_bad_filled_security_code': 'Verifique o código de segurança (CVV) do cartão.',
+        
+        # Cartão inválido ou vencido
+        'cc_rejected_blacklist': 'Não foi possível processar seu pagamento. Entre em contato com seu banco.',
+        'cc_rejected_call_for_authorize': 'Entre em contato com seu banco para autorizar o pagamento.',
+        'cc_rejected_card_disabled': 'Este cartão está desabilitado. Entre em contato com seu banco.',
+        'cc_rejected_card_error': 'Não foi possível processar seu cartão. Tente com outro cartão.',
+        'cc_rejected_duplicated_payment': 'Você já realizou um pagamento com esse valor recentemente. Se foi um erro, tente novamente em alguns minutos.',
+        'cc_rejected_high_risk': 'Seu pagamento foi recusado por segurança. Entre em contato com seu banco.',
+        'cc_rejected_insufficient_amount': 'Saldo ou limite insuficiente no cartão. Tente com outro cartão.',
+        'cc_rejected_invalid_installments': 'O número de parcelas selecionado não está disponível. Escolha outra opção.',
+        'cc_rejected_max_attempts': 'Você atingiu o limite de tentativas permitidas. Tente novamente em 24 horas.',
+        'cc_rejected_other_reason': 'O pagamento foi recusado. Entre em contato com seu banco para mais informações.',
+        
+        # Problemas específicos
+        'cc_amount_rate_limit_exceeded': 'Você excedeu o limite de pagamentos. Tente novamente mais tarde.',
+        'rejected_insufficient_data': 'Alguns dados estão incompletos. Por favor, revise as informações.',
+        'rejected_by_bank': 'Pagamento recusado pelo banco. Entre em contato com sua instituição financeira.',
+        'rejected_by_regulations': 'Pagamento recusado por questões regulatórias. Entre em contato com seu banco.',
+        
+        # Genéricos
+        'rejected_other_reason': 'Não foi possível processar o pagamento. Tente com outro método de pagamento.',
+    }
+    
+    # Mensagens para cancelamentos
+    cancelled_messages = {
+        'cancelled': 'O pagamento foi cancelado.',
+        'cc_rejected_cancelled': 'O pagamento foi cancelado.',
+    }
+    
+    # Tentar encontrar mensagem específica
+    if status == 'approved':
+        return approved_messages.get(status_detail, 'Pagamento aprovado com sucesso! 🎉')
+    
+    if status == 'pending' or status == 'in_process':
+        return pending_messages.get(
+            status_detail, 
+            'Seu pagamento está sendo processado. Você receberá uma confirmação em breve.'
+        )
+    
+    if status == 'rejected':
+        return rejected_messages.get(
+            status_detail,
+            'Pagamento não autorizado. Verifique os dados do cartão ou tente com outro método de pagamento.'
+        )
+    
+    if status == 'cancelled':
+        return cancelled_messages.get(status_detail, 'O pagamento foi cancelado.')
+    
+    # Mensagem genérica se não encontrar status específico
+    return rejected_messages.get(
+        status_detail,
+        'Não foi possível processar o pagamento. Por favor, verifique seus dados e tente novamente.'
+    )
+
+
+def get_payment_suggestion(status_detail):
+    """
+    Retorna sugestões de ação baseadas no status_detail
+    """
+    suggestions = {
+        # Problemas com dados do cartão
+        'cc_rejected_bad_filled_card_number': 'Digite o número do cartão sem espaços ou caracteres especiais.',
+        'cc_rejected_bad_filled_date': 'Verifique se o cartão não está vencido.',
+        'cc_rejected_bad_filled_security_code': 'O código CVV tem 3 ou 4 dígitos e fica no verso do cartão.',
+        
+        # Problemas de limite/saldo
+        'cc_rejected_insufficient_amount': 'Verifique seu saldo ou limite disponível com seu banco.',
+        
+        # Problemas de autorização
+        'cc_rejected_call_for_authorize': 'Ligue para o número no verso do seu cartão antes de tentar novamente.',
+        'cc_rejected_card_disabled': 'Seu cartão pode estar bloqueado. Entre em contato com o banco.',
+        
+        # Limite de tentativas
+        'cc_rejected_max_attempts': 'Por segurança, aguarde 24 horas antes de nova tentativa.',
+        
+        # Problemas com banco
+        'rejected_by_bank': 'Seu banco recusou a transação. Entre em contato com eles para entender o motivo.',
+        
+        # Pagamento duplicado
+        'cc_rejected_duplicated_payment': 'Aguarde alguns minutos antes de tentar realizar o pagamento novamente.',
+        
+        # Parcelas inválidas
+        'cc_rejected_invalid_installments': 'Tente escolher um número diferente de parcelas.',
+        
+        # Genérico
+        'default': 'Tente usar outro cartão ou método de pagamento.',
+    }
+    
+    return suggestions.get(status_detail, suggestions['default'])
+
+
 class IndexView(TemplateView):
     template_name = "home/index.html"
 
@@ -626,7 +742,15 @@ class PaymentFailureView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        context['error_message'] = self.request.GET.get('error', 'Não foi possível processar o pagamento.')
+        error_raw = self.request.GET.get('error', '')
+        
+        if error_raw:
+            print("Status Detail:j", error_raw)
+            context['error_message'] = get_friendly_payment_message(error_raw, 'rejected')
+            context['suggestion'] = get_payment_suggestion(error_raw)
+        else:
+            context['error_message'] = error_raw if error_raw else 'Não foi possível processar o pagamento.'
+            context['suggestion'] = 'Verifique os dados do cartão ou tente com outro método de pagamento.'
         
         return context
 
