@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django.forms import TextInput
 from django.urls import reverse_lazy
 from .models import *
@@ -39,10 +40,48 @@ class GalleryAdmin(admin.ModelAdmin):
     hide_selected_galleries.short_description = "Ocultar galerias selecionadas"
 
 
+class PaymentInline(GenericTabularInline):
+    model = Payment
+    extra = 0
+    readonly_fields = ('payment_id', 'payment_status', 'payer_name', 'payer_email', 'amount', 'payment_date', 'created_at')
+    fields = ('payment_id', 'payer_name', 'payer_email', 'amount', 'payment_status', 'payment_date')
+    can_delete = False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(Gift)
 class GiftAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
+    list_display = ('name', 'description', 'price', 'total_paid_display', 'remaining_display', 'payment_status_display')
     search_fields = ('name', 'description')
+    inlines = [PaymentInline]
+    
+    fieldsets = (
+        ('Informações do Presente', {
+            'fields': ('name', 'description', 'image', 'price')
+        }),
+    )
+    
+    def total_paid_display(self, obj):
+        total = obj.total_paid
+        return f'R$ {total:.2f}'
+    total_paid_display.short_description = 'Total Pago'
+    
+    def remaining_display(self, obj):
+        remaining = obj.remaining_amount
+        if remaining <= 0:
+            return format_html('<span style="color: green; font-weight: bold;">✓ Pago</span>')
+        return f'R$ {remaining:.2f}'
+    remaining_display.short_description = 'Restante'
+    
+    def payment_status_display(self, obj):
+        if obj.is_fully_paid:
+            return format_html('<span style="color: green; font-weight: bold;">✓ Completo</span>')
+        elif obj.total_paid > 0:
+            return format_html('<span style="color: orange;">⚠ Parcial</span>')
+        return format_html('<span style="color: gray;">- Pendente</span>')
+    payment_status_display.short_description = 'Status'
 
 
 @admin.register(Message)
@@ -98,13 +137,15 @@ class GuestNameFilter(admin.SimpleListFilter):
         if self.value() == 'without_guest':
             return queryset.filter(guest_name__isnull=True) | queryset.filter(guest_name__exact='')
 
+
 @admin.register(BridalShowerGift)
 class BridalShowerGiftAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'guest_name')
+    list_display = ('name', 'category', 'guest_name', 'total_paid_display', 'remaining_display', 'payment_status_display')
     search_fields = ('name', 'description', 'price', 'guest_name', 'guest_phone', 'guest_email')
-    inlines = [BridalShowerGiftSuggestionInline]
+    inlines = [BridalShowerGiftSuggestionInline, PaymentInline]
     list_filter = ('category', GuestNameFilter, 'way_to_gift', 'colors')
     actions = ['send_reminder_for_gift']
+    
     fieldsets = (
         ('Presente', {
             'fields': ('name', 'description', 'image', 'category', 'price', 'colors')
@@ -112,8 +153,34 @@ class BridalShowerGiftAdmin(admin.ModelAdmin):
         ('Convidado', {
             'fields': ('way_to_gift', 'guest_name', 'guest_phone', 'guest_email'),
             'classes': ('collapse',)
-        })
+        }),
     )
+    
+    def total_paid_display(self, obj):
+        if not obj.price:
+            return '-'
+        total = obj.total_paid
+        return f'R$ {total:.2f}'
+    total_paid_display.short_description = 'Total Pago'
+    
+    def remaining_display(self, obj):
+        if not obj.price:
+            return '-'
+        remaining = obj.remaining_amount
+        if remaining <= 0:
+            return format_html('<span style="color: green; font-weight: bold;">✓ Pago</span>')
+        return f'R$ {remaining:.2f}'
+    remaining_display.short_description = 'Restante'
+    
+    def payment_status_display(self, obj):
+        if not obj.price:
+            return '-'
+        if obj.is_fully_paid:
+            return format_html('<span style="color: green; font-weight: bold;">✓ Completo</span>')
+        elif obj.total_paid > 0:
+            return format_html('<span style="color: orange;">⚠ Parcial</span>')
+        return format_html('<span style="color: gray;">- Pendente</span>')
+    payment_status_display.short_description = 'Pagamento'
 
     def send_reminder_for_gift(self, request, queryset):
         for gift in queryset:
@@ -146,3 +213,23 @@ class BridalShowerGiftColorAdmin(admin.ModelAdmin):
     list_display = ('name', 'color')
     search_fields = ('name', 'color')
     form = BridalShowerGiftColorForm
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('payment_id', 'get_gift_name', 'payer_name', 'amount', 'payment_status', 'payment_date')
+    search_fields = ('payment_id', 'payer_name', 'payer_email')
+    list_filter = ('payment_status', 'payment_method', 'created_at')
+    readonly_fields = ('content_type', 'object_id', 'payment_id', 'payment_status', 'payer_name', 
+                      'payer_email', 'payer_phone', 'amount', 'payment_method', 'installments',
+                      'created_at', 'payment_date', 'updated_at')
+    
+    def get_gift_name(self, obj):
+        return str(obj.gift)
+    get_gift_name.short_description = 'Presente'
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False

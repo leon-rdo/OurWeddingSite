@@ -1,15 +1,24 @@
-from django.http import JsonResponse, HttpResponseRedirect
+import base64
+import json
+from datetime import datetime
+from io import BytesIO
+
+import crcmod
+import mercadopago
+import qrcode
+from django.conf import settings as django_settings
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.contenttypes.models import ContentType
+from django.contrib import messages
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import TemplateView, ListView
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.contrib import messages
-from home.models import *
-import base64
-from io import BytesIO
-import crcmod
-import qrcode
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import ListView, TemplateView
+
+from home.models import Gift, BridalShowerGift, TextContent, Gallery, Settings, Message, Guest, Payment
 
 
 class IndexView(TemplateView):
@@ -128,6 +137,7 @@ class GiftListView(UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(GiftListView, self).get_context_data(**kwargs)
         context["gift_list_text"] = TextContent.objects.filter(position="gift_list_text").first()
+        context["MERCADO_PAGO_PUBLIC_KEY"] = django_settings.MERCADO_PAGO_PUBLIC_KEY
         
         settings = Settings.objects.first()
         for gift in context['object_list']:
@@ -289,3 +299,242 @@ class BridalShowerGiftListView(UserPassesTestMixin, ListView):
         else:
             messages.success(request, f'Presente {gift.name} escolhido com sucesso!')
             return HttpResponseRedirect(reverse('home:bridal_shower_gift_list') + f'?phone={guest_phone}&email={guest_email}')
+
+
+class CreatePaymentView(View):
+    """
+    View para criar preferência de pagamento no Mercado Pago
+    """
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            gift_type = data.get('gift_type')
+            gift_id = data.get('gift_id')
+            buyer_name = data.get('buyer_name')
+            buyer_email = data.get('buyer_email')
+            amount = data.get('amount')
+            
+            sdk = mercadopago.SDK(django_settings.MERCADO_PAGO_ACCESS_TOKEN)
+            
+            if gift_type == 'gift':
+                gift = get_object_or_404(Gift, id=gift_id)
+            else:
+                gift = get_object_or_404(BridalShowerGift, id=gift_id)
+            
+            if not amount:
+                payment_amount = float(gift.remaining_amount if hasattr(gift, 'remaining_amount') else gift.price)
+            else:
+                payment_amount = float(amount)
+            
+            preference_data = {
+                "items": [
+                    {
+                        "title": gift.name,
+                        "description": gift.description[:255],
+                        "quantity": 1,
+                        "currency_id": "BRL",
+                        "unit_price": payment_amount
+                    }
+                ],
+                "payer": {
+                    "name": buyer_name,
+                    "email": buyer_email,
+                },
+                "back_urls": {
+                    "success": f"{django_settings.SITE_URL}/pagamento/sucesso/",
+                    "failure": f"{django_settings.SITE_URL}/pagamento/falha/",
+                    "pending": f"{django_settings.SITE_URL}/pagamento/pendente/"
+                },
+                "auto_return": "approved",
+                "notification_url": f"{django_settings.SITE_URL}/webhook/mercadopago/",
+                "external_reference": f"{gift_type}_{gift_id}_{buyer_email}",
+                "statement_descriptor": "PRESENTE CASAMENTO",
+                "payment_methods": {
+                    "excluded_payment_types": [],
+                    "installments": 12
+                }
+            }
+            
+            preference_response = sdk.preference().create(preference_data)
+            preference = preference_response["response"]
+            
+            return JsonResponse({
+                'status': 'success',
+                'preference_id': preference['id'],
+                'init_point': preference['init_point']
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+
+
+class ProcessPaymentView(View):
+    """
+    View para processar pagamento com cartão via checkout transparente
+    """
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            sdk = mercadopago.SDK(django_settings.MERCADO_PAGO_ACCESS_TOKEN)
+            
+            gift_type = data.get('gift_type')
+            gift_id = data.get('gift_id')
+            amount = data.get('amount')
+            
+            if gift_type == 'gift':
+                gift = get_object_or_404(Gift, id=gift_id)
+            else:
+                gift = get_object_or_404(BridalShowerGift, id=gift_id)
+            
+            if not amount:
+                payment_amount = float(gift.remaining_amount if hasattr(gift, 'remaining_amount') else gift.price)
+            else:
+                payment_amount = float(amount)
+            
+            payment_data = {
+                "transaction_amount": payment_amount,
+                "token": data.get('token'),
+                "description": gift.name,
+                "installments": int(data.get('installments', 1)),
+                "payment_method_id": data.get('payment_method_id'),
+                "issuer_id": data.get('issuer_id'),
+                "payer": {
+                    "email": data.get('email'),
+                    "identification": {
+                        "type": data.get('identification_type'),
+                        "number": data.get('identification_number')
+                    }
+                },
+                "notification_url": f"{django_settings.SITE_URL}/webhook/mercadopago/",
+                "external_reference": f"{gift_type}_{gift_id}_{data.get('email')}",
+                "statement_descriptor": "PRESENTE CASAMENTO"
+            }
+            
+            payment_response = sdk.payment().create(payment_data)
+            payment = payment_response["response"]
+            
+            if 'id' not in payment:
+                error_message = payment.get('message', 'Unknown error creating payment')
+                return JsonResponse({
+                    'status': 'error',
+                    'message': error_message
+                }, status=400)
+            
+            content_type = ContentType.objects.get_for_model(gift)
+            Payment.objects.create(
+                content_type=content_type,
+                object_id=gift.id,
+                payment_id=str(payment['id']),
+                payment_status=payment['status'],
+                payer_name=data.get('payer_name', ''),
+                payer_email=data.get('email', ''),
+                payer_phone=data.get('phone', ''),
+                amount=payment_amount,
+                payment_method=payment.get('payment_method_id', ''),
+                installments=int(data.get('installments', 1)),
+                payment_date=datetime.now() if payment['status'] == 'approved' else None
+            )
+            
+            return JsonResponse({
+                'status': 'success',
+                'payment_id': payment['id'],
+                'status_detail': payment['status'],
+                'status_message': payment.get('status_detail', '')
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MercadoPagoWebhookView(View):
+    """
+    View para receber notificações do Mercado Pago sobre status de pagamentos
+    """
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            if data.get('type') == 'payment':
+                payment_id = str(data['data']['id'])
+                
+                sdk = mercadopago.SDK(django_settings.MERCADO_PAGO_ACCESS_TOKEN)
+                
+                payment_info = sdk.payment().get(payment_id)
+                payment_data = payment_info["response"]
+                
+                try:
+                    payment = Payment.objects.get(payment_id=payment_id)
+                    payment.payment_status = payment_data['status']
+                    if payment_data['status'] == 'approved' and not payment.payment_date:
+                        payment.payment_date = datetime.now()
+                    payment.save()
+                except Payment.DoesNotExist:
+                    external_ref = payment_data.get('external_reference', '')
+                    if external_ref:
+                        parts = external_ref.split('_')
+                        if len(parts) >= 2:
+                            gift_type = parts[0]
+                            gift_id = parts[1]
+                            
+                            if gift_type == 'gift':
+                                gift = Gift.objects.get(id=gift_id)
+                            else:
+                                gift = BridalShowerGift.objects.get(id=gift_id)
+                            
+                            content_type = ContentType.objects.get_for_model(gift)
+                            Payment.objects.create(
+                                content_type=content_type,
+                                object_id=gift.id,
+                                payment_id=payment_id,
+                                payment_status=payment_data['status'],
+                                payer_name=payment_data.get('payer', {}).get('first_name', ''),
+                                payer_email=payment_data.get('payer', {}).get('email', ''),
+                                amount=payment_data.get('transaction_amount', 0),
+                                payment_method=payment_data.get('payment_method_id', ''),
+                                installments=payment_data.get('installments', 1),
+                                payment_date=datetime.now() if payment_data['status'] == 'approved' else None
+                            )
+            
+            return HttpResponse(status=200)
+            
+        except Exception as e:
+            print(f"Erro no webhook: {str(e)}")
+            return HttpResponse(status=200)
+    
+    def get(self, request):
+        return HttpResponse(status=200)
+
+
+class PaymentStatusView(View):
+    """
+    View para verificar status de um pagamento
+    """
+    
+    def get(self, request, payment_id):
+        try:
+            sdk = mercadopago.SDK(django_settings.MERCADO_PAGO_ACCESS_TOKEN)
+            payment_info = sdk.payment().get(payment_id)
+            payment = payment_info["response"]
+            
+            return JsonResponse({
+                'status': payment['status'],
+                'status_detail': payment.get('status_detail', ''),
+                'transaction_amount': payment['transaction_amount']
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)

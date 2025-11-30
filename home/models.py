@@ -1,6 +1,8 @@
 from django.db import models
 from django.forms import ValidationError
 from django.core.validators import FileExtensionValidator
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 
 
 class Settings(models.Model):
@@ -144,16 +146,76 @@ class Message(models.Model):
         verbose_name_plural = 'Mensagens'
 
 
-class Gift(models.Model):
+class Payment(models.Model):
+    """
+    Modelo para armazenar informações de pagamentos do Mercado Pago
+    Pode ser vinculado a Gift ou BridalShowerGift
+    """
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    gift = GenericForeignKey('content_type', 'object_id')
+    
+    payment_id = models.CharField("ID do Pagamento", max_length=100, unique=True)
+    payment_status = models.CharField("Status do Pagamento", max_length=50, 
+        choices=[
+            ('pending', 'Pendente'),
+            ('approved', 'Aprovado'),
+            ('in_process', 'Em Processamento'),
+            ('rejected', 'Rejeitado'),
+            ('cancelled', 'Cancelado'),
+        ]
+    )
+    
+    payer_name = models.CharField("Nome do Pagador", max_length=100)
+    payer_email = models.EmailField("Email do Pagador")
+    payer_phone = models.CharField("Telefone do Pagador", max_length=20, blank=True, null=True)
+    
+    amount = models.DecimalField("Valor Pago", max_digits=10, decimal_places=2)
+    
+    created_at = models.DateTimeField("Data de Criação", auto_now_add=True)
+    payment_date = models.DateTimeField("Data do Pagamento", blank=True, null=True)
+    updated_at = models.DateTimeField("Última Atualização", auto_now=True)
+    
+    payment_method = models.CharField("Método de Pagamento", max_length=50, blank=True, null=True)
+    installments = models.IntegerField("Parcelas", default=1)
+    
+    def __str__(self):
+        return f"Pagamento {self.payment_id} - {self.payer_name}"
+    
+    class Meta:
+        verbose_name = 'Pagamento'
+        verbose_name_plural = 'Pagamentos'
+        ordering = ['-created_at']
 
+
+class Gift(models.Model):
     name = models.CharField("Nome", max_length=50)
     description = models.TextField("Descrição")
     image = models.ImageField("Imagem", upload_to='home/gifts/')
     price = models.DecimalField("Preço", max_digits=6, decimal_places=2)
-
+    
+    payments = GenericRelation(Payment)
+    
+    @property
+    def total_paid(self):
+        """Retorna o total já pago para este presente"""
+        return self.payments.filter(payment_status='approved').aggregate(
+            total=models.Sum('amount')
+        )['total'] or 0
+    
+    @property
+    def remaining_amount(self):
+        """Retorna o valor restante a pagar"""
+        return self.price - self.total_paid
+    
+    @property
+    def is_fully_paid(self):
+        """Verifica se o presente foi totalmente pago"""
+        return self.total_paid >= self.price
+    
     def __str__(self):
         return self.name
-
+        
     class Meta:
         verbose_name = 'Presente'
         verbose_name_plural = 'Presentes'
@@ -161,7 +223,6 @@ class Gift(models.Model):
 
 
 class BridalShowerGift(models.Model):
-
     CATEGORIES = [
         ('cozinha', 'Cozinha'),
         ('cama_mesa_banho','Cama, Mesa e Banho'),
@@ -170,8 +231,6 @@ class BridalShowerGift(models.Model):
         ('outros', 'Outros')
     ]
 
-    # Gift
-
     name = models.CharField("Nome", max_length=50)
     description = models.TextField("Descrição")
     price = models.DecimalField("Preço", max_digits=6, decimal_places=2, blank=True, null=True)
@@ -179,16 +238,39 @@ class BridalShowerGift(models.Model):
     category = models.CharField("Categoria", max_length=50, choices=CATEGORIES)
     colors = models.ManyToManyField('home.BridalShowerGiftColor', verbose_name="Cores", related_name='gifts_colors', blank=True)
 
-    # Guest
-
     guest_name = models.CharField("Nome do Convidado", max_length=50, blank=True, null=True)
     guest_phone = models.CharField("Telefone do Convidado", max_length=20, blank=True, null=True)
     guest_email = models.EmailField("E-mail do Convidado", blank=True, null=True)
     way_to_gift = models.CharField("Forma de Presentear", max_length=50, choices=[('take', 'Levar no dia'), ('send', 'Enviar pela internet'), ('money', 'Dar o dinheiro')], blank=True, null=True)
-
+    
+    payments = GenericRelation(Payment)
+    
+    @property
+    def total_paid(self):
+        """Retorna o total já pago para este presente"""
+        if not self.price:
+            return 0
+        return self.payments.filter(payment_status='approved').aggregate(
+            total=models.Sum('amount')
+        )['total'] or 0
+    
+    @property
+    def remaining_amount(self):
+        """Retorna o valor restante a pagar"""
+        if not self.price:
+            return 0
+        return self.price - self.total_paid
+    
+    @property
+    def is_fully_paid(self):
+        """Verifica se o presente foi totalmente pago"""
+        if not self.price:
+            return False
+        return self.total_paid >= self.price
+    
     def __str__(self):
         return self.name
-
+        
     class Meta:
         verbose_name = 'Presente do Chá de Panela'
         verbose_name_plural = 'Presentes do Chá de Panela'
@@ -196,7 +278,6 @@ class BridalShowerGift(models.Model):
 
 
 class BridalShowerGiftColor(models.Model):
-    
     color = models.CharField("Cor", max_length=7)
     name = models.CharField("Nome", max_length=50)
     
@@ -209,7 +290,6 @@ class BridalShowerGiftColor(models.Model):
     
 
 class BridalShowerGiftSuggestion(models.Model):
-
     gift = models.ForeignKey(BridalShowerGift, on_delete=models.CASCADE, related_name='suggestions')
     name = models.CharField("Nome", max_length=50)
     link = models.URLField("Link")

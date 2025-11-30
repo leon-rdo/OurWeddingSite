@@ -31,8 +31,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = (os.environ.get('DEBUG') == "True")
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',') if os.environ.get('ALLOWED_HOSTS') else []
-
-CRSF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split(',') if os.environ.get('CSRF_TRUSTED_ORIGINS') else []
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split(',') if os.environ.get('CSRF_TRUSTED_ORIGINS') else []
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
@@ -151,3 +150,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 JAZZMIN_SETTINGS = JAZZMIN_SETTINGS
 
 JAZZMIN_UI_TWEAKS = JAZZMIN_UI_TWEAKS
+
+# Mercado Pago
+MERCADO_PAGO_ACCESS_TOKEN = os.environ.get('MERCADO_PAGO_ACCESS_TOKEN', '')
+MERCADO_PAGO_PUBLIC_KEY = os.environ.get('MERCADO_PAGO_PUBLIC_KEY', '')
+MERCADO_PAGO_WEBHOOK_URL = os.environ.get('MERCADO_PAGO_WEBHOOK_URL', '')
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')
