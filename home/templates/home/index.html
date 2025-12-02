@@ -1,508 +1,308 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block extra_head %}
 <title>{{ settings.couple_names|default:"Página Inicial" }}</title>
+<link rel="stylesheet" href="{% static 'home/css/index.css' %}">
 {% endblock extra_head %}
 
 {% block content %}
-<section class="u-clearfix u-image u-section-1" id="hero"
-  style="background-image: url('{{ intro_text.images.first.image.url|default:'https://picsum.photos/1080/720/' }}');">
-  <div class="u-clearfix u-sheet u-sheet-1 d-flex align-items-center">
-    <div class="u-align-left u-container-align-left u-container-style u-group u-palette-1-base u-group-1"
-      data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
-      <div class="u-container-layout u-valign-middle u-container-layout-1">
-        <h1 class="u-align-left u-text u-text-1">{{ settings.couple_names }} <span style="font-weight: 700;"></span>
-        </h1>
 
-        <div id="countdown" data-wedding-datetime="{{ settings.wedding_datetime|date:" Y-m-d H:i:s" }}">
-          <div>
-            <span id="days"></span>
-            <div>Dias</div>
-          </div>
-          <div>
-            <span id="hours"></span>
-            <div>Horas</div>
-          </div>
-          <div>
-            <span id="minutes"></span>
-            <div>Minutos</div>
-          </div>
-          <div>
-            <span id="seconds"></span>
-            <div>Segundos</div>
-          </div>
-        </div>
-
-        {% if intro_text %}
-        <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' intro_text.pk %}">{{ intro_text.content }}</p>
-        {% endif %}
-
-      </div>
-    </div>
-  </div>
-</section>
-{% if text_1 is not None %}
-<section class="u-clearfix u-section-2" id="text_1">
-  <div class="u-align-right u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
-    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750"></div>
-  <div class="custom-expanded data-layout-selected u-clearfix u-layout-wrap u-layout-wrap-1">
-    <div class="u-layout">
-      <div class="u-layout-row">
-        <div class="u-container-style u-layout-cell u-size-34 u-layout-cell-1">
-          <div class="u-container-layout u-valign-middle-xs u-container-layout-1">
-            <div class="custom-expanded u-palette-1-base u-shape u-shape-rectangle u-shape-2"
-              data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
-            <div class="u-container-style u-group u-image u-image-tiles u-image-1"
-              data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
-              <div class="u-container-layout u-container-layout-2"></div>
+<!-- Hero Section com Countdown -->
+<section class="hero-section" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('{{ intro_text.images.first.image.url|default:'https://picsum.photos/1920/1080/' }}');">
+    <div class="hero-content">
+        <div class="hero-card">
+            <h1 class="couple-names">{{ settings.couple_names }}</h1>
+            
+            <div class="countdown-wrapper" id="countdown" data-wedding-datetime="{{ settings.wedding_datetime|date:'Y-m-d H:i:s' }}">
+                <div class="countdown-item">
+                    <span class="countdown-number" id="days">0</span>
+                    <span class="countdown-label">Dias</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="hours">0</span>
+                    <span class="countdown-label">Horas</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="minutes">0</span>
+                    <span class="countdown-label">Minutos</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="seconds">0</span>
+                    <span class="countdown-label">Segundos</span>
+                </div>
             </div>
-            <img src="{{ text_1.images.first.image.url }}" alt="" class="u-image u-image-default u-image-2"
-              data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"
-              data-image-width="1200" data-image-height="879">
-          </div>
+
+            {% if intro_text %}
+            <p class="hero-description">{{ intro_text.content }}</p>
+            {% endif %}
         </div>
-        <div class="u-container-align-left u-container-style u-layout-cell u-size-26 u-layout-cell-2"
-          data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
-          <div class="u-container-layout u-valign-middle u-container-layout-3">
-            <h2 class="u-align-left u-text u-text-1"><b data-text-url="{% url 'admin:home_textcontent_change' text_1.pk %}"> {{ text_1.title }}</b> <br>
-            </h2>
-            <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' text_1.pk %}">{{ text_1.content }}</p>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+</section>
+
+<!-- Section Text 1 -->
+{% if text_1 is not None %}
+<section class="content-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <img src="{{ text_1.images.first.image.url }}" alt="{{ text_1.title }}" class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-6">
+                <h2 class="section-title">{{ text_1.title }}</h2>
+                <p class="section-text">{{ text_1.content }}</p>
+            </div>
+        </div>
+    </div>
 </section>
 {% endif %}
+
+<!-- Info Section -->
 {% if not settings.hide_info %}
-  <section class="u-clearfix u-valign-bottom-xl u-white u-section-3" id="info">
-    <div class="u-align-right u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
-      data-animation-name="customAnimationIn" data-animation-duration="1000" data-animation-delay="0"></div>
-    <div class="data-layout-selected u-clearfix u-layout-wrap u-layout-wrap-1">
-      <div class="u-layout">
-        <div class="u-layout-row">
-          <div class="u-container-style u-layout-cell u-left-cell u-size-30 u-layout-cell-1"
-            data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
-            <div class="u-container-layout u-valign-top u-container-layout-1">
-              <h2 class="u-text u-text-1" data-text-url="{% url 'admin:home_settings_change' settings.pk %}">Informações</h2>
-              <div class="u-border-6 u-border-palette-1-base u-line u-line-horizontal u-line-1"></div>
-            </div>
-          </div>
-          <div class="u-container-align-left u-container-style u-layout-cell u-right-cell u-size-30 u-layout-cell-2"
-            data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
-            <div>
-              <h4 class="u-align-left u-text u-text-4">Clique nos ícones abaixo para saber mais.</h4>
-              <div id="info-icons">
-                {% if not settings.hide_rsvp %}
-                  <a href="{% url 'home:rsvp' %}">
-                    <span class="info-icon">
-                      <i class="bi bi-card-checklist"></i>
-                    </span>
-                    Presença
-                  </a>
-                {% endif %}
-                {% if not settings.hide_gifts %}
-                  <a href="{% url 'home:gift_list' %}">
-                    <span class="info-icon">
-                      <i class="bi bi-gift"></i>
-                    </span>
-                    Presentes
-                  </a>
-                {% endif %}
-                <a href="#" data-bs-toggle="modal" data-bs-target="#ceremonyModal">
-                  <span class="info-icon">
+<section class="info-section">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Informações</h2>
+        <p class="text-center mb-5">Clique nos ícones abaixo para saber mais.</p>
+        
+        <div class="info-grid">
+            {% if not settings.hide_rsvp %}
+            <a href="{% url 'home:rsvp' %}" class="info-card">
+                <div class="info-icon">
+                    <i class="bi bi-card-checklist"></i>
+                </div>
+                <h4>Presença</h4>
+            </a>
+            {% endif %}
+            
+            {% if not settings.hide_gifts %}
+            <a href="{% url 'home:gift_list' %}" class="info-card">
+                <div class="info-icon">
+                    <i class="bi bi-gift"></i>
+                </div>
+                <h4>Presentes</h4>
+            </a>
+            {% endif %}
+            
+            <a href="#" class="info-card" data-bs-toggle="modal" data-bs-target="#ceremonyModal">
+                <div class="info-icon">
                     <i class="bi bi-balloon-heart-fill"></i>
-                  </span>
-                  Cerimônia
-                </a>
-                <a href="#" data-bs-toggle="modal" data-bs-target="#receptionModal">
-                  <span class="info-icon">
+                </div>
+                <h4>Cerimônia</h4>
+            </a>
+            
+            <a href="#" class="info-card" data-bs-toggle="modal" data-bs-target="#receptionModal">
+                <div class="info-icon">
                     <i class="bi bi-cake-fill"></i>
-                  </span>
-                  Recepção
-                </a>
-              </div>
-            </div>
-          </div>
+                </div>
+                <h4>Recepção</h4>
+            </a>
         </div>
-      </div>
-    </div>
-    <div class="modal fade modal-lg" id="ceremonyModal" tabindex="-1" aria-labelledby="ceremonyModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="ceremonyModalLabel">Local da Cerimônia</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <address>
-              <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="gmap_canvas_ceremony" src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.ceremony_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe> 
-              {{ settings.ceremony_address }}
-            </address>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
-          </div>
-        </div>
-      </div>
     </div>
     
-    <div class="modal fade modal-lg" id="receptionModal" tabindex="-1" aria-labelledby="receptionModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="receptionModalLabel">Local da Recepção</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-          </div>
-          <div class="modal-body">
-            <address>
-              <iframe width="100%" height="400px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="gmap_canvas_reception" src="https://maps.google.com/maps?height=400&amp;hl=pt-br&amp;q={{ settings.reception_address|slugify }}&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe> 
-              {{ settings.reception_address }}
-            </address>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
-          </div>
+    <!-- Modals -->
+    <div class="modal fade" id="ceremonyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Local da Cerimônia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe width="100%" height="400" frameborder="0" src="https://maps.google.com/maps?height=400&hl=pt-br&q={{ settings.ceremony_address|slugify }}&t=&z=16&ie=UTF8&iwloc=B&output=embed"></iframe>
+                    <p class="mt-3"><i class="bi bi-geo-alt-fill"></i> {{ settings.ceremony_address }}</p>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </section>
+    
+    <div class="modal fade" id="receptionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Local da Recepção</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe width="100%" height="400" frameborder="0" src="https://maps.google.com/maps?height=400&hl=pt-br&q={{ settings.reception_address|slugify }}&t=&z=16&ie=UTF8&iwloc=B&output=embed"></iframe>
+                    <p class="mt-3"><i class="bi bi-geo-alt-fill"></i> {{ settings.reception_address }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endif %}
+
+<!-- Section Text 2 -->
 {% if text_2 is not None %}
-<section class="u-clearfix u-section-4" id="text_2">
-  <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-    <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-30 u-layout-wrap u-layout-wrap-1">
-      <div class="u-gutter-0 u-layout">
-        {% with text_2.images.all|slice:":2" as images %}
-        <div class="u-layout-row">
-          <div class="u-size-30">
-            <div class="u-layout-col">
-              <div
-                class="u-align-left u-container-align-left u-container-style u-image u-layout-cell u-left-cell u-size-30 u-image-1"
-                data-image-width="800" data-image-height="800" data-animation-name="customAnimationIn"
-                data-animation-duration="1500" data-animation-delay="500"
-                style="background-image: url('{{ images.1.image.url|default:'https://picsum.photos/700' }}');">
-                <div class="u-container-layout u-container-layout-1"></div>
-              </div>
-              <div
-                class="u-align-left u-container-align-left u-container-style u-layout-cell u-left-cell u-size-30 u-layout-cell-2"
-                data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
-                <div class="u-container-layout u-valign-top u-container-layout-2">
-                  <h2 class="u-align-left u-text u-text-1"><span style="font-weight: 700;" data-text-url="{% url 'admin:home_textcontent_change' text_2.pk %}">{{ text_2.title }}</span>
-                  </h2>
-                  <p class="u-align-left u-text u-text-2" data-text-url="{% url 'admin:home_textcontent_change' text_2.pk %}">{{ text_2.subtitle }}</p>
-                </div>
-              </div>
+<section class="content-section bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0">
+                {% with text_2.images.all|slice:":1" as images %}
+                <img src="{{ images.0.image.url|default:'https://picsum.photos/700' }}" alt="{{ text_2.title }}" class="img-fluid rounded shadow">
+                {% endwith %}
             </div>
-          </div>
-          <div class="u-size-30">
-            <div class="u-layout-row">
-              <div
-                class="u-align-left u-container-align-left u-container-style u-layout-cell u-right-cell u-size-60 u-layout-cell-3">
-                <div class="u-container-layout u-container-layout-3">
-                  <div class="u-align-left u-palette-1-light-2 u-shape u-shape-1"
-                    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
-                  </div>
-                  <p class="u-text u-text-4" data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500" data-text-url="{% url 'admin:home_textcontent_change' text_2.pk %}">{{ text_2.content }}</p>
-                  <img src="{{ images.0.image.url|default:'https://picsum.photos/700' }}" alt=""
-                    class="u-align-left u-image u-image-2" data-animation-name="customAnimationIn"
-                    data-animation-duration="1500" data-animation-delay="250">
-                </div>
-              </div>
+            <div class="col-lg-6 order-lg-1">
+                <h2 class="section-title">{{ text_2.title }}</h2>
+                <p class="section-subtitle">{{ text_2.subtitle }}</p>
+                <p class="section-text">{{ text_2.content }}</p>
             </div>
-          </div>
         </div>
-        {% endwith %}
-      </div>
     </div>
-  </div>
 </section>
 {% endif %}
+
+<!-- Quotes Section -->
 {% if text_3 is not None or text_4 is not None %}
-<section class="u-align-center u-clearfix u-container-align-center u-section-5" id="text_3">
-  <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-    <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1">
-      <div class="u-gutter-0 u-layout">
-        <div class="u-layout-row">
-          <div class="u-size-30 u-size-60-md">
-            <div class="u-layout-col">
-              {% if text_3 is not None %}
-              <div class="u-size-30">
-                <div class="u-layout-row">
-                  <div
-                    class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-1"
-                    data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
-                    <div class="u-container-layout u-container-layout-1">
-                      <h3 class="u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' text_3.pk %}">{{ text_3.title }}</h3>
-                      <blockquote class="u-text u-text-2" data-text-url="{% url 'admin:home_textcontent_change' text_3.pk %}">{{ text_3.content }} </blockquote>
-                    </div>
-                  </div>
+<section class="quotes-section">
+    <div class="container">
+        <div class="row">
+            {% if text_3 is not None %}
+            <div class="col-md-6 mb-4">
+                <div class="quote-card">
+                    <h3>{{ text_3.title }}</h3>
+                    <blockquote>{{ text_3.content }}</blockquote>
                 </div>
-              </div>
-              {% endif %}
-              {% if text_4 is not None %}
-              <div class="u-size-30">
-                <div class="u-layout-row">
-                  <div
-                    class="u-align-left u-container-align-left u-container-style u-layout-cell u-size-60 u-layout-cell-2"
-                    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
-                    <div class="u-container-layout u-valign-top u-container-layout-2">
-                      <h3 class="u-text u-text-3" data-text-url="{% url 'admin:home_textcontent_change' text_4.pk %}">{{ text_4.title }}</h3>
-                      <blockquote class="u-text u-text-4" data-text-url="{% url 'admin:home_textcontent_change' text_4.pk %}">{{ text_4.content }} </blockquote>
-                    </div>
-                  </div>
+            </div>
+            {% endif %}
+            
+            {% if text_4 is not None %}
+            <div class="col-md-6 mb-4">
+                <div class="quote-card">
+                    <h3>{{ text_4.title }}</h3>
+                    <blockquote>{{ text_4.content }}</blockquote>
                 </div>
-              </div>
-              {% endif %}
             </div>
-          </div>
-          <div class="u-size-30 u-size-60-md">
-            <div class="u-layout-col">
-              <div class="u-container-style u-image u-layout-cell u-right-cell u-size-60 u-image-1"
-                data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"
-                style="background-image: url('{{ text_3.images.first.image.url|default:'https://picsum.photos/700' }}');">
-                <div class="u-container-layout u-container-layout-3"></div>
-              </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Gallery -->
+{% if featured_gallery %}
+<section class="gallery-section">
+    <div class="container-fluid px-0">
+        <div class="row g-2">
+            {% for image in featured_gallery %}
+            <div class="col-6 col-md-4">
+                <div class="gallery-item">
+                    <img src="{{ image.image.url }}" alt="{{ image.title }}" class="img-fluid">
+                </div>
             </div>
-          </div>
+            {% endfor %}
         </div>
-      </div>
     </div>
-  </div>
 </section>
 {% endif %}
-{% if featured_circles or text_5 is not None %}
-<section class="u-clearfix u-container-align-center u-palette-1-light-2 u-section-6" id="featured_circles">
-  <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-    {% if featured_circles %}
-    <div class="u-border-10 u-border-white u-image u-image-circle u-image-1" data-animation-name="customAnimationIn"
-      data-animation-duration="1500" data-animation-delay="500"
-      style="background-image: url('{{ featured_circles.0.image.url|default:'https://picsum.photos/400' }}');"></div>
-    <div class="u-image u-image-circle u-image-2" data-animation-name="customAnimationIn" data-animation-duration="1500"
-      data-animation-delay="250"
-      style="background-image: url('{{ featured_circles.1.image.url|default:'https://picsum.photos/500' }}');"></div>
-    <div class="u-border-20 u-border-white u-image u-image-circle u-image-3" data-image-width="700"
-      data-image-height="1049" data-animation-name="customAnimationIn" data-animation-duration="1500"
-      data-animation-delay="500"
-      style="background-image: url('{{ featured_circles.2.image.url|default:'https://picsum.photos/600' }}');"></div>
-    <div class="u-shape u-shape-svg u-text-palette-1-base u-shape-1" data-animation-name="customAnimationIn"
-      data-animation-duration="1500" data-animation-delay="750">
-      <svg class="u-svg-link" preserveAspectRatio="none" viewBox="0 0 160 160" style="">
-        <use xlink:href="#svg-1186"></use>
-      </svg>
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
-        xml:space="preserve" class="u-svg-content" viewBox="0 0 160 160" x="0px" y="0px" id="svg-1186"
-        style="enable-background:new 0 0 160 160;">
-        <path
-          d="M80,30c27.6,0,50,22.4,50,50s-22.4,50-50,50s-50-22.4-50-50S52.4,30,80,30 M80,0C35.8,0,0,35.8,0,80s35.8,80,80,80 s80-35.8,80-80S124.2,0,80,0L80,0z">
-        </path>
-      </svg>
-    </div>
-    <div class="u-shape u-shape-svg u-text-palette-1-base u-shape-2" data-animation-name="customAnimationIn"
-      data-animation-duration="1500" data-animation-delay="750">
-      <svg class="u-svg-link" preserveAspectRatio="none" viewBox="0 0 160 160">
-        <use xlink:href="#svg-525f"></use>
-      </svg>
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
-        xml:space="preserve" class="u-svg-content" viewBox="0 0 160 160" x="0px" y="0px" id="svg-525f"
-        style="enable-background:new 0 0 160 160;">
-        <path d="M80,30c27.6,0,50,22.4,50,50s-22.4,50-50,50s-50-22.4-50-50S52.4,30,80,30 M80,0C35.8,0,0,35.8,0,80s35.8,80,80,80
-    s80-35.8,80-80S124.2,0,80,0L80,0z"></path>
-      </svg>
-    </div>
-    {% endif %}
-    {% if text_5 is not None %}
-    <div
-      class="u-align-center u-container-align-center u-container-style u-expanded-width u-group u-shape-rectangle u-group-1"
-      data-animation-name="flipIn" data-animation-duration="1500" data-animation-direction="X"
-      data-animation-delay="750">
-      <div class="u-container-layout u-valign-top u-container-layout-1">
-        <h2 class="u-align-center u-text u-text-default u-text-1" data-text-url="{% url 'admin:home_textcontent_change' text_5.pk %}">{{ text_5.title }}</h2>
-        <p class="u-align-center u-text u-text-2" data-text-url="{% url 'admin:home_textcontent_change' text_5.pk %}">{{ text_5.content }}</p>
-      </div>
-    </div>
-    {% endif %}
-  </div>
-</section>
-{% endif %}
-{% if featured_gallery is not None %}
-<section class="u-clearfix u-section-7" id="featured_gallery">
-  <div class="u-expanded-width u-gallery u-layout-grid u-lightbox u-no-transition u-show-text-on-hover u-gallery-1">
-    <div class="u-gallery-inner u-gallery-inner-1">
-      {% for slide in featured_gallery %}
-      <div class="u-effect-fade u-gallery-item">
-        <div class="u-back-slide">
-          <img class="u-back-image u-expanded" src="{{ slide.image.url }}">
-        </div>
-        <div class="u-over-slide u-shading u-over-slide"></div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
+
+<!-- Message Section -->
 {% if leave_a_message_text is not None %}
-<section class="u-clearfix u-container-align-center u-section-8" id="leave_a_message_text">
-  <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-    <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-20 u-layout-wrap u-layout-wrap-1">
-      <div class="u-layout">
-        <div class="u-layout-row">
-          <div class="u-size-30 u-size-60-md">
-            <div class="u-layout-col">
-              <div
-                class="u-align-left u-container-align-left u-container-style u-layout-cell u-palette-1-light-2 u-right-cell u-size-60 u-layout-cell-1"
-                data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
-                <div class="u-container-layout u-valign-middle u-container-layout-1">
-                  <h2 class="u-align-left u-text u-text-1">Deixe sua mensagem para os noivos</h2>
-                  <p class="u-align-left u-text u-text-2">Expresse seus desejos de felicidades deixando uma carinhosa
-                    mesagem abaixo:</p>
-                  <div class="u-form u-form-1">
-                    <form action="{% url 'home:message_form' %}" class="u-clearfix u-inner-form" style="padding: 0;"
-                      id="messageForm">
-                      {% csrf_token %}
-                      <div class="u-form-group u-form-partition-factor-1 u-form-group-1" style="margin-bottom: 20px;">
-                        <label for="name-da30" class="u-form-control-hidden u-label" wfd-invisible="true">Nome</label>
-                        <input type="text" placeholder="Nome" id="name-da30" name="name"
-                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle"
-                          required>
-                      </div>
-                      <div class="u-form-group u-form-message u-form-group-4" style="margin-bottom: 20px;">
-                        <label for="message-da30" class="u-form-control-hidden u-label"
-                          wfd-invisible="true">Mensagem</label>
-                        <textarea placeholder="Escreva sua mensagem" rows="4" cols="50" id="message-da30" name="message"
-                          class="u-border-2 u-border-grey-75 u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle"
-                          required></textarea>
-                      </div>
-                      <div class="u-align-left u-form-group u-form-submit u-form-group-5">
-                        <a href="#"
-                          class="u-border-2 u-border-black u-btn u-btn-submit u-button-style u-hover-black u-none u-text-black u-text-hover-white u-btn-1">Enviar</a>
-                        <input type="submit" value="submit" class="u-form-control-hidden" wfd-invisible="true">
-                      </div>
-                      <div class="u-form-send-message u-form-send-success" wfd-invisible="true"> Obrigado! Sua mensagem
-                        foi enviada. </div>
-                      <div class="u-form-send-error u-form-send-message" wfd-invisible="true"> Erro ao enviar sua
-                        mensagem, tente novamente. </div>
-                      <input type="hidden" value="" name="recaptchaResponse" wfd-invisible="true">
-                      <input type="hidden" name="formServices" value="6c7510bc-da5b-0510-aadd-75377099b397">
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="u-size-30 u-size-60-md">
-            <div class="u-layout-col">
-              <div class="u-size-40">
-                <div class="u-layout-row">
-                  <div
-                    class="u-container-align-left u-container-style u-layout-cell u-left-cell u-size-60 u-layout-cell-2"
-                    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
-                    <div class="u-container-layout u-valign-top u-container-layout-2">
-                      <p class="u-align-left u-text u-text-3"><b data-text-url="{% url 'admin:home_textcontent_change' leave_a_message_text.pk %}"> {{ leave_a_message_text.content }} </b>
-                        <br>
-                        <br> {{ leave_a_message_text2.content }} <br>
-                      </p>
+<section class="message-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="section-title">Deixe sua mensagem para os noivos</h2>
+                <p class="section-text">Expresse seus desejos de felicidades deixando uma carinhosa mensagem abaixo:</p>
+                
+                <form id="messageForm" action="{% url 'home:message_form' %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="text" name="name" class="form-control" placeholder="Seu nome" required>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="u-size-20">
-                <div class="u-layout-row">
-                  <div class="u-container-align-left u-container-style u-layout-cell u-size-36 u-layout-cell-3"
-                    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="250">
-                    <div class="u-container-layout u-valign-top u-container-layout-3">
-                      <p class="u-align-left u-text u-text-4" data-text-url="{% url 'admin:home_textcontent_change' last_text.pk %}">{{ last_text.content }}</p>
+                    <div class="mb-3">
+                        <textarea name="message" class="form-control" rows="4" placeholder="Sua mensagem" required></textarea>
                     </div>
-                  </div>
-                  <div
-                    class="u-align-left u-container-align-left u-container-style u-image u-layout-cell u-left-cell u-size-24 u-image-1"
-                    data-image-width="626" data-image-height="939" data-animation-name="customAnimationIn"
-                    data-animation-duration="1500" data-animation-delay="500"
-                    style="background-image: url('{{ last_text.images.first.image.url|default:'https://picsum.photos/700' }}');">
-                    <div class="u-container-layout u-container-layout-4"></div>
-                  </div>
-                </div>
-              </div>
+                    <button type="submit" class="btn btn-primary w-100">Enviar Mensagem</button>
+                    <div class="alert alert-success mt-3 d-none" id="successMessage">Obrigado! Sua mensagem foi enviada.</div>
+                    <div class="alert alert-danger mt-3 d-none" id="errorMessage">Erro ao enviar sua mensagem, tente novamente.</div>
+                </form>
             </div>
-          </div>
+            
+            <div class="col-lg-6">
+                {% if leave_a_message_text %}
+                <div class="message-content">
+                    <p><strong>{{ leave_a_message_text.content }}</strong></p>
+                    {% if leave_a_message_text2 %}
+                    <p>{{ leave_a_message_text2.content }}</p>
+                    {% endif %}
+                    {% if last_text %}
+                    <p class="mt-4">{{ last_text.content }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </section>
 {% endif %}
+
 {% endblock content %}
 
 {% block extra_scripts %}
 <script>
-  $(document).ready(function () {
-    $('form[id="messageForm"]').submit(function (event) {
-      event.preventDefault(); // Prevent form submission
-
-      var form = $(this);
-      var url = form.attr('action');
-      var formData = form.serialize(); // Serialize form data
-
-      // Disable the submit button to prevent multiple submissions
-      form.find('button[type="submit"]').prop('disabled', true);
-
-      $.ajax({
-        type: 'POST',
-        url: url,
-        data: formData,
-        headers: {
-          'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val()
-        },
-        success: function (response) {
-          // Handle success response
-          $('.u-form-send-success').show().text(response.message);
-          $('.u-form-send-error').hide();
-          form[0].reset(); // Clear the form
-          form.find('button[type="submit"]').prop('disabled', false); // Re-enable the submit button
-        },
-        error: function (xhr, status, error) {
-          // Handle error response
-          $('.u-form-send-error').show().text('Erro ao enviar sua mensagem, tente novamente.');
-          $('.u-form-send-success').hide();
-          form.find('button[type="submit"]').prop('disabled', false); // Re-enable the submit button
+// Countdown
+const countdownEl = document.getElementById('countdown');
+if (countdownEl) {
+    const weddingDate = new Date(countdownEl.getAttribute('data-wedding-datetime')).getTime();
+    
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = weddingDate - now;
+        
+        if (distance < 0) {
+            countdownEl.innerHTML = '<p class="text-center fs-4">O casamento já começou!</p>';
+            return;
         }
-      });
-    });
-  });
-</script>
-<script>
-  // Get the wedding date and time from the "data-wedding-datetime" attribute
-  var weddingDateTime = document.getElementById("countdown").getAttribute("data-wedding-datetime");
-
-  // Set the date and time of the wedding
-  var weddingDate = new Date(weddingDateTime).getTime();
-
-  // Update the countdown every second
-  var countdown = setInterval(function () {
-    // Get the current date and time
-    var now = new Date().getTime();
-
-    // Calculate the remaining time in milliseconds
-    var remainingTime = weddingDate - now;
-
-    // Calculate the days, hours, minutes, and seconds
-    var days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
-    var hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    var minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-
-    // Display the countdown in the respective spans
-    document.getElementById("days").innerHTML = days;
-    document.getElementById("hours").innerHTML = hours;
-    document.getElementById("minutes").innerHTML = minutes;
-    document.getElementById("seconds").innerHTML = seconds;
-
-    // If the countdown is finished, display a message
-    if (remainingTime < 0) {
-      clearInterval(countdown);
-      document.getElementById("countdown").innerHTML = "O casamento já começou!";
-      document.getElementById("countdown").style.fontSize = "2rem";
+        
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        document.getElementById('days').textContent = days;
+        document.getElementById('hours').textContent = hours;
+        document.getElementById('minutes').textContent = minutes;
+        document.getElementById('seconds').textContent = seconds;
     }
-  }, 1000);
+    
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
+
+// Message Form
+const messageForm = document.getElementById('messageForm');
+if (messageForm) {
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const successMsg = document.getElementById('successMessage');
+        const errorMsg = document.getElementById('errorMessage');
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                successMsg.classList.remove('d-none');
+                errorMsg.classList.add('d-none');
+                messageForm.reset();
+                setTimeout(() => successMsg.classList.add('d-none'), 5000);
+            } else {
+                throw new Error('Error');
+            }
+        })
+        .catch(error => {
+            errorMsg.classList.remove('d-none');
+            successMsg.classList.add('d-none');
+        });
+    });
+}
 </script>
 {% endblock extra_scripts %}
