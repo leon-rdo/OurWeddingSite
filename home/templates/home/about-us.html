@@ -2,115 +2,380 @@
 {% load static %}
 
 {% block extra_head %}
-<title>Sobre Nós</title>
-<link rel="stylesheet" href="{% static 'home/css/Sobre.css' %}">
+<title>Sobre Nós - {{ settings.couple_names }}</title>
+<style>
+  :root {
+    --primary-color: #c59da8;
+    --secondary-color: #a57d88;
+    --light-bg: #f8f5f2;
+    --text-dark: #333;
+    --text-light: #666;
+    --white: #fff;
+  }
+
+  /* Hero Section */
+  .about-hero {
+    min-height: 60vh;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--white);
+    padding: 4rem 1rem;
+  }
+
+  .about-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  .about-hero p {
+    font-size: 1.3rem;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+    animation: fadeInUp 1s ease-out;
+  }
+
+  /* Story Section */
+  .story-section {
+    padding: 5rem 0;
+    background-color: var(--white);
+  }
+
+  .story-card {
+    background: var(--white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 3rem;
+  }
+
+  .story-card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+  }
+
+  .story-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+  }
+
+  .story-content {
+    padding: 2.5rem;
+  }
+
+  .story-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+  }
+
+  .story-content p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+  }
+
+  /* Timeline Section */
+  .timeline-section {
+    padding: 5rem 0;
+    background-color: var(--light-bg);
+  }
+
+  .timeline-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    text-align: center;
+    color: var(--text-dark);
+    margin-bottom: 3rem;
+  }
+
+  .timeline {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 100%;
+    background: var(--primary-color);
+  }
+
+  .timeline-item {
+    margin-bottom: 3rem;
+    position: relative;
+  }
+
+  .timeline-content {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    width: calc(50% - 40px);
+  }
+
+  .timeline-item:nth-child(odd) .timeline-content {
+    margin-left: auto;
+    margin-right: 40px;
+  }
+
+  .timeline-item:nth-child(even) .timeline-content {
+    margin-right: auto;
+    margin-left: 40px;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border: 4px solid var(--white);
+    border-radius: 50%;
+    z-index: 1;
+    box-shadow: 0 0 0 4px var(--light-bg);
+  }
+
+  .timeline-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-content .date {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .timeline-content p {
+    color: var(--text-dark);
+    line-height: 1.6;
+  }
+
+  /* Gallery Grid */
+  .moments-section {
+    padding: 5rem 0;
+    background: var(--white);
+  }
+
+  .moments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .moment-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+    aspect-ratio: 1;
+    cursor: pointer;
+  }
+
+  .moment-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .moment-card:hover img {
+    transform: scale(1.1);
+  }
+
+  .moment-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    padding: 1.5rem;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .moment-card:hover .moment-overlay {
+    transform: translateY(0);
+  }
+
+  .moment-overlay h4 {
+    color: var(--white);
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .about-hero h1 {
+      font-size: 2.5rem;
+    }
+
+    .about-hero p {
+      font-size: 1.1rem;
+    }
+
+    .story-image {
+      height: 300px;
+    }
+
+    .story-content {
+      padding: 1.5rem;
+    }
+
+    .story-content h2 {
+      font-size: 1.8rem;
+    }
+
+    .timeline::before {
+      left: 20px;
+    }
+
+    .timeline-content {
+      width: calc(100% - 60px);
+      margin-left: 60px !important;
+      margin-right: 0 !important;
+    }
+
+    .timeline-dot {
+      left: 20px;
+    }
+
+    .moments-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+  }
+</style>
 {% endblock extra_head %}
 
 {% block content %}
-{% if about_us_text_1 is not None %}
-<section class="u-clearfix u-valign-middle-xs u-section-1" id="sec-fa06">
-  <div class="custom-expanded u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
-    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
-  <img class="custom-expanded u-image u-image-1"
-    src="{{ about_us_text_1.images.first.image.url|default:'https://picsum.photos/1000' }}" data-image-width="1086"
-    data-image-height="1047" data-animation-name="customAnimationIn" data-animation-duration="1500">
-  <div class="u-container-style u-group u-image u-image-tiles u-image-2" data-animation-name="customAnimationIn"
-    data-animation-duration="1500" data-animation-delay="500">
-    <div class="u-container-layout u-container-layout-1"></div>
-  </div>
-  <div class="u-align-left u-container-align-left u-container-style u-group u-white u-group-2"
-    data-animation-name="customAnimationIn" data-animation-duration="1750" data-animation-delay="500">
-    <div class="u-container-layout u-valign-middle u-container-layout-2">
-      <h1 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_1.pk %}">{{ about_us_text_1.title }}</h1>
-      <p class="u-align-left u-large-text u-text u-text-variant u-text-2">{{ about_us_text_1.content }}</p>
-    </div>
-</section>
-{% endif %}
-{% if about_us_text_2 is not None %}
-<section class="u-align-center u-clearfix u-valign-bottom-sm u-section-2" id="carousel_0695">
-  <div class="custom-expanded u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
-    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
-  <div class="u-container-style u-group u-image u-image-tiles u-image-1" data-animation-name="customAnimationIn"
-    data-animation-duration="1500" data-animation-delay="500">
-    <div class="u-container-layout u-container-layout-1"></div>
-  </div>
-  <img class="u-image u-image-2"
-    src="{{ about_us_text_2.images.first.image.url|default:'https://picsum.photos/1080/720/' }}" data-image-width="1380"
-    data-image-height="920" data-animation-name="flipIn" data-animation-duration="1500" data-animation-direction="X"
-    data-animation-delay="250">
-  <div
-    class="custom-expanded u-align-left u-container-align-left u-container-style u-group u-shape-rectangle u-white u-group-2"
-    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
-    <div class="u-container-layout u-valign-middle u-container-layout-2">
-      <h2 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_2.pk %}">{{ about_us_text_2.title }}</h2>
-      <p class="u-align-left u-text u-text-2" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_2.pk %}">{{ about_us_text_2.content }}</p>
-    </div>
+
+<!-- Hero Section -->
+<section class="about-hero">
+  <div class="container">
+    {% if about_us_text_1 %}
+    <h1>{{ about_us_text_1.title }}</h1>
+    <p>{{ about_us_text_1.content }}</p>
+    {% else %}
+    <h1>Nossa História</h1>
+    <p>Juntos escrevemos uma história de amor, companheirismo e cumplicidade</p>
+    {% endif %}
   </div>
 </section>
-{% endif %}
-{% if about_us_text_3 is not None %}
-<section
-  class="u-align-center u-clearfix u-container-align-center u-palette-1-light-2 u-valign-middle-lg u-valign-middle-md u-valign-middle-xl u-section-3"
-  id="carousel_b8a3">
-  <h2 class="u-align-center u-text u-text-1" data-animation-name="customAnimationIn" data-animation-duration="1500"
-    data-animation-delay="0" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_3.pk %}">{{ about_us_text_3.title }}</h2>
-  <p class="u-align-center u-text u-text-2" data-animation-name="customAnimationIn" data-animation-duration="1500"
-    data-animation-delay="250" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_3.pk %}">{{ about_us_text_3.content }}</p>
-  <div class="u-expanded-width u-list u-list-1">
-    <div class="u-repeater u-repeater-1">
-      {% with about_us_text_3.images.all as images %}{% for image in images %}
-      <div class="u-container-align-left u-container-style u-image u-image-default u-list-item u-repeater-item u-shading u-image-1"
-        data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750"
-        style="background-image: url('{{ image.image.url|default:'https://picsum.photos/600/' }}');">
-        <div class="u-container-layout u-similar-container u-valign-bottom u-container-layout-1">
-          <h4 class="u-align-left u-text u-text-default u-text-3">{{ image.title }}</h4>
+
+<!-- Story Section -->
+{% if about_us_text_2 %}
+<section class="story-section">
+  <div class="container">
+    <div class="story-card">
+      <div class="row g-0 align-items-center">
+        <div class="col-md-6">
+          <img src="{{ about_us_text_2.images.first.image.url }}" alt="{{ about_us_text_2.title }}" class="story-image">
         </div>
-      </div>
-      {% endfor %}{% endwith %}
-    </div>
-  </div>
-</section>
-{% endif %}
-{% if about_us_text_4 is not None %}
-<section class="u-align-center u-clearfix u-palette-1-light-2 u-section-4" id="carousel_b65a">
-  <div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-    <h2 class="u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_4.pk %}">{{ about_us_text_4.title }}</h2>
-    <p class="u-text u-text-2" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_4.pk %}">{{ about_us_text_4.content }}</p>
-  </div>
-</section>
-{% endif %}
-{% if about_us_text_5 is not None %}
-<section class="u-clearfix u-section-5" id="sec-2131">
-  <div class="u-align-right u-expanded-width u-palette-1-light-2 u-shape u-shape-rectangle u-shape-1"
-    data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500"></div>
-  <div class="custom-expanded data-layout-selected u-clearfix u-layout-wrap u-layout-wrap-1">
-    <div class="u-layout">
-      <div class="u-layout-row">
-        <div
-          class="u-container-align-left u-container-style u-layout-cell u-size-26-lg u-size-26-xl u-size-60-md u-size-60-sm u-size-60-xs u-layout-cell-1"
-          data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="500">
-          <div class="u-container-layout u-valign-middle u-container-layout-1">
-            <h2 class="u-align-left u-text u-text-1" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_5.pk %}">{{ about_us_text_5.title }}<br>
-            </h2>
-            <p class="u-align-left u-large-text u-text u-text-variant u-text-2" data-text-url="{% url 'admin:home_textcontent_change' about_us_text_5.pk %}">{{ about_us_text_5.content }}
-            </p>
+        <div class="col-md-6">
+          <div class="story-content">
+            <h2>{{ about_us_text_2.title }}</h2>
+            <p>{{ about_us_text_2.content }}</p>
           </div>
         </div>
-        <div
-          class="u-container-style u-layout-cell u-size-34-lg u-size-34-xl u-size-60-md u-size-60-sm u-size-60-xs u-layout-cell-2">
-          <div class="u-container-layout u-valign-middle-sm u-valign-middle-xs u-container-layout-2">
-            <div class="custom-expanded u-container-style u-group u-image u-image-tiles u-image-1"
-              data-animation-name="customAnimationIn" data-animation-duration="1500" data-animation-delay="750">
-              <div class="u-container-layout u-container-layout-3"></div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Timeline Section -->
+{% if about_us_text_3 %}
+<section class="timeline-section">
+  <div class="container">
+    <h2 class="timeline-title">{{ about_us_text_3.title }}</h2>
+    <p class="text-center text-muted mb-5">{{ about_us_text_3.content }}</p>
+    
+    <div class="timeline">
+      {% with about_us_text_3.images.all as images %}
+      {% if images %}
+        {% for image in images %}
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <h3>{{ image.title }}</h3>
+            <div class="date">
+              <i class="bi bi-calendar-heart"></i> Momento Especial
             </div>
-            <img src="{{ about_us_text_5.images.first.image.url|default:'https://picsum.photos/800' }}" alt=""
-              class="u-image u-image-default u-image-2" data-animation-name="customAnimationIn"
-              data-animation-duration="1500" data-animation-delay="500" data-image-width="1380" data-image-height="920">
+            <p>Um dos muitos momentos que tornam nossa história única e especial.</p>
           </div>
         </div>
-      </div>
+        {% endfor %}
+      {% endif %}
+      {% endwith %}
     </div>
   </div>
 </section>
 {% endif %}
+
+<!-- Moments Gallery -->
+{% if about_us_text_3.images.all %}
+<section class="moments-section">
+  <div class="container">
+    <h2 class="timeline-title">Nossos Momentos</h2>
+    <div class="moments-grid">
+      {% for image in about_us_text_3.images.all %}
+      <div class="moment-card">
+        <img src="{{ image.image.url }}" alt="{{ image.title }}">
+        <div class="moment-overlay">
+          <h4>{{ image.title }}</h4>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Final Message -->
+{% if about_us_text_4 %}
+<section class="story-section">
+  <div class="container">
+    <div class="text-center" style="max-width: 800px; margin: 0 auto;">
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1.5rem;">
+        {{ about_us_text_4.title }}
+      </h2>
+      <p style="font-size: 1.2rem; line-height: 1.8; color: var(--text-light);">
+        {{ about_us_text_4.content }}
+      </p>
+    </div>
+  </div>
+</section>
+{% endif %}
+
 {% endblock content %}

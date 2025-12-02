@@ -531,10 +531,6 @@
   border-bottom: none;
 }
 
-.modal-header .btn-close {
-  filter: brightness(0) invert(1);
-}
-
 .modal-body {
   padding: 2rem;
 }

@@ -1,0 +1,571 @@
+/* ============================================
+   VARIÁVEIS
+   ============================================ */
+:root {
+  --primary-color: #c59da8;
+  --secondary-color: #a57d88;
+  --light-bg: #f8f5f2;
+  --text-dark: #333;
+  --text-light: #666;
+  --white: #fff;
+  --success: #28a745;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   HEADER SECTION
+   ============================================ */
+.gift-header-section {
+  padding: 5rem 0;
+  background-color: var(--light-bg);
+}
+
+.gift-header-title {
+  font-family: "Playfair Display", serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
+}
+
+.gift-header-text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-light);
+}
+
+.gift-header-section img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gift-header-section img:hover {
+  transform: scale(1.02);
+}
+
+/* ============================================
+   GIFTS SECTION
+   ============================================ */
+.gifts-section {
+  padding: 5rem 0;
+}
+
+.gifts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+/* ============================================
+   GIFT CARD
+   ============================================ */
+.gift-card {
+  background: var(--white);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.gift-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.gift-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background-color: var(--light-bg);
+}
+
+.gift-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.gift-card:hover .gift-image {
+  transform: scale(1.1);
+}
+
+.gift-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.badge-paid {
+  background: rgba(40, 167, 69, 0.9);
+  color: var(--white);
+}
+
+.badge-partial {
+  background: rgba(255, 193, 7, 0.9);
+  color: var(--text-dark);
+}
+
+.gift-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.gift-name {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+}
+
+.gift-description {
+  color: var(--text-light);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.gift-remaining {
+  background: rgba(23, 162, 184, 0.1);
+  padding: 0.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  color: #17a2b8;
+}
+
+.gift-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--light-bg);
+}
+
+.gift-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-family: "Playfair Display", serif;
+  text-align: center;
+}
+
+.btn-gift-select {
+  background: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.btn-gift-select:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+/* ============================================
+   MODAL CUSTOMIZATION
+   ============================================ */
+.modal-content {
+  border-radius: 20px;
+  border: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  color: var(--white);
+  border-radius: 20px 20px 0 0;
+  padding: 1.5rem 2rem;
+  border-bottom: none;
+}
+
+.modal-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.modal-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+/* ============================================
+   PAYMENT METHODS
+   ============================================ */
+.payment-methods {
+  margin-bottom: 2rem;
+}
+
+.payment-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+}
+
+.payment-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.payment-option {
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.payment-option:hover {
+  border-color: var(--primary-color);
+  background: rgba(197, 157, 168, 0.05);
+  transform: translateY(-2px);
+}
+
+.payment-option.active {
+  border-color: var(--primary-color);
+  background: rgba(197, 157, 168, 0.1);
+  box-shadow: var(--shadow);
+}
+
+.payment-option-icon {
+  font-size: 2rem;
+  color: var(--primary-color);
+}
+
+.payment-option-info {
+  flex: 1;
+}
+
+.payment-option-info strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.payment-option-info small {
+  color: var(--text-light);
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   PAYMENT FORM
+   ============================================ */
+.payment-form-container {
+  margin-top: 2rem;
+}
+
+.payment-form {
+  max-width: 100%;
+}
+
+.payment-amount {
+  background: var(--light-bg);
+  padding: 1rem;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.payment-amount span {
+  color: var(--text-light);
+}
+
+.payment-amount strong {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  font-family: "Playfair Display", serif;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(197, 157, 168, 0.1);
+}
+
+.card-number-input {
+  background: white
+    url("https://http2.mlstatic.com/storage/logos-api-admin/51b446b0-571d-11e8-9a2d-4b2bd7b1bf77-m.svg")
+    no-repeat right 10px center;
+  background-size: 50px;
+}
+
+.btn-submit {
+  width: 100%;
+  background: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 1rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   PIX PAYMENT
+   ============================================ */
+.pix-payment {
+  text-align: center;
+}
+
+.pix-qrcode {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.pix-qrcode img {
+  max-width: 300px;
+  border-radius: 15px;
+  box-shadow: var(--shadow);
+}
+
+.pix-amount {
+  background: var(--light-bg);
+  padding: 1rem;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.pix-amount strong {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  font-family: "Playfair Display", serif;
+}
+
+.pix-code-container {
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.pix-code-container label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.pix-code-wrapper {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pix-code-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.btn-copy-pix {
+  background: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-copy-pix:hover {
+  background: var(--secondary-color);
+}
+
+.pix-info {
+  background: rgba(255, 193, 7, 0.1);
+  border-left: 4px solid var(--warning);
+  padding: 1rem;
+  border-radius: 10px;
+  color: #856404;
+  text-align: left;
+  margin-top: 2rem;
+}
+
+/* ============================================
+   ALERTS
+   ============================================ */
+.alert {
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  border: none;
+}
+
+.alert-success {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--success);
+  border-left: 4px solid var(--success);
+}
+
+.alert-danger {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--danger);
+  border-left: 4px solid var(--danger);
+}
+
+.alert-warning {
+  background: rgba(255, 193, 7, 0.1);
+  color: #856404;
+  border-left: 4px solid var(--warning);
+}
+
+/* ============================================
+   RESPONSIVIDADE
+   ============================================ */
+@media (max-width: 768px) {
+  .gift-header-section {
+    padding: 3rem 0;
+  }
+
+  .gift-header-title {
+    font-size: 2rem;
+  }
+
+  .gifts-section {
+    padding: 3rem 0;
+  }
+
+  .gifts-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .payment-options {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .pix-qrcode img {
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 576px) {
+  .gifts-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .pix-code-wrapper {
+    flex-direction: column;
+  }
+
+  .btn-copy-pix {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   ANIMAÇÕES
+   ============================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gift-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.gift-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.gift-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.gift-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.gift-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
