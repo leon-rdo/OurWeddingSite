@@ -290,7 +290,9 @@ class GalleryView(UserPassesTestMixin, TemplateView):
 class Payload():
     def __init__(self, nome, chavepix, valor, cidade, txtId, diretorio=''):
         self.nome = nome
-        self.chavepix = chavepix
+        
+        self.chavepix = self._formatar_chave_pix(chavepix)
+        
         self.valor = valor.replace(',', '.')
         self.cidade = cidade
         self.txtId = txtId
@@ -302,43 +304,87 @@ class Payload():
         self.cidade_tam = len(self.cidade)
         self.txtId_tam = len(self.txtId)
 
-        self.merchantAccount_tam = f'0014BR.GOV.BCB.PIX01{self.chavepix_tam:02}{self.chavepix}'
-        self.transactionAmount_tam = f'{self.valor_tam:02}{float(self.valor):.2f}'
+        self.merchantAccount_tam = f'0014br.gov.bcb.pix01{self.chavepix_tam:02d}{self.chavepix}'
+        
+        self.transactionAmount_tam = f'{len(f"{float(self.valor):.2f}"):02d}{float(self.valor):.2f}'
 
-        self.addDataField_tam = f'05{self.txtId_tam:02}{self.txtId}'
-
-        self.nome_tam = f'{self.nome_tam:02}'
-
-        self.cidade_tam = f'{self.cidade_tam:02}'
+        self.addDataField_tam = f'05{self.txtId_tam:02d}{self.txtId}'
 
         self.payloadFormat = '000201'
-        self.merchantAccount = f'26{len(self.merchantAccount_tam):02}{self.merchantAccount_tam}'
+        self.merchantAccount = f'26{len(self.merchantAccount_tam):02d}{self.merchantAccount_tam}'
         self.merchantCategCode = '52040000'
         self.transactionCurrency = '5303986'
         self.transactionAmount = f'54{self.transactionAmount_tam}'
         self.countryCode = '5802BR'
-        self.merchantName = f'59{self.nome_tam:02}{self.nome}'
-        self.merchantCity = f'60{self.cidade_tam:02}{self.cidade}'
-        self.addDataField = f'62{len(self.addDataField_tam):02}{self.addDataField_tam}'
+        self.merchantName = f'59{self.nome_tam:02d}{self.nome}'
+        self.merchantCity = f'60{self.cidade_tam:02d}{self.cidade}'
+        self.addDataField = f'62{len(self.addDataField_tam):02d}{self.addDataField_tam}'
         self.crc16 = '6304'
 
+    def _formatar_chave_pix(self, chave):
+        """
+        Formata a chave PIX corretamente:
+        - Adiciona +55 para telefones brasileiros
+        - Remove caracteres especiais
+        - Mantém outros tipos de chave (email, CPF, CNPJ, aleatória)
+        """
+        chave_limpa = chave.strip().replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+        
+        
+        if chave_limpa.isdigit() and len(chave_limpa) == 11:
+            return f'+55{chave_limpa}'
+        
+        if chave_limpa.startswith('+55'):
+            return chave_limpa
+        
+        if chave_limpa.startswith('55') and chave_limpa.isdigit() and len(chave_limpa) == 13:
+            return f'+{chave_limpa}'
+        
+        if chave_limpa.replace('.', '').replace('-', '').replace('/', '').isdigit():
+            return chave_limpa.replace('.', '').replace('-', '').replace('/', '')
+        
+        return chave_limpa.lower() if '@' in chave_limpa else chave_limpa
+
     def gerarPayload(self):
-        self.payload = f'{self.payloadFormat}{self.merchantAccount}{self.merchantCategCode}{self.transactionCurrency}{self.transactionAmount}{self.countryCode}{self.merchantName}{self.merchantCity}{self.addDataField}{self.crc16}'
+        """Gera o payload PIX completo"""
+        self.payload = (
+            f'{self.payloadFormat}'
+            f'{self.merchantAccount}'
+            f'{self.merchantCategCode}'
+            f'{self.transactionCurrency}'
+            f'{self.transactionAmount}'
+            f'{self.countryCode}'
+            f'{self.merchantName}'
+            f'{self.merchantCity}'
+            f'{self.addDataField}'
+            f'{self.crc16}'
+        )
         self.gerarCrc16(self.payload)
+        return self.payload_completa
 
     def gerarCrc16(self, payload):
+        """
+        Calcula o CRC16 do payload PIX
+        """
         crc16 = crcmod.mkCrcFun(poly=0x11021, initCrc=0xFFFF, rev=False, xorOut=0x0000)
         self.crc16Code = hex(crc16(str(payload).encode('utf-8')))
         self.crc16Code_formatado = str(self.crc16Code).replace('0x', '').upper().zfill(4)
         self.payload_completa = f'{payload}{self.crc16Code_formatado}'
-        self.gerarQrCode(self.payload_completa, self.diretorioQrCode)
+        return self.payload_completa
 
-    def gerarQrCode(self, payload, diretorio):
+    def gerarQrCode(self, payload, diretorio=''):
+        """Gera o QR Code em base64"""
         qr = qrcode.make(payload)
         buffered = BytesIO()
         qr.save(buffered, format="PNG")
         qr_code_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
         return qr_code_base64
+    
+    def obter_qrcode_base64(self):
+        """Método helper para obter o QR Code após gerar o payload"""
+        if not hasattr(self, 'payload_completa'):
+            self.gerarPayload()
+        return self.gerarQrCode(self.payload_completa)
 
 
 class GiftListView(UserPassesTestMixin, ListView):
