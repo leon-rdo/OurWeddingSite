@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block extra_head %}
 <title>Lista de Presentes - {{ settings.couple_names }}</title>
 <link rel="stylesheet" href="{% static 'home/css/gift-list.css' %}">
-<!-- SDK do Mercado Pago -->
 <script src="https://sdk.mercadopago.com/js/v2"></script>
 {% endblock extra_head %}
 
@@ -62,33 +62,35 @@
                             class="btn-gift-select" 
                             data-bs-toggle="modal" 
                             data-bs-target="#paymentModal{{ gift.id }}"
-                            data-gift-id="{{ gift.id }}"
-                            data-gift-name="{{ gift.name }}"
-                            data-gift-price="{{ gift.price }}">
-                            Presentear
+                            {% if gift.is_fully_paid %}disabled{% endif %}>
+                            {% if gift.is_fully_paid %}
+                                Já Presenteado
+                            {% else %}
+                                Presentear
+                            {% endif %}
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Payment Modal -->
-            <div class="modal fade" id="paymentModal{{ gift.id }}" tabindex="-1">
+            <div class="modal fade" id="paymentModal{{ gift.id }}" tabindex="-1" aria-labelledby="modalLabel{{ gift.id }}" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">
+                            <h5 class="modal-title" id="modalLabel{{ gift.id }}">
                                 <i class="bi bi-gift-fill me-2"></i>
                                 Presentear: {{ gift.name }}
                             </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                         </div>
                         <div class="modal-body">
                             
                             <!-- Payment Method Selection -->
                             <div class="payment-methods">
                                 <h6 class="payment-section-title">Escolha a forma de pagamento:</h6>
-                                <div class="payment-options">
-                                    <div class="payment-option" data-payment-method="card" data-gift-id="{{ gift.id }}">
+                                <div class="payment-options" data-gift-id="{{ gift.id }}">
+                                    <div class="payment-option" data-payment-method="card">
                                         <div class="payment-option-icon">
                                             <i class="bi bi-credit-card"></i>
                                         </div>
@@ -98,7 +100,7 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="payment-option" data-payment-method="pix" data-gift-id="{{ gift.id }}">
+                                    <div class="payment-option" data-payment-method="pix">
                                         <div class="payment-option-icon">
                                             <i class="bi bi-qr-code"></i>
                                         </div>
@@ -111,10 +113,11 @@
                             </div>
 
                             <!-- Card Payment Form -->
-                            <div class="payment-form-container" id="cardPayment{{ gift.id }}" style="display: none;">
-                                <form id="paymentForm{{ gift.id }}" class="payment-form">
+                            <div class="payment-form-container card-payment-container" data-gift-id="{{ gift.id }}" style="display: none;">
+                                <form class="payment-form" data-gift-id="{{ gift.id }}">
                                     <input type="hidden" name="gift_id" value="{{ gift.id }}">
                                     <input type="hidden" name="gift_type" value="gift">
+                                    <input type="hidden" name="gift_price" value="{{ gift.price }}">
 
                                     <div class="form-group">
                                         <div class="payment-amount">
@@ -127,13 +130,13 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Nome Completo</label>
-                                                <input type="text" class="form-input" id="payerName{{ gift.id }}" name="payer_name" required>
+                                                <input type="text" class="form-input payer-name" name="payer_name" required>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Email</label>
-                                                <input type="email" class="form-input" id="payerEmail{{ gift.id }}" name="email" required>
+                                                <input type="email" class="form-input payer-email" name="email" required>
                                             </div>
                                         </div>
                                     </div>
@@ -142,7 +145,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Tipo de Documento</label>
-                                                <select class="form-input" id="docType{{ gift.id }}" name="identification_type" required>
+                                                <select class="form-input doc-type" name="identification_type" required>
                                                     <option value="CPF">CPF</option>
                                                     <option value="CNPJ">CNPJ</option>
                                                 </select>
@@ -151,61 +154,61 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Número do Documento</label>
-                                                <input type="text" class="form-input" id="docNumber{{ gift.id }}" name="identification_number" required>
+                                                <input type="text" class="form-input doc-number" name="identification_number" required>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Número do Cartão</label>
-                                        <input type="text" class="form-input card-number-input" id="cardNumber{{ gift.id }}" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                                        <input type="text" class="form-input card-number" placeholder="0000 0000 0000 0000" maxlength="19" required>
                                     </div>
 
                                     <div class="row">
                                         <div class="col-4">
                                             <div class="form-group">
                                                 <label>Mês</label>
-                                                <input type="text" class="form-input" id="cardExpirationMonth{{ gift.id }}" placeholder="MM" maxlength="2" required>
+                                                <input type="text" class="form-input card-month" placeholder="MM" maxlength="2" required>
                                             </div>
                                         </div>
                                         <div class="col-4">
                                             <div class="form-group">
                                                 <label>Ano</label>
-                                                <input type="text" class="form-input" id="cardExpirationYear{{ gift.id }}" placeholder="AA" maxlength="2" required>
+                                                <input type="text" class="form-input card-year" placeholder="AA" maxlength="2" required>
                                             </div>
                                         </div>
                                         <div class="col-4">
                                             <div class="form-group">
                                                 <label>CVV</label>
-                                                <input type="text" class="form-input" id="securityCode{{ gift.id }}" placeholder="123" maxlength="4" required>
+                                                <input type="text" class="form-input card-cvv" placeholder="123" maxlength="4" required>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Nome no Cartão</label>
-                                        <input type="text" class="form-input" id="cardholderName{{ gift.id }}" required>
+                                        <input type="text" class="form-input card-holder" required>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Parcelas</label>
-                                        <select class="form-input" id="installments{{ gift.id }}" name="installments" required>
+                                        <select class="form-input installments-select" name="installments" required>
                                             <option value="">Selecione...</option>
                                         </select>
                                     </div>
 
-                                    <div id="errorMessage{{ gift.id }}" class="alert alert-danger d-none"></div>
-                                    <div id="successMessage{{ gift.id }}" class="alert alert-success d-none"></div>
+                                    <div class="alert alert-danger error-message" style="display: none;"></div>
+                                    <div class="alert alert-success success-message" style="display: none;"></div>
 
-                                    <button type="submit" class="btn-submit" id="submitBtn{{ gift.id }}">
-                                        <span class="spinner-border spinner-border-sm d-none"></span>
+                                    <button type="submit" class="btn-submit">
+                                        <span class="spinner-border spinner-border-sm" style="display: none;"></span>
                                         <span class="btn-text">Finalizar Pagamento</span>
                                     </button>
                                 </form>
                             </div>
 
                             <!-- PIX Payment -->
-                            <div class="payment-form-container" id="pixPayment{{ gift.id }}" style="display: none;">
+                            <div class="payment-form-container pix-payment-container" data-gift-id="{{ gift.id }}" style="display: none;">
                                 {% if gift.qr_code %}
                                 <div class="pix-payment">
                                     <h6 class="text-center mb-4">Escaneie o QR Code para pagar</h6>
@@ -222,8 +225,8 @@
                                     <div class="pix-code-container">
                                         <label>PIX Copia e Cola:</label>
                                         <div class="pix-code-wrapper">
-                                            <input type="text" class="pix-code-input" id="pixCode{{ gift.id }}" value="{{ gift.payload }}" readonly>
-                                            <button class="btn-copy-pix" onclick="copyPixCode('{{ gift.id }}')">
+                                            <input type="text" class="pix-code-input" value="{{ gift.payload }}" readonly>
+                                            <button class="btn-copy-pix" type="button" data-pix-code="{{ gift.payload }}">
                                                 <i class="bi bi-clipboard"></i>
                                                 Copiar
                                             </button>
@@ -256,181 +259,15 @@
 
 {% block extra_scripts %}
 <script>
-// Copiar código PIX
-function copyPixCode(giftId) {
-    const input = document.getElementById(`pixCode${giftId}`);
-    input.select();
-    document.execCommand('copy');
-    alert('Código PIX copiado!');
-}
-
-// Inicializar Mercado Pago
-const mp = new MercadoPago("{{ MERCADO_PAGO_PUBLIC_KEY }}", { locale: "pt-BR" });
-
-// Seleção de método de pagamento
-document.querySelectorAll('.payment-option').forEach(option => {
-    option.addEventListener('click', function() {
-        const giftId = this.dataset.giftId;
-        const method = this.dataset.paymentMethod;
-        
-        // Toggle active
-        document.querySelectorAll(`[data-gift-id="${giftId}"].payment-option`).forEach(o => {
-            o.classList.remove('active');
-        });
-        this.classList.add('active');
-        
-        // Show/hide forms
-        if (method === 'card') {
-            document.getElementById(`cardPayment${giftId}`).style.display = 'block';
-            document.getElementById(`pixPayment${giftId}`).style.display = 'none';
-        } else {
-            document.getElementById(`cardPayment${giftId}`).style.display = 'none';
-            document.getElementById(`pixPayment${giftId}`).style.display = 'block';
-        }
-    });
-});
-
-// Formatar número do cartão
-function formatCardNumber(value) {
-    return value.replace(/\s/g, '').match(/.{1,4}/g)?.join(' ') || value;
-}
-
-// Dados de pagamento
-const paymentMethodData = {};
-
-// Configurar formulários
-document.querySelectorAll('.payment-form').forEach(form => {
-    const giftId = form.querySelector('[name="gift_id"]').value;
-    const cardNumberInput = document.getElementById(`cardNumber${giftId}`);
-    const installmentsSelect = document.getElementById(`installments${giftId}`);
-    const submitBtn = document.getElementById(`submitBtn${giftId}`);
-
-    paymentMethodData[giftId] = { payment_method_id: null, issuer_id: null };
-
-    // Formatar cartão
-    cardNumberInput.addEventListener('input', function(e) {
-        e.target.value = formatCardNumber(e.target.value.replace(/\s/g, ''));
-    });
-
-    // Buscar informações do cartão
-    cardNumberInput.addEventListener('blur', async function() {
-        const cardNumber = this.value.replace(/\s/g, '');
-        if (cardNumber.length >= 6) {
-            try {
-                const bin = cardNumber.substring(0, 6);
-                const giftPrice = form.querySelector('.payment-amount strong').textContent.match(/[\d.,]+/)[0].replace(',', '.');
-
-                const paymentMethods = await mp.getPaymentMethods({ bin });
-                if (paymentMethods.results?.length > 0) {
-                    const method = paymentMethods.results[0];
-                    paymentMethodData[giftId].payment_method_id = method.id;
-                    
-                    if (method.additional_info_needed?.includes('issuer_id')) {
-                        const issuers = await mp.getIssuers({ paymentMethodId: method.id, bin });
-                        if (issuers.length > 0) {
-                            paymentMethodData[giftId].issuer_id = issuers[0].id;
-                        }
-                    }
-                }
-
-                const installments = await mp.getInstallments({ amount: giftPrice, bin });
-                installmentsSelect.innerHTML = '<option value="">Selecione...</option>';
-                
-                installments[0]?.payer_costs?.forEach(inst => {
-                    const option = document.createElement('option');
-                    option.value = inst.installments;
-                    option.text = `${inst.installments}x de R$ ${inst.installment_amount.toFixed(2)}`;
-                    if (inst.installment_rate === 0) option.text += ' sem juros';
-                    installmentsSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Erro:', error);
-            }
-        }
-    });
-
-    // Processar pagamento
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const errorDiv = document.getElementById(`errorMessage${giftId}`);
-        const successDiv = document.getElementById(`successMessage${giftId}`);
-        const spinner = submitBtn.querySelector('.spinner-border');
-
-        errorDiv.classList.add('d-none');
-        successDiv.classList.add('d-none');
-        submitBtn.disabled = true;
-        spinner.classList.remove('d-none');
-
-        try {
-            if (!paymentMethodData[giftId].payment_method_id) {
-                throw new Error('Verifique o número do cartão.');
-            }
-
-            const token = await mp.createCardToken({
-                cardNumber: cardNumberInput.value.replace(/\s/g, ''),
-                cardholderName: document.getElementById(`cardholderName${giftId}`).value,
-                cardExpirationMonth: document.getElementById(`cardExpirationMonth${giftId}`).value,
-                cardExpirationYear: document.getElementById(`cardExpirationYear${giftId}`).value,
-                securityCode: document.getElementById(`securityCode${giftId}`).value,
-                identificationType: document.getElementById(`docType${giftId}`).value,
-                identificationNumber: document.getElementById(`docNumber${giftId}`).value,
-            });
-
-            if (!token?.id) throw new Error('Erro ao gerar token do cartão');
-
-            const response = await fetch('{% url "home:process_payment" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({
-                    gift_id: giftId,
-                    gift_type: 'gift',
-                    token: token.id,
-                    payment_method_id: paymentMethodData[giftId].payment_method_id,
-                    issuer_id: paymentMethodData[giftId].issuer_id,
-                    installments: installmentsSelect.value,
-                    payer_name: document.getElementById(`payerName${giftId}`).value,
-                    email: document.getElementById(`payerEmail${giftId}`).value,
-                    identification_type: document.getElementById(`docType${giftId}`).value,
-                    identification_number: document.getElementById(`docNumber${giftId}`).value,
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                const status = result.status_detail;
-                
-                if (status === 'approved') {
-                    successDiv.textContent = 'Pagamento aprovado!';
-                    successDiv.classList.remove('d-none');
-                    setTimeout(() => {
-                        window.location.href = '{% url "home:payment_success" %}?payment_id=' + result.payment_id;
-                    }, 2000);
-                } else if (status === 'pending' || status === 'in_process') {
-                    successDiv.textContent = 'Pagamento em análise...';
-                    successDiv.classList.remove('d-none');
-                    setTimeout(() => {
-                        window.location.href = '{% url "home:payment_pending" %}?payment_id=' + result.payment_id;
-                    }, 2000);
-                } else {
-                    setTimeout(() => {
-                        window.location.href = '{% url "home:payment_failure" %}?status_detail=' + encodeURIComponent(status);
-                    }, 1000);
-                }
-            } else {
-                throw new Error(result.message || 'Erro ao processar pagamento');
-            }
-        } catch (error) {
-            errorDiv.textContent = error.message || 'Erro ao processar pagamento';
-            errorDiv.classList.remove('d-none');
-            submitBtn.disabled = false;
-            spinner.classList.add('d-none');
-        }
-    });
-});
+    // Passar configurações Django para JavaScript
+    window.GIFT_LIST_CONFIG = {
+        mercadoPagoPublicKey: "{{ MERCADO_PAGO_PUBLIC_KEY }}",
+        csrfToken: "{{ csrf_token }}",
+        processPaymentUrl: "{% url 'home:process_payment' %}",
+        paymentSuccessUrl: "{% url 'home:payment_success' %}",
+        paymentPendingUrl: "{% url 'home:payment_pending' %}",
+        paymentFailureUrl: "{% url 'home:payment_failure' %}"
+    };
 </script>
+<script src="{% static 'home/scripts/gift-list-payments.js' %}"></script>
 {% endblock extra_scripts %}
