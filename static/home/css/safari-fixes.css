@@ -1,0 +1,496 @@
+/* ============================================
+   SAFARI/iOS FIXES
+   Correções específicas para Safari e dispositivos iOS
+   ============================================ */
+
+/* ============================================
+   FIX 1: Background Attachment Fixed
+   O Safari iOS não suporta background-attachment: fixed
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  /* Detecta apenas iOS */
+  .hero-section {
+    background-attachment: scroll !important;
+    background-size: cover !important;
+    background-position: center center !important;
+  }
+}
+
+/* ============================================
+   FIX 2: Viewport Height no iOS
+   100vh no iOS inclui a barra de endereço
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  .hero-section {
+    min-height: -webkit-fill-available !important;
+  }
+
+  html {
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* ============================================
+   FIX 3: Botão Flutuante de Áudio
+   Estilos completos para o botão de controle
+   ============================================ */
+.floating-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c59da8, #a57d88);
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  font-size: 1.5rem;
+  color: #fff;
+  padding: 0;
+  outline: none;
+}
+
+.floating-button:hover,
+.floating-button:active {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, #a57d88, #c59da8);
+}
+
+.floating-button:active {
+  transform: scale(0.95);
+}
+
+/* iOS: Remover estilos padrão de botão */
+.floating-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* iOS: Prevenir highlight ao tocar */
+.floating-button {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ============================================
+   FIX 4: Margens e Padding no iOS
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  /* Garantir que o padding do body seja respeitado */
+  body {
+    padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0)
+      env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+  }
+
+  /* Ajustar header para notch do iPhone */
+  .u-header {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  /* Ajustar footer para barra inferior do iPhone */
+  .u-footer {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Ajustar botão flutuante para não ficar sobre a barra do iOS */
+  .floating-button {
+    bottom: calc(20px + env(safe-area-inset-bottom, 0));
+    left: calc(20px + env(safe-area-inset-left, 0));
+  }
+}
+
+/* ============================================
+   FIX 5: Scroll Suave no iOS
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  html {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevenir bounce scroll em elementos específicos */
+  .modal-body,
+  .gifts-grid,
+  .gallery-grid {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ============================================
+   FIX 6: Flexbox no Safari
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  /* Garantir que flex funcione corretamente */
+  .d-flex,
+  .countdown-wrapper,
+  .info-grid {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+  }
+
+  .flex-column {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+  }
+}
+
+/* ============================================
+   FIX 7: Grid Layout no Safari
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  .gifts-grid,
+  .gallery-grid,
+  .info-grid {
+    display: -ms-grid;
+    display: grid;
+  }
+}
+
+/* ============================================
+   FIX 8: Posicionamento de Elementos no iOS
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  /* Garantir que elementos fixos funcionem */
+  .fixed-top,
+  .navbar,
+  .floating-button {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+
+  .floating-button {
+    position: fixed; /* Manter fixed para o botão */
+  }
+
+  /* Prevenir overflow horizontal no iOS */
+  body,
+  html {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .container-fluid {
+    overflow-x: hidden;
+  }
+}
+
+/* ============================================
+   FIX 9: Imagens no Safari
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  img {
+    /* Prevenir resize automático */
+    image-rendering: -webkit-optimize-contrast;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* Garantir aspect-ratio funcione */
+  .gift-image-wrapper,
+  .gallery-item {
+    position: relative;
+    padding-bottom: 100%; /* Fallback para aspect-ratio */
+  }
+
+  .gift-image-wrapper img,
+  .gallery-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* ============================================
+   FIX 10: Botões e Inputs no iOS
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  /* Remover estilos padrão do iOS */
+  input,
+  textarea,
+  button,
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0;
+  }
+
+  /* Re-aplicar border-radius personalizado */
+  .form-control,
+  .form-input,
+  .btn,
+  .btn-gift-select {
+    border-radius: 10px;
+  }
+
+  /* Prevenir zoom ao focar inputs */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  textarea,
+  select {
+    font-size: 16px !important; /* Mínimo para não dar zoom no iOS */
+  }
+}
+
+/* ============================================
+   FIX 11: Modal no Safari
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  .modal {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-dialog {
+    -webkit-transform: translate(0, 0);
+    transform: translate(0, 0);
+  }
+
+  /* Prevenir scroll do body quando modal aberto */
+  body.modal-open {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+  }
+}
+
+/* ============================================
+   FIX 12: Countdown no iOS - Layout e Posicionamento
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  /* Garantir que o hero-card tenha espaço suficiente */
+  .hero-card {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem 1.25rem;
+  }
+
+  /* Nome do casal - garantir que esteja acima */
+  .couple-names {
+    -webkit-box-ordinal-group: 1;
+    -webkit-order: 0;
+    order: 0;
+    margin-bottom: 1rem;
+    z-index: 2;
+  }
+
+  /* Contador - garantir que esteja abaixo */
+  .countdown-wrapper {
+    -webkit-box-ordinal-group: 2;
+    -webkit-order: 1;
+    order: 1;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+    z-index: 1;
+  }
+
+  /* Descrição - garantir que esteja por último */
+  .hero-description {
+    -webkit-box-ordinal-group: 3;
+    -webkit-order: 2;
+    order: 2;
+    margin-top: 0.75rem;
+  }
+
+  .countdown-item {
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 auto;
+    flex: 0 0 auto;
+    min-width: 70px;
+    padding: 0.65rem 0.5rem;
+  }
+
+  .countdown-number {
+    font-size: 1.6rem;
+    line-height: 1.2;
+  }
+
+  .countdown-label {
+    font-size: 0.7rem;
+    margin-top: 0.15rem;
+  }
+}
+
+/* iPhone SE e telas pequenas */
+@media (max-width: 375px) {
+  @supports (-webkit-touch-callout: none) {
+    .hero-card {
+      padding: 1.25rem 1rem;
+    }
+
+    .couple-names {
+      font-size: 1.6rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .countdown-wrapper {
+      gap: 0.4rem;
+      margin: 0.5rem 0;
+    }
+
+    .countdown-item {
+      min-width: 65px;
+      padding: 0.55rem 0.4rem;
+    }
+
+    .countdown-number {
+      font-size: 1.4rem;
+    }
+
+    .countdown-label {
+      font-size: 0.65rem;
+    }
+
+    .hero-description {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+  }
+}
+
+/* ============================================
+   FIX 13: Navbar no Safari
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  .navbar {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  .navbar-collapse {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ============================================
+   FIX 14: Cards de Presente
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  .gift-card,
+  .info-card {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  .gift-card:hover,
+  .info-card:hover {
+    -webkit-transform: translateY(-5px) translateZ(0);
+    transform: translateY(-5px) translateZ(0);
+  }
+}
+
+/* ============================================
+   FIX 15: Performance no iOS
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  /* Ativar aceleração por hardware */
+  .hero-section,
+  .gift-card,
+  .gallery-item,
+  .modal,
+  .floating-button {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-perspective: 1000;
+    perspective: 1000;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+}
+
+/* ============================================
+   RESPONSIVO - iPhone SE (375px)
+   ============================================ */
+@media (max-width: 375px) {
+  .floating-button {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+    bottom: 15px;
+    left: 15px;
+  }
+
+  .hero-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .couple-names {
+    font-size: 1.5rem;
+  }
+
+  .countdown-item {
+    min-width: 65px;
+    padding: 0.5rem;
+  }
+
+  .countdown-number {
+    font-size: 1.5rem;
+  }
+}
+
+/* ============================================
+   LANDSCAPE MODE no iPhone
+   ============================================ */
+@media (max-width: 812px) and (orientation: landscape) {
+  .hero-section {
+    min-height: 100vh;
+    padding: 1rem;
+  }
+
+  .hero-card {
+    max-width: 450px;
+    padding: 1rem;
+  }
+
+  .countdown-wrapper {
+    gap: 0.5rem;
+  }
+
+  .countdown-item {
+    min-width: 60px;
+    padding: 0.5rem;
+  }
+
+  .countdown-number {
+    font-size: 1.3rem;
+  }
+
+  .floating-button {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
+  }
+}
