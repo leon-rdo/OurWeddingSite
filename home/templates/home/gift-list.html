@@ -5,6 +5,98 @@
 <title>Lista de Presentes - {{ settings.couple_names }}</title>
 <link rel="stylesheet" href="{% static 'home/css/gift-list.css' %}">
 <script src="https://sdk.mercadopago.com/js/v2"></script>
+<style>
+@supports (-webkit-touch-callout: none) {
+    .modal-backdrop {
+        z-index: 1040 !important;
+        position: fixed !important;
+    }
+
+    .modal {
+        z-index: 1050 !important;
+        position: fixed !important;
+    }
+
+    .modal.show {
+        display: block !important;
+    }
+
+    .modal-dialog {
+        z-index: 1051 !important;
+        position: relative !important;
+        margin: 1.75rem auto !important;
+        pointer-events: auto !important;
+    }
+
+    .modal-content {
+        position: relative !important;
+        z-index: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    /* Remove transforms problemáticos no Safari */
+    .modal-dialog {
+        -webkit-transform: none !important;
+        transform: none !important;
+    }
+
+    .modal.fade .modal-dialog {
+        transition: opacity 0.3s ease !important;
+        -webkit-transition: opacity 0.3s ease !important;
+    }
+
+    /* Garante que todos os elementos do modal sejam clicáveis */
+    .modal-header,
+    .modal-body,
+    .modal-footer,
+    .payment-options,
+    .payment-form-container,
+    .payment-option,
+    .form-input,
+    .btn-submit {
+        position: relative !important;
+        pointer-events: auto !important;
+    }
+}
+
+/* Fix universal (não apenas Safari) */
+.modal {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.modal-dialog {
+    max-height: calc(100vh - 3.5rem);
+}
+
+.modal-content {
+    max-height: calc(100vh - 3.5rem);
+    overflow-y: auto;
+}
+
+/* Prevenir múltiplos backdrops */
+.modal-backdrop+.modal-backdrop {
+    display: none !important;
+}
+
+/* Garantir que modal sempre tenha prioridade sobre backdrop */
+.modal.show~.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+/* Fix para animações no iOS */
+@media (max-width: 768px) {
+    .modal.fade .modal-dialog {
+        transform: translate(0, 0) !important;
+        -webkit-transform: translate(0, 0) !important;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100% - 1rem) !important;
+    }
+}
+</style>
 {% endblock extra_head %}
 
 {% block content %}

@@ -494,3 +494,459 @@
     font-size: 1rem;
   }
 }
+
+/* ============================================
+   FIX 16: Modal Payment Forms no Safari
+   Adicionar ao final de: static/home/css/safari-fixes.css
+   ============================================ */
+
+@supports (-webkit-touch-callout: none) {
+  /* Garantir que modais de pagamento sejam totalmente funcionais */
+  .modal {
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal.show {
+    display: block !important;
+  }
+
+  /* Prevenir zoom em inputs de pagamento */
+  .payment-form input,
+  .payment-form select,
+  .form-input {
+    font-size: 16px !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Melhorar clique em payment options */
+  .payment-option {
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: rgba(197, 157, 168, 0.2);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .payment-option:active {
+    opacity: 0.8;
+    background-color: rgba(197, 157, 168, 0.15) !important;
+  }
+
+  .payment-option.active {
+    border-color: var(--primary-color) !important;
+    background: rgba(197, 157, 168, 0.1) !important;
+  }
+
+  /* Garantir que botões sejam clicáveis */
+  .btn-submit,
+  .btn-gift-select,
+  button[type="submit"],
+  button[data-bs-toggle="modal"] {
+    -webkit-tap-highlight-color: rgba(197, 157, 168, 0.3);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer !important;
+  }
+
+  /* Fix para modal backdrop no Safari */
+  .modal-backdrop {
+    z-index: 1040 !important;
+  }
+
+  .modal-backdrop.show {
+    opacity: 0.5 !important;
+  }
+
+  /* Garantir z-index correto dos modais */
+  .modal {
+    z-index: 1050 !important;
+  }
+
+  /* Prevenir scroll duplo em modais */
+  .modal-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+  }
+
+  .modal-dialog {
+    -webkit-transform: translate(0, 0);
+    transform: translate(0, 0);
+  }
+
+  /* Garantir que body fique fixo quando modal aberto */
+  body.modal-open {
+    position: fixed !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    height: 100vh !important;
+  }
+
+  /* Remover appearance padrão do Safari em botões */
+  button,
+  .btn,
+  input[type="button"],
+  input[type="submit"] {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+
+  /* Garantir que select funcione corretamente */
+  select.form-input,
+  select.installments-select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+
+  /* Fix para modal header no Safari */
+  .modal-header {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  .modal-header .btn-close {
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ============================================
+   iPhone específico - modais de pagamento
+   ============================================ */
+@media (max-width: 768px) {
+  @supports (-webkit-touch-callout: none) {
+    /* Ajustar tamanho do modal para telas pequenas */
+    .modal-dialog {
+      margin: 0.5rem !important;
+      max-width: calc(100vw - 1rem) !important;
+      max-height: calc(100vh - 1rem) !important;
+    }
+
+    .modal-content {
+      max-height: calc(100vh - 1rem) !important;
+      border-radius: 15px !important;
+    }
+
+    .modal-body {
+      max-height: calc(100vh - 180px) !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      padding: 1.5rem 1rem !important;
+    }
+
+    /* Modal de pagamento centralmente no iPhone */
+    .modal-dialog-centered {
+      display: flex !important;
+      align-items: center !important;
+      min-height: calc(100vh - 1rem) !important;
+    }
+
+    /* Garantir que payment options sejam grandes o suficiente para tocar */
+    .payment-option {
+      min-height: 60px !important;
+      padding: 1rem !important;
+      margin-bottom: 0.75rem !important;
+    }
+
+    .payment-option-icon {
+      font-size: 1.8rem !important;
+    }
+
+    /* Botões maiores no iPhone */
+    .btn-submit,
+    .btn-gift-select {
+      min-height: 48px !important;
+      font-size: 1rem !important;
+    }
+
+    /* Inputs maiores para facilitar interação */
+    .form-input {
+      min-height: 48px !important;
+      padding: 0.75rem 1rem !important;
+      font-size: 16px !important;
+    }
+
+    /* Payment method options em coluna no mobile */
+    .payment-options {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 0.75rem !important;
+    }
+
+    /* Garantir que modal header seja visível */
+    .modal-header {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 1060 !important;
+      background: linear-gradient(
+        135deg,
+        var(--primary-color),
+        var(--secondary-color)
+      ) !important;
+    }
+  }
+}
+
+/* ============================================
+   iPhone SE e telas muito pequenas
+   ============================================ */
+@media (max-width: 375px) {
+  @supports (-webkit-touch-callout: none) {
+    .modal-body {
+      padding: 1rem 0.75rem !important;
+    }
+
+    .payment-option {
+      padding: 0.75rem !important;
+    }
+
+    .form-group {
+      margin-bottom: 1rem !important;
+    }
+
+    /* Texto menor em telas pequenas */
+    .payment-option-info strong {
+      font-size: 0.9rem !important;
+    }
+
+    .payment-option-info small {
+      font-size: 0.75rem !important;
+    }
+  }
+}
+
+/* ============================================
+   Animações suaves no Safari
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  .modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out !important;
+    -webkit-transition: -webkit-transform 0.3s ease-out !important;
+  }
+
+  .modal.show .modal-dialog {
+    transform: translate(0, 0) !important;
+    -webkit-transform: translate(0, 0) !important;
+  }
+
+  .modal-backdrop.fade {
+    transition: opacity 0.15s linear !important;
+    -webkit-transition: opacity 0.15s linear !important;
+  }
+
+  /* Transição suave para payment options */
+  .payment-option {
+    transition: all 0.2s ease !important;
+    -webkit-transition: all 0.2s ease !important;
+  }
+
+  /* Transição para containers de pagamento */
+  .payment-form-container {
+    transition: opacity 0.3s ease !important;
+    -webkit-transition: opacity 0.3s ease !important;
+  }
+}
+
+/* ============================================
+   Prevenir problemas visuais no Safari
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  /* Hardware acceleration */
+  .modal,
+  .modal-dialog,
+  .modal-content {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-perspective: 1000;
+    perspective: 1000;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* Prevenir flash de conteúdo */
+  .payment-form-container {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* Smooth rendering */
+  .modal-body * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ============================================
+   Dark mode support (Safari iOS 13+)
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  @supports (-webkit-touch-callout: none) {
+    .modal-content {
+      background-color: #fff !important;
+    }
+
+    .modal-backdrop {
+      background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+  }
+}
+
+/* ============================================
+   FIX 16: Modal de Pagamento no Safari
+   Garante que o modal fique acima do backdrop
+   ============================================ */
+
+/* Fix para modal do gift-list no Safari */
+@supports (-webkit-touch-callout: none) {
+  /* Garantir z-index correto para backdrop */
+  .modal-backdrop {
+    z-index: 1040 !important;
+  }
+
+  /* Garantir z-index correto para modal */
+  .modal {
+    z-index: 1050 !important;
+  }
+
+  /* Garantir que o modal dialog fique acima */
+  .modal.show .modal-dialog {
+    z-index: 1051 !important;
+    position: relative;
+    -webkit-transform: none !important;
+    transform: none !important;
+  }
+
+  /* Fix para modais aninhados (se houver) */
+  .modal.show ~ .modal-backdrop {
+    z-index: 1049 !important;
+  }
+
+  /* Remover transforms que podem causar problemas de stacking context */
+  .modal-dialog {
+    -webkit-transform: translate(0, 0) !important;
+    transform: translate(0, 0) !important;
+  }
+
+  /* Garantir que o conteúdo do modal seja clicável */
+  .modal-content {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* Fix específico para modais de pagamento */
+  #paymentModal .modal-dialog,
+  [id^="paymentModal"] .modal-dialog {
+    z-index: 1051 !important;
+  }
+
+  /* Prevenir problemas com múltiplos backdrops */
+  body.modal-open {
+    overflow: hidden !important;
+  }
+
+  /* Limpar transforms em animações do modal */
+  .modal.fade .modal-dialog {
+    -webkit-transition: -webkit-transform 0.3s ease-out;
+    transition: transform 0.3s ease-out;
+    -webkit-transform: translate(0, -50px);
+    transform: translate(0, -50px);
+  }
+
+  .modal.show .modal-dialog {
+    -webkit-transform: translate(0, 0);
+    transform: translate(0, 0);
+  }
+
+  /* Fix para payment-form-container */
+  .payment-form-container {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Fix para payment-options */
+  .payment-options {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Garantir que botões sejam clicáveis */
+  .modal-footer,
+  .modal-header,
+  .modal-body {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Fix para select de parcelas */
+  .form-input,
+  .installments-select {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* ============================================
+   FIX 17: Melhorias gerais de modal no Safari
+   ============================================ */
+@supports (-webkit-touch-callout: none) {
+  /* Prevenir scroll do body quando modal aberto */
+  body.modal-open {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Fix para scrollbar no iOS */
+  .modal {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+
+  .modal-body {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Fix para clicks passando através do modal */
+  .modal-backdrop.show {
+    opacity: 0.5;
+    pointer-events: auto;
+  }
+
+  .modal.show {
+    display: block !important;
+    pointer-events: auto;
+  }
+
+  /* Garantir visibilidade do modal */
+  .modal.show .modal-dialog {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Fix para animação do modal */
+  .modal.fade.show {
+    opacity: 1;
+  }
+
+  /* Prevenir problemas de rendering */
+  .modal,
+  .modal-backdrop {
+    will-change: opacity;
+  }
+
+  .modal-dialog {
+    will-change: transform;
+  }
+}

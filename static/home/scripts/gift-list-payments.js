@@ -233,9 +233,8 @@
             const optElement = document.createElement("option");
             optElement.value = option.installments;
 
-            let text = `${
-              option.installments
-            }x de R$ ${option.installment_amount.toFixed(2)}`;
+            let text = `${option.installments
+              }x de R$ ${option.installment_amount.toFixed(2)}`;
             if (option.installment_rate === 0) {
               text += " sem juros";
             }
@@ -353,9 +352,8 @@
           }, 2000);
         } else {
           setTimeout(() => {
-            window.location.href = `${
-              CONFIG.paymentFailureUrl
-            }?status_detail=${encodeURIComponent(statusDetail)}`;
+            window.location.href = `${CONFIG.paymentFailureUrl
+              }?status_detail=${encodeURIComponent(statusDetail)}`;
           }, 1000);
         }
       } else {
@@ -435,4 +433,227 @@
   } else {
     init();
   }
+})();
+
+(function () {
+  "use strict";
+
+  function isSafari() {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  }
+
+  function fixSafariModals() {
+    if (!isSafari()) {
+      return;
+    }
+
+    cleanOrphanBackdrops();
+
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach((trigger) => {
+      trigger.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const targetSelector = this.getAttribute("data-bs-target");
+        if (!targetSelector) return;
+
+        const targetModal = document.querySelector(targetSelector);
+        if (!targetModal) return;
+
+        cleanOrphanBackdrops();
+
+        setTimeout(() => {
+          fixModalZIndex(targetModal);
+        }, 100);
+      });
+    });
+
+    // Listener para quando modal é mostrado
+    document.querySelectorAll(".modal").forEach((modal) => {
+      modal.addEventListener("shown.bs.modal", function () {
+        fixModalZIndex(this);
+        ensureModalClickable(this);
+      });
+
+      modal.addEventListener("hidden.bs.modal", function () {
+        cleanOrphanBackdrops();
+        restoreBodyScroll();
+      });
+    });
+
+    // Fix ao carregar página se houver modal aberto
+    window.addEventListener("load", function () {
+      const openModal = document.querySelector(".modal.show");
+      if (openModal) {
+        fixModalZIndex(openModal);
+      }
+    });
+
+    console.log("✅ Fix Safari aplicado");
+  }
+
+  /**
+   * Remove backdrops órfãos
+   */
+  function cleanOrphanBackdrops() {
+    const openModals = document.querySelectorAll(".modal.show");
+    const backdrops = document.querySelectorAll(".modal-backdrop");
+
+    // Se não há modais abertos, remover todos os backdrops
+    if (openModals.length === 0) {
+      backdrops.forEach((backdrop) => {
+        backdrop.remove();
+      });
+      document.body.classList.remove("modal-open");
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+      console.log("🧹 Backdrops órfãos removidos");
+    }
+    // Se há mais backdrops que modais, remover excedentes
+    else if (backdrops.length > openModals.length) {
+      const excess = backdrops.length - openModals.length;
+      for (let i = 0; i < excess; i++) {
+        backdrops[i].remove();
+      }
+      console.log(`🧹 ${excess} backdrop(s) excedente(s) removido(s)`);
+    }
+  }
+
+  /**
+   * Garante z-index correto do modal
+   */
+  function fixModalZIndex(modal) {
+    if (!modal) return;
+
+    // Forçar z-index do modal
+    modal.style.zIndex = "1050";
+
+    const dialog = modal.querySelector(".modal-dialog");
+    if (dialog) {
+      dialog.style.zIndex = "1051";
+      dialog.style.position = "relative";
+    }
+
+    const content = modal.querySelector(".modal-content");
+    if (content) {
+      content.style.zIndex = "1";
+      content.style.position = "relative";
+    }
+
+    // Ajustar backdrop
+    const backdrops = document.querySelectorAll(".modal-backdrop");
+    backdrops.forEach((backdrop) => {
+      backdrop.style.zIndex = "1040";
+    });
+
+    console.log("🔧 Z-index do modal ajustado");
+  }
+
+  /**
+   * Garante que o modal seja clicável
+   */
+  function ensureModalClickable(modal) {
+    if (!modal) return;
+
+    modal.style.pointerEvents = "auto";
+
+    const dialog = modal.querySelector(".modal-dialog");
+    if (dialog) {
+      dialog.style.pointerEvents = "auto";
+    }
+
+    const content = modal.querySelector(".modal-content");
+    if (content) {
+      content.style.pointerEvents = "auto";
+    }
+
+    console.log("👆 Modal clicável garantido");
+  }
+
+  /**
+   * Restaura scroll do body
+   */
+  function restoreBodyScroll() {
+    const openModals = document.querySelectorAll(".modal.show");
+
+    if (openModals.length === 0) {
+      document.body.style.position = "";
+      document.body.style.width = "";
+      document.body.style.height = "";
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+      document.body.classList.remove("modal-open");
+      console.log("📜 Scroll do body restaurado");
+    }
+  }
+
+  /**
+   * Force close de todos os modais (emergency)
+   */
+  window.forceCloseAllModals = function () {
+    console.log("🚨 Forçando fechamento de todos os modais");
+
+    // Fechar todos os modais
+    document.querySelectorAll(".modal.show").forEach((modal) => {
+      const bsModal = bootstrap.Modal.getInstance(modal);
+      if (bsModal) {
+        bsModal.hide();
+      }
+      modal.classList.remove("show");
+      modal.style.display = "none";
+    });
+
+    // Remover todos os backdrops
+    document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
+      backdrop.remove();
+    });
+
+    // Limpar body
+    document.body.classList.remove("modal-open");
+    document.body.style.overflow = "";
+    document.body.style.paddingRight = "";
+
+    console.log("✅ Todos os modais fechados");
+  };
+
+  /**
+   * Adicionar botão de debug (apenas em desenvolvimento)
+   */
+  function addDebugButton() {
+    if (!window.location.hostname.includes("localhost")) return;
+
+    const btn = document.createElement("button");
+    btn.textContent = "🐛 Force Close Modals";
+    btn.style.cssText = `
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      z-index: 9999;
+      padding: 10px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+    `;
+    btn.onclick = window.forceCloseAllModals;
+    document.body.appendChild(btn);
+  }
+
+  /**
+   * Inicialização
+   */
+  function init() {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => {
+        fixSafariModals();
+        // addDebugButton(); // Descomentar para debug
+      });
+    } else {
+      fixSafariModals();
+      // addDebugButton(); // Descomentar para debug
+    }
+  }
+
+  init();
 })();
