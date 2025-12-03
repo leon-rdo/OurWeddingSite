@@ -40,8 +40,8 @@
     </div>
 </section>
 
-<!-- Section Text 1 -->
 {% if text_1 is not None %}
+<!-- Section Text 1 -->
 <section class="content-section">
     <div class="container">
         <div class="row align-items-center">
@@ -57,8 +57,8 @@
 </section>
 {% endif %}
 
-<!-- Info Section -->
 {% if not settings.hide_info %}
+<!-- Info Section -->
 <section class="info-section">
     <div class="container">
         <h2 class="section-title text-center mb-5">Informações</h2>
@@ -132,8 +132,8 @@
 </section>
 {% endif %}
 
-<!-- Section Text 2 -->
 {% if text_2 is not None %}
+<!-- Section Text 2 -->
 <section class="content-section bg-light">
     <div class="container">
         <div class="row align-items-center">
@@ -152,8 +152,8 @@
 </section>
 {% endif %}
 
-<!-- Quotes Section -->
 {% if text_3 is not None or text_4 is not None %}
+<!-- Quotes Section -->
 <section class="quotes-section">
     <div class="container">
         <div class="row">
@@ -179,8 +179,8 @@
 </section>
 {% endif %}
 
-<!-- Featured Gallery -->
 {% if featured_gallery %}
+<!-- Featured Gallery -->
 <section class="gallery-section">
     <div class="container-fluid px-0">
         <div class="row g-2">
@@ -196,29 +196,46 @@
 </section>
 {% endif %}
 
-<!-- Message Section -->
 {% if leave_a_message_text is not None %}
+<!-- Leave a Message Section -->
 <section class="message-section">
     <div class="container">
         <div class="row">
             <div class="col-lg-6 mb-4 mb-lg-0">
                 <h2 class="section-title">Deixe sua mensagem para os noivos</h2>
                 <p class="section-text">Expresse seus desejos de felicidades deixando uma carinhosa mensagem abaixo:</p>
-                
-                <form id="messageForm" action="{% url 'home:message_form' %}" method="post">
-                    {% csrf_token %}
+
+                <form id="msgForm">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
                     <div class="mb-3">
-                        <input type="text" name="name" class="form-control" placeholder="Seu nome" required>
+                        <input type="text" name="name" id="msgName" class="form-control" placeholder="Seu nome"
+                            required>
                     </div>
+
                     <div class="mb-3">
-                        <textarea name="message" class="form-control" rows="4" placeholder="Sua mensagem" required></textarea>
+                        <textarea name="message" id="msgText" class="form-control" rows="4" placeholder="Sua mensagem"
+                            required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Enviar Mensagem</button>
-                    <div class="alert alert-success mt-3 d-none" id="successMessage">Obrigado! Sua mensagem foi enviada.</div>
-                    <div class="alert alert-danger mt-3 d-none" id="errorMessage">Erro ao enviar sua mensagem, tente novamente.</div>
+
+                    <button type="button" id="msgBtn" class="btn btn-primary w-100" onclick="enviarMensagem()">
+                        Enviar Mensagem
+                    </button>
                 </form>
+
+                <!-- Alert de sucesso -->
+                <div id="msgOk"
+                    style="display:none; margin-top:15px; padding:15px; background:#d4edda; border:1px solid #c3e6cb; border-radius:8px; color:#155724;">
+                    <strong>✓ Obrigado!</strong> Sua mensagem foi enviada.
+                </div>
+
+                <!-- Alert de erro -->
+                <div id="msgErro"
+                    style="display:none; margin-top:15px; padding:15px; background:#f8d7da; border:1px solid #f5c6cb; border-radius:8px; color:#721c24;">
+                    <strong>✗ Ops!</strong> Erro ao enviar. Tente novamente.
+                </div>
             </div>
-            
+
             <div class="col-lg-6">
                 {% if leave_a_message_text %}
                 <div class="message-content">
@@ -241,69 +258,105 @@
 
 {% block extra_scripts %}
 <script src="{% static 'home/scripts/countdown.js' %}"></script>
+
 <script>
-// Countdown
-const countdownEl = document.getElementById('countdown');
-if (countdownEl) {
-    const weddingDate = new Date(countdownEl.getAttribute('data-wedding-datetime')).getTime();
-    
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const distance = weddingDate - now;
-        
-        if (distance < 0) {
-            countdownEl.innerHTML = '<p class="text-center fs-4">O casamento já começou!</p>';
+    // ============================================
+    // COUNTDOWN
+    // ============================================
+    (function () {
+        const el = document.getElementById('countdown');
+        if (!el) return;
+
+        const data = new Date(el.getAttribute('data-wedding-datetime').replace(/-/g, '/')).getTime();
+
+        setInterval(() => {
+            const agora = new Date().getTime();
+            const diff = data - agora;
+
+            if (diff < 0) {
+                el.innerHTML = '<p style="color:#fff; text-align:center;">O casamento já começou!</p>';
+                return;
+            }
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const dias = document.getElementById('days');
+            const horas = document.getElementById('hours');
+            const minutos = document.getElementById('minutes');
+            const segundos = document.getElementById('seconds');
+
+            if (dias) dias.textContent = d;
+            if (horas) horas.textContent = h;
+            if (minutos) minutos.textContent = m;
+            if (segundos) segundos.textContent = s;
+        }, 1000);
+    })();
+
+    // ============================================
+    // ENVIO DE MENSAGEM
+    // ============================================
+    function enviarMensagem() {
+        const btn = document.getElementById('msgBtn');
+        const nome = document.getElementById('msgName');
+        const msg = document.getElementById('msgText');
+        const ok = document.getElementById('msgOk');
+        const erro = document.getElementById('msgErro');
+        const form = document.getElementById('msgForm');
+
+        if (!nome.value.trim() || !msg.value.trim()) {
+            alert('Preencha todos os campos!');
             return;
         }
-        
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-        document.getElementById('days').textContent = days;
-        document.getElementById('hours').textContent = hours;
-        document.getElementById('minutes').textContent = minutes;
-        document.getElementById('seconds').textContent = seconds;
-    }
-    
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-}
 
-// Message Form
-const messageForm = document.getElementById('messageForm');
-if (messageForm) {
-    messageForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const successMsg = document.getElementById('successMessage');
-        const errorMsg = document.getElementById('errorMessage');
-        
-        fetch(this.action, {
+        ok.style.display = 'none';
+        erro.style.display = 'none';
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
+
+        const dados = new FormData(form);
+
+        fetch('{% url "home:message_form" %}', {
             method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-            }
+            body: dados
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                successMsg.classList.remove('d-none');
-                errorMsg.classList.add('d-none');
-                messageForm.reset();
-                setTimeout(() => successMsg.classList.add('d-none'), 5000);
-            } else {
-                throw new Error('Error');
-            }
-        })
-        .catch(error => {
-            errorMsg.classList.remove('d-none');
-            successMsg.classList.add('d-none');
-        });
-    });
-}
+            .then(r => {
+                if (!r.ok) throw new Error('Erro ' + r.status);
+                return r.json();
+            })
+            .then(data => {
+
+                ok.style.display = 'block';
+                erro.style.display = 'none';
+
+                nome.value = '';
+                msg.value = '';
+
+                ok.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                setTimeout(() => {
+                    ok.style.display = 'none';
+                }, 5000);
+            })
+            .catch(e => {
+                console.error('❌ Erro:', e);
+
+                erro.style.display = 'block';
+                ok.style.display = 'none';
+
+                erro.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                setTimeout(() => {
+                    erro.style.display = 'none';
+                }, 5000);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = 'Enviar Mensagem';
+            });
+    }
 </script>
 {% endblock extra_scripts %}
