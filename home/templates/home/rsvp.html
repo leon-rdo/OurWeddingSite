@@ -461,17 +461,18 @@
   let guestPhone = '';
   let guestName = '';
   let multipleGuests = [];
+  const processingSteps = new Set();
 
   function goToStep(sectionId, stepNumber) {
-    // Hide all sections
+    // Esconder todas as seções
     document.querySelectorAll('.form-section').forEach(section => {
       section.classList.remove('active');
     });
-    
-    // Show target section
+
+    // Mostrar seção alvo
     document.getElementById(sectionId).classList.add('active');
-    
-    // Update step indicator
+
+    // Atualizar indicador de steps
     document.querySelectorAll('.step').forEach((step, index) => {
       step.classList.remove('active', 'completed');
       if (index + 1 === stepNumber) {
@@ -482,189 +483,373 @@
     });
   }
 
-  function checkPhone() {
-    const phone = document.getElementById('phone_number').value;
-    
+  async function checkPhone() {
+    const phoneInput = document.getElementById('phone_number');
+    const phone = phoneInput.value;
+
     if (!phone) {
-      alert('Por favor, digite seu telefone');
+      showToast('Por favor, digite seu telefone', 'warning');
       return;
     }
 
-    fetch("{% url 'home:rsvp' %}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-CSRFToken": "{{ csrf_token }}"
-      },
-      body: new URLSearchParams({
-        phone_number: phone,
-        action: "check_phone"
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
+    // Prevenir múltiplos cliques
+    if (processingSteps.has('checkPhone')) {
+      console.warn('⚠️ Verificação de telefone já em andamento');
+      return;
+    }
+
+    const button = event.target;
+
+    // Desabilitar botão
+    if (window.buttonManager) {
+      window.buttonManager.disableButton(button);
+    }
+
+    processingSteps.add('checkPhone');
+
+    try {
+      const response = await fetch("{% url 'home:rsvp' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+          phone_number: phone,
+          action: "check_phone"
+        })
+      });
+
+      const data = await response.json();
       guestPhone = phone;
-      
+
       if (data.exists) {
         if (data.multiple) {
-          // Multiple guests found
           multipleGuests = data.names;
           showMultipleNames(data.names);
         } else {
-          // Single guest found
           guestName = data.name;
           document.getElementById('guest-name-display').textContent = data.name;
           document.getElementById('multiple-names').style.display = 'none';
           goToStep('section-name', 2);
         }
       } else {
-        // No guest found
         goToStep('section-input-name', 2);
       }
-    })
-    .catch(error => {
+    } catch (error) {
       console.error('Error:', error);
-      alert('Erro ao verificar telefone. Tente novamente.');
-    });
+      showToast('Erro ao verificar telefone. Tente novamente.', 'error');
+    } finally {
+      processingSteps.delete('checkPhone');
+
+      // Re-habilitar botão
+      if (window.buttonManager) {
+        window.buttonManager.enableButton(button, 300);
+      }
+    }
   }
 
   function showMultipleNames(names) {
     const namesList = document.getElementById('names-list');
     namesList.innerHTML = '';
-    
+
     names.forEach(name => {
       const div = document.createElement('div');
       div.className = 'radio-option';
       div.innerHTML = `
-        <input type="radio" id="name-${name}" name="selected-name" value="${name}">
-        <label for="name-${name}" class="radio-label">
-          ${name}
-        </label>
-      `;
+      <input type="radio" id="name-${name}" name="selected-name" value="${name}">
+      <label for="name-${name}" class="radio-label">${name}</label>
+    `;
       namesList.appendChild(div);
     });
-    
+
     document.getElementById('multiple-names').style.display = 'block';
     document.getElementById('guest-name-display').textContent = '';
     goToStep('section-name', 2);
   }
 
-  function confirmName() {
+  async function confirmName() {
     const selectedName = document.querySelector('input[name="selected-name"]:checked');
-    
+
     if (multipleGuests.length > 0 && !selectedName) {
-      alert('Por favor, selecione seu nome');
+      showToast('Por favor, selecione seu nome', 'warning');
       return;
     }
-    
+
+    // Prevenir múltiplos cliques
+    if (processingSteps.has('confirmName')) {
+      console.warn('⚠️ Confirmação de nome já em andamento');
+      return;
+    }
+
+    const button = event.target;
+
+    if (window.buttonManager) {
+      window.buttonManager.disableButton(button);
+    }
+
+    processingSteps.add('confirmName');
+
     guestName = selectedName ? selectedName.value : document.getElementById('guest-name-display').textContent;
-    
-    fetch("{% url 'home:rsvp' %}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-CSRFToken": "{{ csrf_token }}"
-      },
-      body: new URLSearchParams({
-        phone_number: guestPhone,
-        name: guestName,
-        action: "confirm_name"
-      })
-    })
-    .then(() => {
+
+    try {
+      await fetch("{% url 'home:rsvp' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+          phone_number: guestPhone,
+          name: guestName,
+          action: "confirm_name"
+        })
+      });
+
       goToStep('section-rsvp', 3);
-    })
-    .catch(error => {
+    } catch (error) {
       console.error('Error:', error);
-      alert('Erro ao confirmar nome. Tente novamente.');
-    });
+      showToast('Erro ao confirmar nome. Tente novamente.', 'error');
+    } finally {
+      processingSteps.delete('confirmName');
+
+      if (window.buttonManager) {
+        window.buttonManager.enableButton(button, 300);
+      }
+    }
   }
 
-  function createGuest() {
-    const name = document.getElementById('name').value;
-    
+  async function createGuest() {
+    const nameInput = document.getElementById('name');
+    const name = nameInput.value;
+
     if (!name) {
-      alert('Por favor, digite seu nome');
+      showToast('Por favor, digite seu nome', 'warning');
       return;
     }
-    
+
+    // Prevenir múltiplos cliques
+    if (processingSteps.has('createGuest')) {
+      console.warn('⚠️ Criação de convidado já em andamento');
+      return;
+    }
+
+    const button = event.target;
+
+    if (window.buttonManager) {
+      window.buttonManager.disableButton(button);
+    }
+
+    processingSteps.add('createGuest');
+
     guestName = name;
-    
-    fetch("{% url 'home:rsvp' %}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-CSRFToken": "{{ csrf_token }}"
-      },
-      body: new URLSearchParams({
-        phone_number: guestPhone,
-        name: name,
-        action: "create_guest"
-      })
-    })
-    .then(() => {
+
+    try {
+      await fetch("{% url 'home:rsvp' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+          phone_number: guestPhone,
+          name: name,
+          action: "create_guest"
+        })
+      });
+
       goToStep('section-rsvp', 3);
-    })
-    .catch(error => {
+    } catch (error) {
       console.error('Error:', error);
-      alert('Erro ao criar convidado. Tente novamente.');
-    });
+      showToast('Erro ao criar convidado. Tente novamente.', 'error');
+    } finally {
+      processingSteps.delete('createGuest');
+
+      if (window.buttonManager) {
+        window.buttonManager.enableButton(button, 300);
+      }
+    }
   }
 
-  function submitRSVP() {
+  async function submitRSVP() {
     const willGo = document.querySelector('input[name="will-go"]:checked');
-    
+
     if (!willGo) {
-      alert('Por favor, selecione uma opção');
+      showToast('Por favor, selecione uma opção', 'warning');
       return;
     }
-    
-    fetch("{% url 'home:rsvp' %}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "X-CSRFToken": "{{ csrf_token }}"
-      },
-      body: new URLSearchParams({
-        phone_number: guestPhone,
-        name: guestName,
-        will_go: willGo.value,
-        action: "submit_rsvp"
-      })
-    })
-    .then(response => {
+
+    // Prevenir múltiplos cliques
+    if (processingSteps.has('submitRSVP')) {
+      console.warn('⚠️ Confirmação já em andamento');
+      return;
+    }
+
+    const button = event.target;
+
+    if (window.buttonManager) {
+      window.buttonManager.disableButton(button);
+    }
+
+    processingSteps.add('submitRSVP');
+
+    try {
+      const response = await fetch("{% url 'home:rsvp' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: new URLSearchParams({
+          phone_number: guestPhone,
+          name: guestName,
+          will_go: willGo.value,
+          action: "submit_rsvp"
+        })
+      });
+
       if (response.ok) {
-        const message = willGo.value === 'yes' 
+        const message = willGo.value === 'yes'
           ? 'Que alegria! Estamos ansiosos para celebrar este dia especial com você! 🎉'
           : 'Sentiremos sua falta, mas agradecemos por nos avisar. 💕';
-        
+
         document.getElementById('success-message-text').textContent = message;
         goToStep('section-success', 3);
       } else {
         throw new Error('Error submitting RSVP');
       }
-    })
-    .catch(error => {
+    } catch (error) {
       console.error('Error:', error);
-      alert('Erro ao enviar confirmação. Tente novamente.');
-    });
+      showToast('Erro ao enviar confirmação. Tente novamente.', 'error');
+
+      processingSteps.delete('submitRSVP');
+
+      if (window.buttonManager) {
+        window.buttonManager.enableButton(button, 300);
+      }
+    }
+    // Nota: Não remove do set nem re-habilita botão porque vai para página de sucesso
   }
 
-  // Phone number formatting
-  document.getElementById('phone_number').addEventListener('input', function(e) {
+  // Formatação de telefone
+  document.getElementById('phone_number').addEventListener('input', function (e) {
     let value = e.target.value.replace(/\D/g, '');
-    
+
     if (value.length > 11) {
       value = value.slice(0, 11);
     }
-    
+
     if (value.length > 6) {
       value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
     } else if (value.length > 2) {
       value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
     }
-    
+
     e.target.value = value;
+  });
+
+
+  /**
+   * ATUALIZAÇÃO: INDEX.HTML
+   * Atualizar o script do formulário de mensagens
+   */
+
+  // Substituir o código existente do messageForm por:
+  const messageForm = document.getElementById('messageForm');
+  if (messageForm) {
+    // Marcar como AJAX
+    messageForm.setAttribute('data-ajax', 'true');
+
+    messageForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const formData = new FormData(this);
+      const successMsg = document.getElementById('successMessage');
+      const errorMsg = document.getElementById('errorMessage');
+      const submitBtn = this.querySelector('button[type="submit"]');
+
+      // Desabilitar botão
+      if (window.buttonManager) {
+        window.buttonManager.disableButton(submitBtn);
+      }
+
+      try {
+        const response = await fetch(this.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success' || response.ok) {
+          successMsg.classList.remove('d-none');
+          errorMsg.classList.add('d-none');
+
+          // Limpar formulário
+          messageForm.reset();
+
+          setTimeout(() => {
+            successMsg.classList.add('d-none');
+          }, 5000);
+        } else {
+          throw new Error('Error');
+        }
+      } catch (error) {
+        errorMsg.classList.remove('d-none');
+        successMsg.classList.add('d-none');
+      } finally {
+        // Re-habilitar botão
+        if (window.buttonManager) {
+          window.buttonManager.enableButton(submitBtn, 500);
+        }
+      }
+    });
+  }
+
+
+  /**
+   * ATUALIZAÇÃO: BRIDAL-SHOWER-GIFT-LIST.HTML
+   * Atualizar formulários de seleção de presente
+   */
+
+  // Adicionar ao final do bridal-shower-gifts.js:
+  document.addEventListener('DOMContentLoaded', function () {
+    // Marcar todos os forms como AJAX
+    document.querySelectorAll('form[method="POST"]').forEach(form => {
+      form.setAttribute('data-ajax', 'true');
+    });
+
+    // Prevenir múltiplos submits em formulários de presente
+    const processingGifts = new Set();
+
+    document.querySelectorAll('[id^="pickGift"] form').forEach(form => {
+      form.addEventListener('submit', function (e) {
+        const giftId = this.querySelector('[name="gift_id"]').value;
+
+        // Verificar se já está processando
+        if (processingGifts.has(giftId)) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.warn('⚠️ Presente já está sendo processado');
+          showToast('Aguarde o processamento', 'warning');
+          return false;
+        }
+
+        // Se não for AJAX (submit normal), permitir
+        if (!this.hasAttribute('data-ajax')) {
+          processingGifts.add(giftId);
+
+          // Limpar após timeout
+          setTimeout(() => {
+            processingGifts.delete(giftId);
+          }, 5000);
+        }
+      });
+    });
   });
 </script>
 {% endblock extra_scripts %}

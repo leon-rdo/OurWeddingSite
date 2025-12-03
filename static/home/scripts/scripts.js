@@ -1,10 +1,278 @@
 // ============================================
-// Scripts principais do site
+// Scripts principais do site - VERSÃO 2.0
+// Sistema anti-duplo clique e loading states
 // ============================================
 
 document.addEventListener("DOMContentLoaded", function () {
   // ============================================
-  // Loader de imagens
+  // SISTEMA ANTI-DUPLO CLIQUE
+  // ============================================
+
+  /**
+   * Classe para gerenciar estado de loading de botões
+   */
+  class ButtonLoadingManager {
+    constructor() {
+      this.activeButtons = new Map();
+      this.init();
+    }
+
+    init() {
+      // Interceptar todos os formulários
+      this.setupFormSubmitHandlers();
+
+      // Interceptar botões que fazem requisições AJAX
+      this.setupAjaxButtonHandlers();
+
+      // Prevenir múltiplos cliques em links de ação
+      this.setupActionLinkHandlers();
+
+      console.log('✅ Sistema anti-duplo clique inicializado');
+    }
+
+    /**
+     * Desabilita botão e mostra loading
+     */
+    disableButton(button, originalText = null) {
+      if (!button) return;
+
+      // Salvar estado original
+      const buttonId = this.getButtonId(button);
+
+      if (!this.activeButtons.has(buttonId)) {
+        this.activeButtons.set(buttonId, {
+          originalText: originalText || button.innerHTML,
+          originalDisabled: button.disabled,
+          timestamp: Date.now()
+        });
+      }
+
+      // Desabilitar botão
+      button.disabled = true;
+      button.style.opacity = '0.6';
+      button.style.cursor = 'not-allowed';
+
+      // Adicionar spinner
+      const hasSpinner = button.querySelector('.btn-spinner');
+      if (!hasSpinner) {
+        const spinner = document.createElement('span');
+        spinner.className = 'btn-spinner spinner-border spinner-border-sm me-2';
+        spinner.setAttribute('role', 'status');
+        spinner.setAttribute('aria-hidden', 'true');
+
+        button.insertBefore(spinner, button.firstChild);
+      }
+
+      // Atualizar texto se fornecido
+      const textNode = Array.from(button.childNodes).find(
+        node => node.nodeType === Node.TEXT_NODE
+      );
+
+      if (textNode) {
+        textNode.textContent = ' Processando...';
+      }
+
+      console.log(`🔒 Botão bloqueado: ${buttonId}`);
+    }
+
+    /**
+     * Re-habilita botão
+     */
+    enableButton(button, delay = 0) {
+      if (!button) return;
+
+      const buttonId = this.getButtonId(button);
+      const savedState = this.activeButtons.get(buttonId);
+
+      setTimeout(() => {
+        // Remover spinner
+        const spinner = button.querySelector('.btn-spinner');
+        if (spinner) {
+          spinner.remove();
+        }
+
+        // Restaurar estado original
+        if (savedState) {
+          button.innerHTML = savedState.originalText;
+          button.disabled = savedState.originalDisabled;
+        } else {
+          button.disabled = false;
+        }
+
+        button.style.opacity = '';
+        button.style.cursor = '';
+
+        this.activeButtons.delete(buttonId);
+        console.log(`🔓 Botão liberado: ${buttonId}`);
+      }, delay);
+    }
+
+    /**
+     * Gera ID único para botão
+     */
+    getButtonId(button) {
+      if (button.id) return button.id;
+      if (button.name) return button.name;
+
+      // Gerar ID baseado em posição no DOM
+      const form = button.closest('form');
+      const index = Array.from(
+        (form || document).querySelectorAll('button, input[type="submit"]')
+      ).indexOf(button);
+
+      return `btn_${form?.id || 'global'}_${index}`;
+    }
+
+    /**
+     * Verifica se botão está bloqueado
+     */
+    isButtonLocked(button) {
+      const buttonId = this.getButtonId(button);
+      return this.activeButtons.has(buttonId);
+    }
+
+    /**
+     * Setup para formulários regulares
+     */
+    setupFormSubmitHandlers() {
+      document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+          const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+
+          if (submitButton && !this.isButtonLocked(submitButton)) {
+            // Validar formulário antes de bloquear
+            if (!form.checkValidity()) {
+              return; // Deixar HTML5 validation funcionar
+            }
+
+            this.disableButton(submitButton);
+
+            // Se for AJAX, não fazer nada mais
+            // Se for submit normal, será re-habilitado no page load
+            if (!form.hasAttribute('data-ajax')) {
+              // Timeout de segurança para submits normais
+              setTimeout(() => {
+                this.enableButton(submitButton);
+              }, 30000); // 30 segundos
+            }
+          }
+        });
+
+        // Re-habilitar em caso de erro de validação
+        form.addEventListener('invalid', (e) => {
+          const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
+          if (submitButton) {
+            this.enableButton(submitButton, 500);
+          }
+        }, true);
+      });
+    }
+
+    /**
+     * Setup para botões AJAX
+     */
+    setupAjaxButtonHandlers() {
+      document.querySelectorAll('[data-ajax-action]').forEach(button => {
+        button.addEventListener('click', (e) => {
+          if (this.isButtonLocked(button)) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+
+          this.disableButton(button);
+
+          // Auto re-habilitar após timeout (safety)
+          setTimeout(() => {
+            if (this.isButtonLocked(button)) {
+              this.enableButton(button);
+              console.warn('⚠️ Botão desbloqueado por timeout de segurança');
+            }
+          }, 15000); // 15 segundos
+        });
+      });
+    }
+
+    /**
+     * Setup para links de ação
+     */
+    setupActionLinkHandlers() {
+      document.querySelectorAll('a[data-action]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          if (this.isButtonLocked(link)) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+
+          this.disableButton(link);
+        });
+      });
+    }
+
+    /**
+     * Limpar botões órfãos (com mais de 30s)
+     */
+    cleanupOrphanedButtons() {
+      const now = Date.now();
+      const timeout = 30000; // 30 segundos
+
+      this.activeButtons.forEach((state, buttonId) => {
+        if (now - state.timestamp > timeout) {
+          console.warn(`⚠️ Limpando botão órfão: ${buttonId}`);
+
+          // Tentar encontrar o botão
+          const button = document.getElementById(buttonId) ||
+            document.querySelector(`[name="${buttonId}"]`);
+
+          if (button) {
+            this.enableButton(button);
+          } else {
+            this.activeButtons.delete(buttonId);
+          }
+        }
+      });
+    }
+  }
+
+  // Instância global
+  window.buttonManager = new ButtonLoadingManager();
+
+  // Cleanup periódico
+  setInterval(() => {
+    window.buttonManager.cleanupOrphanedButtons();
+  }, 10000); // A cada 10 segundos
+
+  // ============================================
+  // API PÚBLICA PARA OUTROS SCRIPTS
+  // ============================================
+
+  /**
+   * Desabilitar botão manualmente
+   * Uso: window.disableButton(button);
+   */
+  window.disableButton = function (button) {
+    window.buttonManager.disableButton(button);
+  };
+
+  /**
+   * Habilitar botão manualmente
+   * Uso: window.enableButton(button);
+   */
+  window.enableButton = function (button, delay = 0) {
+    window.buttonManager.enableButton(button, delay);
+  };
+
+  /**
+   * Verificar se botão está bloqueado
+   * Uso: if (window.isButtonLocked(button)) { ... }
+   */
+  window.isButtonLocked = function (button) {
+    return window.buttonManager.isButtonLocked(button);
+  };
+
+  // ============================================
+  // Loader de imagens (código original mantido)
   // ============================================
   var images = document.images,
     totalImages = images.length,
@@ -18,11 +286,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function hideLoader() {
-    document.getElementById("loader").style.display = "none";
-    document.getElementById("page-content").style.display = "block";
+    const loader = document.getElementById("loader");
+    const content = document.getElementById("page-content");
+
+    if (loader) loader.style.display = "none";
+    if (content) content.style.display = "block";
   }
 
-  // Se não houver imagens, mostra conteúdo imediatamente
   if (totalImages === 0) {
     hideLoader();
   } else {
@@ -36,11 +306,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Timeout de segurança - 5 segundos
   setTimeout(hideLoader, 5000);
 
   // ============================================
-  // Controle de áudio de fundo
+  // Controle de áudio de fundo (código original mantido)
   // ============================================
   var audio = document.getElementById("background-audio");
   if (audio) {
@@ -59,37 +328,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     button.addEventListener("click", function () {
       if (audio.paused) {
-        audio
-          .play()
-          .catch((error) => console.log("Autoplay bloqueado:", error));
+        audio.play().catch((error) => console.log("Autoplay bloqueado:", error));
       } else {
         audio.pause();
       }
       updateButton();
     });
 
-    // Tentar reproduzir automaticamente
     audio.play().catch(() => {
       console.log("Autoplay bloqueado. Aguardando interação.");
     });
 
     updateButton();
 
-    // Reproduzir após primeira interação
-    document.addEventListener(
-      "click",
-      function () {
-        if (audio.paused) {
-          audio.play();
-          updateButton();
-        }
-      },
-      { once: true }
-    );
+    document.addEventListener("click", function () {
+      if (audio.paused) {
+        audio.play();
+        updateButton();
+      }
+    }, { once: true });
   }
 
   // ============================================
-  // Inicializar tooltips do Bootstrap
+  // Tooltips Bootstrap
   // ============================================
   var tooltipTriggerList = [].slice.call(
     document.querySelectorAll('[data-bs-toggle="tooltip"]')
@@ -130,7 +391,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ============================================
-// Função para copiar para clipboard
+// Função para copiar para clipboard (mantida)
 // ============================================
 function copyToClipboard(text) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -148,7 +409,6 @@ function copyToClipboard(text) {
   }
 }
 
-// Fallback para navegadores antigos
 function fallbackCopyToClipboard(text) {
   var textArea = document.createElement("textarea");
   textArea.value = text;
@@ -172,10 +432,9 @@ function fallbackCopyToClipboard(text) {
 }
 
 // ============================================
-// Sistema de notificações toast
+// Sistema de notificações toast (mantido)
 // ============================================
 function showToast(message, type = "info") {
-  // Remove toasts antigos
   var oldToasts = document.querySelectorAll(".custom-toast");
   oldToasts.forEach((toast) => toast.remove());
 
@@ -185,7 +444,6 @@ function showToast(message, type = "info") {
     '<i class="bi bi-' + getToastIcon(type) + '"></i> ' + message;
 
   document.body.appendChild(toast);
-
   setTimeout(() => toast.classList.add("show"), 10);
 
   setTimeout(() => {
@@ -204,7 +462,7 @@ function getToastIcon(type) {
   return icons[type] || "info-circle-fill";
 }
 
-// Estilos para toast
+// Estilos para toast (mantido)
 var toastStyles = document.createElement("style");
 toastStyles.textContent = `
     .custom-toast {
@@ -251,11 +509,17 @@ toastStyles.textContent = `
             left: 10px;
         }
     }
+    
+    /* Estilos para spinner de botão */
+    .btn-spinner {
+        display: inline-block;
+        vertical-align: middle;
+    }
 `;
 document.head.appendChild(toastStyles);
 
 // ============================================
-// Animações de scroll
+// Animações de scroll (mantido)
 // ============================================
 if ("IntersectionObserver" in window) {
   const observerOptions = {
@@ -276,11 +540,3 @@ if ("IntersectionObserver" in window) {
     observer.observe(el);
   });
 }
-
-// ============================================
-// Log inicial
-// ============================================
-console.log(
-  "%c🎉 Site carregado com sucesso!",
-  "color: #c59da8; font-size: 16px; font-weight: bold;"
-);

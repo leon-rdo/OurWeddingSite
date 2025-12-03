@@ -1,15 +1,15 @@
 /* ============================================
-   GIFT LIST PAYMENTS v2.0
-   Sistema de pagamentos para lista de presentes
+   GIFT LIST PAYMENTS v3.0
+   Sistema de pagamentos com anti-duplo clique
    ============================================ */
 
 (function () {
   "use strict";
 
-  // Configurações globais
   const CONFIG = window.GIFT_LIST_CONFIG || {};
   let mp = null;
   const paymentMethodData = {};
+  const processingPayments = new Set(); // Rastrear pagamentos em processo
 
   /**
    * Inicializa o Mercado Pago
@@ -31,40 +31,34 @@
    * Configura os listeners para seleção de método de pagamento
    */
   function setupPaymentMethodSelection() {
-    document
-      .querySelectorAll(".payment-options")
-      .forEach((optionsContainer) => {
-        const giftId = optionsContainer.dataset.giftId;
-        const options = optionsContainer.querySelectorAll(".payment-option");
+    document.querySelectorAll(".payment-options").forEach((optionsContainer) => {
+      const giftId = optionsContainer.dataset.giftId;
+      const options = optionsContainer.querySelectorAll(".payment-option");
 
-        options.forEach((option) => {
-          option.addEventListener("click", function () {
-            const method = this.dataset.paymentMethod;
+      options.forEach((option) => {
+        option.addEventListener("click", function () {
+          const method = this.dataset.paymentMethod;
 
-            // Remove active de todas as opções deste presente
-            options.forEach((opt) => opt.classList.remove("active"));
+          options.forEach((opt) => opt.classList.remove("active"));
+          this.classList.add("active");
 
-            // Adiciona active na opção clicada
-            this.classList.add("active");
+          const cardContainer = document.querySelector(
+            `.card-payment-container[data-gift-id="${giftId}"]`
+          );
+          const pixContainer = document.querySelector(
+            `.pix-payment-container[data-gift-id="${giftId}"]`
+          );
 
-            // Mostra/esconde containers de pagamento
-            const cardContainer = document.querySelector(
-              `.card-payment-container[data-gift-id="${giftId}"]`
-            );
-            const pixContainer = document.querySelector(
-              `.pix-payment-container[data-gift-id="${giftId}"]`
-            );
-
-            if (method === "card") {
-              if (cardContainer) cardContainer.style.display = "block";
-              if (pixContainer) pixContainer.style.display = "none";
-            } else if (method === "pix") {
-              if (cardContainer) cardContainer.style.display = "none";
-              if (pixContainer) pixContainer.style.display = "block";
-            }
-          });
+          if (method === "card") {
+            if (cardContainer) cardContainer.style.display = "block";
+            if (pixContainer) pixContainer.style.display = "none";
+          } else if (method === "pix") {
+            if (cardContainer) cardContainer.style.display = "none";
+            if (pixContainer) pixContainer.style.display = "block";
+          }
         });
       });
+    });
   }
 
   /**
@@ -76,11 +70,10 @@
         const pixCode = this.dataset.pixCode;
 
         if (!pixCode) {
-          alert("Código PIX não disponível");
+          showToast("Código PIX não disponível", "error");
           return;
         }
 
-        // Tentar usar a Clipboard API moderna
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard
             .writeText(pixCode)
@@ -113,7 +106,7 @@
   }
 
   /**
-   * Fallback para copiar código PIX em navegadores antigos
+   * Fallback para copiar código PIX
    */
   function fallbackCopyPixCode(button) {
     const input = button
@@ -122,15 +115,13 @@
 
     if (input) {
       input.select();
-      input.setSelectionRange(0, 99999); // Para mobile
+      input.setSelectionRange(0, 99999);
 
       try {
         document.execCommand("copy");
         showPixCopyFeedback(button);
       } catch (err) {
-        alert(
-          "Não foi possível copiar automaticamente. Por favor, copie manualmente o código."
-        );
+        showToast("Não foi possível copiar. Copie manualmente.", "warning");
       }
     }
   }
@@ -158,7 +149,6 @@
 
         this.value = newValue;
 
-        // Ajustar posição do cursor após formatação
         if (newValue.length > oldValue.length) {
           const newCursorPosition =
             cursorPosition + (newValue.length - oldValue.length);
@@ -169,7 +159,7 @@
   }
 
   /**
-   * Busca informações do cartão (bandeira, parcelas, etc)
+   * Busca informações do cartão
    */
   async function getCardInfo(form, giftId) {
     const cardNumberInput = form.querySelector(".card-number");
@@ -191,20 +181,17 @@
       const bin = cardNumber.substring(0, 6);
       const giftPrice = parseFloat(priceInput.value);
 
-      // Buscar método de pagamento
       const paymentMethods = await mp.getPaymentMethods({ bin });
 
       if (paymentMethods.results && paymentMethods.results.length > 0) {
         const method = paymentMethods.results[0];
 
-        // Armazenar dados do método de pagamento
         if (!paymentMethodData[giftId]) {
           paymentMethodData[giftId] = {};
         }
 
         paymentMethodData[giftId].payment_method_id = method.id;
 
-        // Buscar emissor se necessário
         if (
           method.additional_info_needed &&
           method.additional_info_needed.includes("issuer_id")
@@ -219,13 +206,11 @@
           }
         }
 
-        // Buscar opções de parcelamento
         const installments = await mp.getInstallments({
           amount: giftPrice.toString(),
           bin: bin,
         });
 
-        // Limpar e popular select de parcelas
         installmentsSelect.innerHTML = '<option value="">Selecione...</option>';
 
         if (installments && installments[0] && installments[0].payer_costs) {
@@ -233,8 +218,7 @@
             const optElement = document.createElement("option");
             optElement.value = option.installments;
 
-            let text = `${option.installments
-              }x de R$ ${option.installment_amount.toFixed(2)}`;
+            let text = `${option.installments}x de R$ ${option.installment_amount.toFixed(2)}`;
             if (option.installment_rate === 0) {
               text += " sem juros";
             }
@@ -251,8 +235,15 @@
 
   /**
    * Processa o pagamento com cartão
+   * ATUALIZADO: Com prevenção de duplo clique
    */
   async function processCardPayment(form, giftId) {
+    // NOVO: Verificar se já está processando este presente
+    if (processingPayments.has(giftId)) {
+      console.warn('⚠️ Pagamento já está sendo processado para este presente');
+      return;
+    }
+
     const errorDiv = form.querySelector(".error-message");
     const successDiv = form.querySelector(".success-message");
     const submitBtn = form.querySelector(".btn-submit");
@@ -269,13 +260,21 @@
       successDiv.textContent = "";
     }
 
-    // Mostrar loading
-    submitBtn.disabled = true;
-    if (spinner) spinner.style.display = "inline-block";
-    if (btnText) btnText.textContent = "Processando...";
+    // NOVO: Marcar como processando
+    processingPayments.add(giftId);
+
+    // NOVO: Usar sistema global de desabilitar botão
+    if (window.buttonManager) {
+      window.buttonManager.disableButton(submitBtn);
+    } else {
+      // Fallback se sistema global não estiver disponível
+      submitBtn.disabled = true;
+      if (spinner) spinner.style.display = "inline-block";
+      if (btnText) btnText.textContent = "Processando...";
+    }
 
     try {
-      // Verificar se temos os dados do método de pagamento
+      // Verificar dados do método de pagamento
       if (
         !paymentMethodData[giftId] ||
         !paymentMethodData[giftId].payment_method_id
@@ -328,10 +327,13 @@
       if (result.status === "success") {
         const statusDetail = result.status_detail;
 
+        if (successDiv) {
+          successDiv.style.display = "block";
+        }
+
         if (statusDetail === "approved" || statusDetail === "accredited") {
           if (successDiv) {
             successDiv.textContent = "✓ Pagamento aprovado! Redirecionando...";
-            successDiv.style.display = "block";
           }
 
           setTimeout(() => {
@@ -342,18 +344,18 @@
           statusDetail === "in_process"
         ) {
           if (successDiv) {
-            successDiv.textContent =
-              "⏳ Pagamento em análise... Redirecionando...";
-            successDiv.style.display = "block";
+            successDiv.textContent = "⏳ Pagamento em análise... Redirecionando...";
           }
 
           setTimeout(() => {
             window.location.href = `${CONFIG.paymentPendingUrl}?payment_id=${result.payment_id}`;
           }, 2000);
         } else {
+          // NOVO: Limpar processamento antes de redirecionar para erro
+          processingPayments.delete(giftId);
+
           setTimeout(() => {
-            window.location.href = `${CONFIG.paymentFailureUrl
-              }?status_detail=${encodeURIComponent(statusDetail)}`;
+            window.location.href = `${CONFIG.paymentFailureUrl}?status_detail=${encodeURIComponent(statusDetail)}`;
           }, 1000);
         }
       } else {
@@ -362,21 +364,35 @@
     } catch (error) {
       console.error("Erro no pagamento:", error);
 
+      // NOVO: Remover do set de processamento
+      processingPayments.delete(giftId);
+
       if (errorDiv) {
         errorDiv.textContent =
           error.message || "Erro ao processar pagamento. Tente novamente.";
         errorDiv.style.display = "block";
       }
 
-      // Restaurar botão
-      submitBtn.disabled = false;
-      if (spinner) spinner.style.display = "none";
-      if (btnText) btnText.textContent = "Finalizar Pagamento";
+      // NOVO: Re-habilitar botão usando sistema global
+      if (window.buttonManager) {
+        window.buttonManager.enableButton(submitBtn, 500);
+      } else {
+        // Fallback
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          if (spinner) spinner.style.display = "none";
+          if (btnText) btnText.textContent = "Finalizar Pagamento";
+        }, 500);
+      }
+
+      // Scroll para o erro
+      errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 
   /**
    * Configura os formulários de pagamento
+   * ATUALIZADO: Com prevenção de duplo submit
    */
   function setupPaymentForms() {
     document.querySelectorAll(".payment-form").forEach((form) => {
@@ -387,10 +403,13 @@
         return;
       }
 
+      // Marcar como AJAX para o sistema global
+      form.setAttribute('data-ajax', 'true');
+
       // Configurar formatação de inputs
       setupCardInputFormatting(form);
 
-      // Buscar informações do cartão ao sair do campo
+      // Buscar informações do cartão
       const cardNumberInput = form.querySelector(".card-number");
       if (cardNumberInput) {
         cardNumberInput.addEventListener("blur", function () {
@@ -398,262 +417,84 @@
         });
       }
 
-      // Processar submit do formulário
+      // ATUALIZADO: Submit com prevenção de duplo clique
       form.addEventListener("submit", async function (e) {
         e.preventDefault();
+        e.stopPropagation();
+
+        // Verificar se já está processando
+        if (processingPayments.has(giftId)) {
+          console.warn('⚠️ Aguarde o processamento do pagamento atual');
+          showToast('Aguarde o processamento do pagamento', 'warning');
+          return false;
+        }
+
+        // Validar formulário
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return false;
+        }
+
         await processCardPayment(form, giftId);
       });
     });
   }
 
   /**
+   * Limpa formulário após sucesso
+   */
+  function clearForm(form) {
+    if (!form) return;
+
+    // Resetar formulário
+    form.reset();
+
+    // Limpar mensagens
+    const errorDiv = form.querySelector(".error-message");
+    const successDiv = form.querySelector(".success-message");
+
+    if (errorDiv) errorDiv.style.display = "none";
+    if (successDiv) successDiv.style.display = "none";
+
+    // Resetar select de parcelas
+    const installmentsSelect = form.querySelector(".installments-select");
+    if (installmentsSelect) {
+      installmentsSelect.innerHTML = '<option value="">Selecione...</option>';
+    }
+
+    console.log('🧹 Formulário limpo');
+  }
+
+  /**
    * Inicialização principal
    */
   function init() {
-    console.log("🎁 Iniciando sistema de pagamentos...");
+    console.log("🎁 Iniciando sistema de pagamentos v3.0...");
 
-    // Inicializar Mercado Pago
     initMercadoPago();
-
-    // Configurar seleção de método de pagamento
     setupPaymentMethodSelection();
-
-    // Configurar botões de copiar PIX
     setupPixCopyButtons();
-
-    // Configurar formulários de pagamento
     setupPaymentForms();
+
+    // Limpar processamentos órfãos após timeout
+    setInterval(() => {
+      if (processingPayments.size > 0) {
+        console.warn(`⚠️ ${processingPayments.size} pagamento(s) em processo há muito tempo`);
+      }
+    }, 60000); // Check a cada 60 segundos
 
     console.log("✅ Sistema de pagamentos inicializado");
   }
 
-  // Inicializar quando o DOM estiver pronto
+  // Inicializar
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
-})();
 
-(function () {
-  "use strict";
-
-  function isSafari() {
-    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  }
-
-  function fixSafariModals() {
-    if (!isSafari()) {
-      return;
-    }
-
-    cleanOrphanBackdrops();
-
-    document.querySelectorAll('[data-bs-toggle="modal"]').forEach((trigger) => {
-      trigger.addEventListener("click", function (e) {
-        e.preventDefault();
-
-        const targetSelector = this.getAttribute("data-bs-target");
-        if (!targetSelector) return;
-
-        const targetModal = document.querySelector(targetSelector);
-        if (!targetModal) return;
-
-        cleanOrphanBackdrops();
-
-        setTimeout(() => {
-          fixModalZIndex(targetModal);
-        }, 100);
-      });
-    });
-
-    // Listener para quando modal é mostrado
-    document.querySelectorAll(".modal").forEach((modal) => {
-      modal.addEventListener("shown.bs.modal", function () {
-        fixModalZIndex(this);
-        ensureModalClickable(this);
-      });
-
-      modal.addEventListener("hidden.bs.modal", function () {
-        cleanOrphanBackdrops();
-        restoreBodyScroll();
-      });
-    });
-
-    // Fix ao carregar página se houver modal aberto
-    window.addEventListener("load", function () {
-      const openModal = document.querySelector(".modal.show");
-      if (openModal) {
-        fixModalZIndex(openModal);
-      }
-    });
-
-    console.log("✅ Fix Safari aplicado");
-  }
-
-  /**
-   * Remove backdrops órfãos
-   */
-  function cleanOrphanBackdrops() {
-    const openModals = document.querySelectorAll(".modal.show");
-    const backdrops = document.querySelectorAll(".modal-backdrop");
-
-    // Se não há modais abertos, remover todos os backdrops
-    if (openModals.length === 0) {
-      backdrops.forEach((backdrop) => {
-        backdrop.remove();
-      });
-      document.body.classList.remove("modal-open");
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-      console.log("🧹 Backdrops órfãos removidos");
-    }
-    // Se há mais backdrops que modais, remover excedentes
-    else if (backdrops.length > openModals.length) {
-      const excess = backdrops.length - openModals.length;
-      for (let i = 0; i < excess; i++) {
-        backdrops[i].remove();
-      }
-      console.log(`🧹 ${excess} backdrop(s) excedente(s) removido(s)`);
-    }
-  }
-
-  /**
-   * Garante z-index correto do modal
-   */
-  function fixModalZIndex(modal) {
-    if (!modal) return;
-
-    // Forçar z-index do modal
-    modal.style.zIndex = "1050";
-
-    const dialog = modal.querySelector(".modal-dialog");
-    if (dialog) {
-      dialog.style.zIndex = "1051";
-      dialog.style.position = "relative";
-    }
-
-    const content = modal.querySelector(".modal-content");
-    if (content) {
-      content.style.zIndex = "1";
-      content.style.position = "relative";
-    }
-
-    // Ajustar backdrop
-    const backdrops = document.querySelectorAll(".modal-backdrop");
-    backdrops.forEach((backdrop) => {
-      backdrop.style.zIndex = "1040";
-    });
-
-    console.log("🔧 Z-index do modal ajustado");
-  }
-
-  /**
-   * Garante que o modal seja clicável
-   */
-  function ensureModalClickable(modal) {
-    if (!modal) return;
-
-    modal.style.pointerEvents = "auto";
-
-    const dialog = modal.querySelector(".modal-dialog");
-    if (dialog) {
-      dialog.style.pointerEvents = "auto";
-    }
-
-    const content = modal.querySelector(".modal-content");
-    if (content) {
-      content.style.pointerEvents = "auto";
-    }
-
-    console.log("👆 Modal clicável garantido");
-  }
-
-  /**
-   * Restaura scroll do body
-   */
-  function restoreBodyScroll() {
-    const openModals = document.querySelectorAll(".modal.show");
-
-    if (openModals.length === 0) {
-      document.body.style.position = "";
-      document.body.style.width = "";
-      document.body.style.height = "";
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-      document.body.classList.remove("modal-open");
-      console.log("📜 Scroll do body restaurado");
-    }
-  }
-
-  /**
-   * Force close de todos os modais (emergency)
-   */
-  window.forceCloseAllModals = function () {
-    console.log("🚨 Forçando fechamento de todos os modais");
-
-    // Fechar todos os modais
-    document.querySelectorAll(".modal.show").forEach((modal) => {
-      const bsModal = bootstrap.Modal.getInstance(modal);
-      if (bsModal) {
-        bsModal.hide();
-      }
-      modal.classList.remove("show");
-      modal.style.display = "none";
-    });
-
-    // Remover todos os backdrops
-    document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
-      backdrop.remove();
-    });
-
-    // Limpar body
-    document.body.classList.remove("modal-open");
-    document.body.style.overflow = "";
-    document.body.style.paddingRight = "";
-
-    console.log("✅ Todos os modais fechados");
-  };
-
-  /**
-   * Adicionar botão de debug (apenas em desenvolvimento)
-   */
-  function addDebugButton() {
-    if (!window.location.hostname.includes("localhost")) return;
-
-    const btn = document.createElement("button");
-    btn.textContent = "🐛 Force Close Modals";
-    btn.style.cssText = `
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      z-index: 9999;
-      padding: 10px;
-      background: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 12px;
-    `;
-    btn.onclick = window.forceCloseAllModals;
-    document.body.appendChild(btn);
-  }
-
-  /**
-   * Inicialização
-   */
-  function init() {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () => {
-        fixSafariModals();
-        // addDebugButton(); // Descomentar para debug
-      });
-    } else {
-      fixSafariModals();
-      // addDebugButton(); // Descomentar para debug
-    }
-  }
-
-  init();
+  // NOVO: Limpar ao sair da página
+  window.addEventListener('beforeunload', function () {
+    processingPayments.clear();
+  });
 })();
