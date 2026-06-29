@@ -285,7 +285,7 @@
   <div class="container">
     {% if about_us_text_1 %}
     <h1>{{ about_us_text_1.title }}</h1>
-    <p>{{ about_us_text_1.content }}</p>
+    <p>{{ about_us_text_1.content|default_if_none:'' }}</p>
     {% else %}
     <h1>Nossa História</h1>
     <p>Juntos escrevemos uma história de amor, companheirismo e cumplicidade</p>
@@ -300,12 +300,12 @@
     <div class="story-card">
       <div class="row g-0 align-items-center">
         <div class="col-md-6">
-          <img src="{{ about_us_text_2.images.first.image.url }}" alt="{{ about_us_text_2.title }}" class="story-image">
+          <img src="{{ about_us_text_2.images.first.image.url|default:'https://picsum.photos/700' }}" alt="{{ about_us_text_2.title }}" class="story-image">
         </div>
         <div class="col-md-6">
           <div class="story-content">
             <h2>{{ about_us_text_2.title }}</h2>
-            <p>{{ about_us_text_2.content }}</p>
+            <p>{{ about_us_text_2.content|default_if_none:'' }}</p>
           </div>
         </div>
       </div>
@@ -319,7 +319,7 @@
 <section class="timeline-section">
   <div class="container">
     <h2 class="timeline-title">{{ about_us_text_3.title }}</h2>
-    <p class="text-center text-muted mb-5">{{ about_us_text_3.content }}</p>
+    <p class="text-center text-muted mb-5">{{ about_us_text_3.content|default_if_none:'' }}</p>
     
     <div class="timeline">
       {% with about_us_text_3.images.all as images %}
@@ -371,7 +371,7 @@
         {{ about_us_text_4.title }}
       </h2>
       <p style="font-size: 1.2rem; line-height: 1.8; color: var(--text-light);">
-        {{ about_us_text_4.content }}
+        {{ about_us_text_4.content|default_if_none:'' }}
       </p>
     </div>
   </div>

@@ -13,7 +13,7 @@
   <div class="container">
     {% if gallery_text_1 %}
     <h1>{{ gallery_text_1.title }}</h1>
-    <p>{{ gallery_text_1.content }}</p>
+    <p>{{ gallery_text_1.content|default_if_none:'' }}</p>
     {% else %}
     <h1>Nossa Galeria</h1>
     <p>Momentos especiais capturados para eternizar nossa história de amor</p>
@@ -29,7 +29,7 @@
       <h2 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--primary-color); margin-bottom: 1rem;">
         {{ gallery_text_2.title }}
       </h2>
-      <p style="color: var(--text-light);">{{ gallery_text_2.content }}</p>
+      <p style="color: var(--text-light);">{{ gallery_text_2.content|default_if_none:'' }}</p>
     </div>
     {% endif %}
 

@@ -107,11 +107,11 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-4 mb-lg-0">
-                <img src="{{ gift_list_text.images.first.image.url }}" alt="{{ gift_list_text.title }}" class="img-fluid rounded shadow">
+                <img src="{{ gift_list_text.images.first.image.url|default:'https://picsum.photos/700' }}" alt="{{ gift_list_text.title }}" class="img-fluid rounded shadow">
             </div>
             <div class="col-lg-6">
                 <h1 class="gift-header-title">{{ gift_list_text.title }}</h1>
-                <p class="gift-header-text">{{ gift_list_text.content }}</p>
+                <p class="gift-header-text">{{ gift_list_text.content|default_if_none:'' }}</p>
             </div>
         </div>
     </div>
