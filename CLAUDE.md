@@ -12,7 +12,7 @@ This is a Django-based wedding website called "OurWeddingSite" featuring:
 - Message board for guests to leave messages
 - Mercado Pago payment integration for gift contributions
 - Email notifications for payment confirmations
-- Admin interface customized with Jazzmin
+- Admin interface customized with Unfold
 
 The site is fully configurable through a singleton Settings model, allowing the couple to customize colors, hide/show sections, and manage all wedding details without code changes.
 
@@ -129,7 +129,7 @@ SQLite by default ([OurWeddingSite/settings.py:192-197](OurWeddingSite/settings.
 
 ### Admin Interface
 
-Customized with django-jazzmin. Configuration at [OurWeddingSite/jazzmin.py](OurWeddingSite/jazzmin.py). All models are registered with custom admin classes in [home/admin.py](home/admin.py).
+Customized with [django-unfold](https://unfoldadmin.com). The `UNFOLD` settings dict (site branding, taupe color palette, grouped sidebar navigation) lives in [OurWeddingSite/settings.py](OurWeddingSite/settings.py). Admin classes in [home/admin.py](home/admin.py) inherit from `unfold.admin.ModelAdmin` and use Unfold's `TabularInline`/`GenericTabularInline` (all imported from `unfold.admin`). `unfold` and its `unfold.contrib.*` apps must precede `django.contrib.admin` in `INSTALLED_APPS`.
 
 ### CI/CD
 

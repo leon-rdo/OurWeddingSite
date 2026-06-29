@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.contrib.contenttypes.admin import GenericTabularInline
 from django.forms import TextInput
 from django.urls import reverse_lazy
+from unfold.admin import ModelAdmin, TabularInline, GenericTabularInline
 from .models import *
 from django.utils.html import format_html
 from .models import Guest
@@ -9,19 +9,19 @@ import urllib.parse
 
 
 @admin.register(Settings)
-class SettingsAdmin(admin.ModelAdmin):
+class SettingsAdmin(ModelAdmin):
     list_display = ('couple_names', 'wedding_datetime', 'ceremony_address', 'reception_address')
     search_fields = ('couple_names',)
 
 
-class GalleryInline(admin.TabularInline):
+class GalleryInline(TabularInline):
     model = Gallery
     extra = 1
     fields = ('title', 'description', 'image')
 
 
 @admin.register(TextContent)
-class TextContentAdmin(admin.ModelAdmin):
+class TextContentAdmin(ModelAdmin):
     list_display = ('position', 'title')
     search_fields = ('title', 'content')
     list_filter = ('position',)
@@ -29,7 +29,7 @@ class TextContentAdmin(admin.ModelAdmin):
 
 
 @admin.register(Gallery)
-class GalleryAdmin(admin.ModelAdmin):
+class GalleryAdmin(ModelAdmin):
     list_display = ('title', 'featured', 'position', 'hide', 'hide_title')
     search_fields = ('title', 'description')
     list_filter = ('featured', 'position', 'hide', 'hide_title')
@@ -52,7 +52,7 @@ class PaymentInline(GenericTabularInline):
 
 
 @admin.register(Gift)
-class GiftAdmin(admin.ModelAdmin):
+class GiftAdmin(ModelAdmin):
     list_display = ('name', 'description', 'price', 'total_paid_display', 'remaining_display', 'payment_status_display')
     search_fields = ('name', 'description')
     inlines = [PaymentInline]
@@ -85,7 +85,7 @@ class GiftAdmin(admin.ModelAdmin):
 
 
 @admin.register(Message)
-class MessageAdmin(admin.ModelAdmin):
+class MessageAdmin(ModelAdmin):
     list_display = ('name', 'created_at')
     search_fields = ('name', 'message')
     list_filter = ('created_at',)
@@ -93,7 +93,7 @@ class MessageAdmin(admin.ModelAdmin):
 
 
 @admin.register(Guest)
-class GuestAdmin(admin.ModelAdmin):
+class GuestAdmin(ModelAdmin):
     list_display = ('name', 'phone', 'will_go', 'self_created')
     search_fields = ('name', 'phone')
     list_filter = ('will_go', 'self_created')
@@ -115,7 +115,7 @@ class GuestAdmin(admin.ModelAdmin):
     send_thank_you_message.short_description = "Enviar mensagem de agradecimento via WhatsApp"
 
 
-class BridalShowerGiftSuggestionInline(admin.TabularInline):
+class BridalShowerGiftSuggestionInline(TabularInline):
     model = BridalShowerGiftSuggestion
     extra = 1
     fields = ('name', 'link')
@@ -139,7 +139,7 @@ class GuestNameFilter(admin.SimpleListFilter):
 
 
 @admin.register(BridalShowerGift)
-class BridalShowerGiftAdmin(admin.ModelAdmin):
+class BridalShowerGiftAdmin(ModelAdmin):
     list_display = ('name', 'category', 'guest_name', 'total_paid_display', 'remaining_display', 'payment_status_display')
     search_fields = ('name', 'description', 'price', 'guest_name', 'guest_phone', 'guest_email')
     inlines = [BridalShowerGiftSuggestionInline, PaymentInline]
@@ -198,7 +198,7 @@ class BridalShowerGiftAdmin(admin.ModelAdmin):
 
 
 @admin.register(BridalShowerGiftColor)
-class BridalShowerGiftColorAdmin(admin.ModelAdmin):
+class BridalShowerGiftColorAdmin(ModelAdmin):
     
     from django.forms import ModelForm
 
@@ -216,7 +216,7 @@ class BridalShowerGiftColorAdmin(admin.ModelAdmin):
 
 
 @admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
+class PaymentAdmin(ModelAdmin):
     list_display = ('payment_id', 'get_gift_name', 'payer_name', 'amount', 'payment_status', 'payment_date')
     search_fields = ('payment_id', 'payer_name', 'payer_email')
     list_filter = ('payment_status', 'payment_method', 'created_at')

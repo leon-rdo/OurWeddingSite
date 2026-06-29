@@ -13,7 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from .jazzmin import JAZZMIN_SETTINGS, JAZZMIN_UI_TWEAKS
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
 load_dotenv()
 
@@ -40,7 +41,9 @@ if not DEBUG:
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -257,11 +260,80 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Jazzmin settings
-
-JAZZMIN_SETTINGS = JAZZMIN_SETTINGS
-
-JAZZMIN_UI_TWEAKS = JAZZMIN_UI_TWEAKS
+# Unfold admin settings
+UNFOLD = {
+    "SITE_TITLE": "Casamento",
+    "SITE_HEADER": "Painel do Casamento",
+    "SITE_SUBHEADER": "Andrea & Bryan",
+    "SITE_SYMBOL": "favorite",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "COLORS": {
+        # paleta taupe/marrom alinhada à cor primária do site (#8B6F47)
+        "primary": {
+            "50": "250 246 240",
+            "100": "242 233 219",
+            "200": "228 211 184",
+            "300": "212 185 142",
+            "400": "193 158 105",
+            "500": "139 111 71",
+            "600": "122 97 64",
+            "700": "95 75 50",
+            "800": "77 61 42",
+            "900": "64 51 36",
+            "950": "36 28 19",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": _("Site"),
+                "separator": True,
+                "items": [
+                    {"title": _("Painel"), "icon": "dashboard", "link": reverse_lazy("admin:index")},
+                    {"title": _("Ver Site"), "icon": "public", "link": reverse_lazy("home:index")},
+                    {"title": _("Configurações"), "icon": "settings", "link": reverse_lazy("admin:home_settings_changelist")},
+                ],
+            },
+            {
+                "title": _("Conteúdo"),
+                "separator": True,
+                "items": [
+                    {"title": _("Textos"), "icon": "article", "link": reverse_lazy("admin:home_textcontent_changelist")},
+                    {"title": _("Galeria"), "icon": "image", "link": reverse_lazy("admin:home_gallery_changelist")},
+                ],
+            },
+            {
+                "title": _("Presentes"),
+                "separator": True,
+                "items": [
+                    {"title": _("Presentes de Casamento"), "icon": "redeem", "link": reverse_lazy("admin:home_gift_changelist")},
+                    {"title": _("Chá de Panela"), "icon": "card_giftcard", "link": reverse_lazy("admin:home_bridalshowergift_changelist")},
+                    {"title": _("Cores do Chá"), "icon": "palette", "link": reverse_lazy("admin:home_bridalshowergiftcolor_changelist")},
+                    {"title": _("Pagamentos"), "icon": "credit_card", "link": reverse_lazy("admin:home_payment_changelist")},
+                ],
+            },
+            {
+                "title": _("Convidados"),
+                "separator": True,
+                "items": [
+                    {"title": _("Convidados"), "icon": "group", "link": reverse_lazy("admin:home_guest_changelist")},
+                    {"title": _("Mensagens"), "icon": "mail", "link": reverse_lazy("admin:home_message_changelist")},
+                ],
+            },
+            {
+                "title": _("Administração"),
+                "separator": True,
+                "items": [
+                    {"title": _("Usuários"), "icon": "person", "link": reverse_lazy("admin:auth_user_changelist")},
+                    {"title": _("Grupos"), "icon": "groups", "link": reverse_lazy("admin:auth_group_changelist")},
+                ],
+            },
+        ],
+    },
+}
 
 # Mercado Pago
 MERCADO_PAGO_PUBLIC_KEY = os.environ.get('MERCADO_PAGO_PUBLIC_KEY', '')
