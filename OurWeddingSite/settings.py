@@ -264,7 +264,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 UNFOLD = {
     "SITE_TITLE": "Casamento",
     "SITE_HEADER": "Painel do Casamento",
-    "SITE_SUBHEADER": "Andrea & Bryan",
+    "SITE_SUBHEADER": "OurWedding",
     "SITE_SYMBOL": "favorite",
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,
